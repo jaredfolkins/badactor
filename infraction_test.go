@@ -1,13 +1,14 @@
 package badactor
 
 import (
+	"strconv"
 	"testing"
 	"time"
 )
 
 func TestNewInfraction(t *testing.T) {
-	rn := time.Now().Format(LAYOUT)
-	rm := time.Now().Format(LAYOUT)
+	rn := "rn_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	rm := "rm_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	sl := 3
 	eb := time.Second * 60
 	s := time.Second * 60
@@ -28,8 +29,8 @@ func TestNewInfraction(t *testing.T) {
 }
 
 func TestInfractionRebase(t *testing.T) {
-	rn := time.Now().Format(LAYOUT)
-	rm := time.Now().Format(LAYOUT)
+	rn := "rn_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	rm := "rm_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	sl := 3
 	eb := time.Second * 60
 	s := time.Second * 60

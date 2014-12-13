@@ -7,8 +7,6 @@ import (
 	"time"
 )
 
-const LAYOUT = "1136239445"
-
 func TestNewDirector(t *testing.T) {
 	d := NewDirector()
 	d.Run()
@@ -37,9 +35,9 @@ func TestActorExists(t *testing.T) {
 	var err error
 	d := NewDirector()
 	d.Run()
-	an := time.Now().Format(LAYOUT)
-	rn := time.Now().Format(LAYOUT)
-	rm := time.Now().Format(LAYOUT)
+	an := "an_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	rn := "rn_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	rm := "rm_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	r := &Rule{
 		Name:        rn,
 		Message:     rm,
@@ -71,9 +69,9 @@ func TestKeepAlive(t *testing.T) {
 	var err error
 	d := NewDirector()
 	d.Run()
-	an := time.Now().Format(LAYOUT)
-	rn := time.Now().Format(LAYOUT)
-	rm := time.Now().Format(LAYOUT)
+	an := "an_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	rn := "rn_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	rm := "rm_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	r := &Rule{
 		Name:        rn,
 		Message:     rm,
@@ -107,9 +105,9 @@ func TestInfraction(t *testing.T) {
 	var err error
 	d := NewDirector()
 	d.Run()
-	an := time.Now().Format(LAYOUT)
-	rn := time.Now().Format(LAYOUT)
-	rm := time.Now().Format(LAYOUT)
+	an := "an_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	rn := "rn_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	rm := "rm_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	r := &Rule{
 		Name:        rn,
 		Message:     rm,
@@ -182,9 +180,9 @@ func TestInfractionExists(t *testing.T) {
 	expect_true := true
 	d := NewDirector()
 	d.Run()
-	an := "192.168.1.1"
-	rn := "asset"
-	rm := "You have requested the following asset too many times"
+	an := "an_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	rn := "rn_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	rm := "rm_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	r := &Rule{
 		Name:        rn,
 		Message:     rm,
@@ -214,9 +212,9 @@ func TestCreateInfraction(t *testing.T) {
 	var err error
 	d := NewDirector()
 	d.Run()
-	an := time.Now().Format(LAYOUT)
-	rn := time.Now().Format(LAYOUT)
-	rm := time.Now().Format(LAYOUT)
+	an := "an_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	rn := "rn_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	rm := "rm_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	r := &Rule{
 		Name:        rn,
 		Message:     rm,
@@ -278,9 +276,9 @@ func TestDirectorIsJailedFor(t *testing.T) {
 	var err error
 	d := NewClassicDirector()
 	d.Run()
-	an := time.Now().Format(LAYOUT)
-	rn := time.Now().Format(LAYOUT)
-	rm := time.Now().Format(LAYOUT)
+	an := "an_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	rn := "rn_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	rm := "rm_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	r := &Rule{
 		Name:        rn,
 		Message:     rm,

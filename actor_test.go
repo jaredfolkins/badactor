@@ -49,9 +49,9 @@ func TestActorIsJailedFor(t *testing.T) {
 func TestActorLockup(t *testing.T) {
 	// setup
 	var b bool
-	an := time.Now().Format(LAYOUT)
-	rn := time.Now().Format(LAYOUT)
-	rm := time.Now().Format(LAYOUT)
+	an := "an_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	rn := "rn_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	rm := "rm_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	d := NewDirector()
 	d.Run()
 	sl := 3
@@ -81,9 +81,9 @@ func TestActorTimeServed(t *testing.T) {
 	// setup
 	var err error
 	var b bool
-	an := time.Now().Format(LAYOUT)
-	rn := time.Now().Format(LAYOUT)
-	rm := time.Now().Format(LAYOUT)
+	an := "an_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	rn := "rn_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	rm := "rm_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	dur := time.Millisecond * 10
 	d := NewDirector()
 	d.Run()
@@ -131,9 +131,9 @@ func TestActorExpire(t *testing.T) {
 
 	var err error
 	br := "badrule"
-	an := time.Now().Format(LAYOUT)
-	rn := time.Now().Format(LAYOUT)
-	rm := time.Now().Format(LAYOUT)
+	an := "an_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	rn := "rn_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	rm := "rm_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	dur := time.Millisecond * 40
 	d := NewDirector()
 	d.Run()
@@ -188,9 +188,9 @@ func TestActorInfraction(t *testing.T) {
 	d := NewDirector()
 	d.Run()
 	var err error
-	an := time.Now().Format(LAYOUT)
-	rn := time.Now().Format(LAYOUT)
-	rm := time.Now().Format(LAYOUT)
+	an := "an_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	rn := "rn_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	rm := "rm_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	sl := 3
 	r := &Rule{
 		Name:        rn,
@@ -233,9 +233,9 @@ func TestActorCreateInfraction(t *testing.T) {
 	d := NewDirector()
 	d.Run()
 	var err error
-	an := time.Now().Format(LAYOUT)
-	rn := time.Now().Format(LAYOUT)
-	rm := time.Now().Format(LAYOUT)
+	an := "an_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	rn := "rn_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	rm := "rm_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	r := &Rule{
 		Name:        rn,
 		Message:     rm,
@@ -266,9 +266,9 @@ func TestActorRebaseAll(t *testing.T) {
 	d := NewDirector()
 	d.Run()
 	var err error
-	an := time.Now().Format(LAYOUT)
-	rn := time.Now().Format(LAYOUT)
-	rm := time.Now().Format(LAYOUT)
+	an := "an_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	rn := "rn_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	rm := "rm_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	r := &Rule{
 		Name:        rn,
 		Message:     rm,
@@ -302,9 +302,9 @@ func TestActorStrikes(t *testing.T) {
 	bn := "badname"
 	d := NewDirector()
 	d.Run()
-	an := time.Now().Format(LAYOUT)
-	rn := time.Now().Format(LAYOUT)
-	rm := time.Now().Format(LAYOUT)
+	an := "an_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	rn := "rn_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	rm := "rm_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	r := &Rule{
 		Name:        rn,
 		Message:     rm,
