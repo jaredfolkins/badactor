@@ -44,7 +44,7 @@ func NewClassicDirector() *Director {
 
 	// assign default rule
 	d.Rules[r.Name] = r
-	//d.Run()
+	d.Run()
 	return d
 }
 
@@ -94,7 +94,7 @@ func (d *Director) Infraction(an string, rn string) error {
 
 	// create actor if needed
 	if !d.ActorExists(an) {
-		err := d.CreateActor(an, rn)
+		err := d.createActor(an, rn)
 		if err != nil {
 			return err
 		}
@@ -102,14 +102,14 @@ func (d *Director) Infraction(an string, rn string) error {
 
 	// create infraction if needed
 	if !d.InfractionExists(an, rn) {
-		err := d.CreateInfraction(an, rn)
+		err := d.createInfraction(an, rn)
 		if err != nil {
 			return err
 		}
 	}
 
 	// increment the infraction and return
-	return d.IncrementInfraction(an, rn)
+	return d.incrementInfraction(an, rn)
 }
 
 func (d *Director) AddRule(r *Rule) error {
@@ -123,10 +123,10 @@ func (d *Director) AddRule(r *Rule) error {
 	return nil
 }
 
-func (d *Director) CreateActor(an string, rn string) error {
+func (d *Director) createActor(an string, rn string) error {
 
 	if _, ok := d.Rules[rn]; !ok {
-		return fmt.Errorf("CreateActor failed for Actor [%s], Rule [%s] does not exist", an, rn)
+		return fmt.Errorf("createActor failed for Actor [%s], Rule [%s] does not exist", an, rn)
 	}
 
 	a := NewActor(an, d)
@@ -134,22 +134,22 @@ func (d *Director) CreateActor(an string, rn string) error {
 	d.Actors[an] = a
 
 	if _, ok := d.Actors[an]; !ok {
-		return fmt.Errorf("CreateActor failed for Actor [%s] and Rule [%s]", an, rn)
+		return fmt.Errorf("createActor failed for Actor [%s] and Rule [%s]", an, rn)
 	}
 
 	return nil
 }
 
-func (d *Director) CreateClassicActor(an string, rn string) error {
+func (d *Director) createClassicActor(an string, rn string) error {
 
 	if d.Rules[rn] == nil {
-		return fmt.Errorf("CreateActor failed for Actor [%s], Rule [%s] does not exist", an, rn)
+		return fmt.Errorf("createActor failed for Actor [%s], Rule [%s] does not exist", an, rn)
 	}
 
 	a := NewActor(an, d)
 	d.Actors[an] = a
 	if d.Actors[an] == nil {
-		return fmt.Errorf("CreateActor failed for Actor [%s] and Rule [%s]", an, rn)
+		return fmt.Errorf("createActor failed for Actor [%s] and Rule [%s]", an, rn)
 	}
 
 	return nil
@@ -172,11 +172,6 @@ func (d *Director) Strikes(an string, rn string) (int, error) {
 	close(in.Outgoing)
 	i, _ := strconv.Atoi(out.Message)
 	return i, nil
-}
-
-func (d *Director) createActor(an string, rn string) {
-	a := NewActor(an, d)
-	d.Actors[an] = a
 }
 
 func (d *Director) IsJailed(an string) bool {
@@ -210,7 +205,7 @@ func (d *Director) IsJailedFor(an string, rn string) bool {
 	return res
 }
 
-func (d *Director) IncrementInfraction(an string, rn string) error {
+func (d *Director) incrementInfraction(an string, rn string) error {
 	if !d.ActorExists(an) {
 		return fmt.Errorf("Actor [%v] does not exist", an)
 	}
@@ -231,14 +226,14 @@ func (d *Director) IncrementInfraction(an string, rn string) error {
 }
 
 // takes an ActorName and RuleName and creates an Infraction
-func (d *Director) CreateInfraction(an string, rn string) error {
+func (d *Director) createInfraction(an string, rn string) error {
 
 	if !d.ActorExists(an) {
-		return fmt.Errorf("CreateInfraction failed: Actor does not exist")
+		return fmt.Errorf("createInfraction failed: Actor does not exist")
 	}
 
 	if d.InfractionExists(an, rn) {
-		return fmt.Errorf("CreateInfraction failed: Infraction already exists")
+		return fmt.Errorf("createInfraction failed: Infraction already exists")
 	}
 
 	in := NewIncoming(an, rn, CREATE_INFRACTION)

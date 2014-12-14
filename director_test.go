@@ -55,7 +55,7 @@ func TestActorExists(t *testing.T) {
 		t.Errorf("Actor [%s] should not be found", an)
 	}
 
-	err = d.CreateActor(an, rn)
+	err = d.createActor(an, rn)
 	if err != nil {
 		t.Errorf("Actor [%s] should be created %v", an, err)
 	}
@@ -90,7 +90,7 @@ func TestKeepAlive(t *testing.T) {
 		t.Errorf("Keep Alive for Actor [%s] should fail", an)
 	}
 
-	err = d.CreateActor(an, rn)
+	err = d.createActor(an, rn)
 	if err != nil {
 		t.Errorf("CreateActor for Actor [%s] should not fail", an)
 	}
@@ -208,7 +208,7 @@ func TestInfractionExists(t *testing.T) {
 
 }
 
-func TestCreateInfraction(t *testing.T) {
+func TestcreateInfraction(t *testing.T) {
 	var err error
 	d := NewDirector()
 	d.Run()
@@ -230,22 +230,22 @@ func TestCreateInfraction(t *testing.T) {
 	br := "badrule"
 	ba := "badactor"
 
-	err = d.CreateInfraction(an, br)
+	err = d.createInfraction(an, br)
 	if err == nil {
 		t.Errorf("Should error, Rule does not exist: %v", err)
 	}
 
-	err = d.CreateInfraction(ba, rn)
+	err = d.createInfraction(ba, rn)
 	if err == nil {
 		t.Errorf("Should error, Actor does not exist: %v", err)
 	}
 
-	err = d.CreateActor(an, rn)
+	err = d.createActor(an, rn)
 	if err != nil {
 		t.Errorf("Should not error, Actor and Rule exist: %v", err)
 	}
 
-	err = d.CreateInfraction(an, rn)
+	err = d.createInfraction(an, rn)
 	if err != nil {
 		t.Errorf("Should not error, Actor and Rule exist: %v", err)
 	}
