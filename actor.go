@@ -98,7 +98,7 @@ func (a *Actor) infraction(rn string) error {
 		return a.lockup(rn)
 	}
 
-	return fmt.Errorf("Infraction against Actor [%v]", a.Name, rn)
+	return fmt.Errorf("Infraction against Actor [%v]", a.Name)
 }
 
 func (a *Actor) strikes(rn string) int {

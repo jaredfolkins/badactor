@@ -159,7 +159,7 @@ func TestInfractionIncrement(t *testing.T) {
 
 	err = d.Infraction(an, rn)
 	if err != nil {
-		t.Errorf("Infraction should not be err", err)
+		t.Errorf("Infraction should not be err : %v", err)
 	}
 
 	i, err := d.Strikes(an, rn)
@@ -197,13 +197,13 @@ func TestInfractionExists(t *testing.T) {
 
 	b = d.InfractionExists(an, rn)
 	if b != expect_false {
-		t.Errorf("Infraction should not exist: expected %v instead %v : %v", expect_false, b)
+		t.Errorf("Infraction should not exist: expected %v instead %v", expect_false, b)
 	}
 
 	d.Infraction(an, rn)
 	b = d.InfractionExists(an, rn)
 	if b != expect_true {
-		t.Errorf("Infraction should exist: expected %v instead %v : %v", expect_true, b)
+		t.Errorf("Infraction should exist: expected %v instead %v", expect_true, b)
 	}
 
 }
