@@ -1,4 +1,4 @@
-![badactor logo](https://raw.githubusercontent.com/jaredfolkins/badactor_logo/master/badactor_logo_300x300.png) ![travis_ci](https://travis-ci.org/jaredfolkins/badactor.svg) [![Coverage Status](https://coveralls.io/repos/jaredfolkins/badactor/badge.png?branch=master)](https://coveralls.io/r/jaredfolkins/badactor?branch=master)
+![badactor logo](https://raw.githubusercontent.com/jaredfolkins/badactor_logo/master/badactor_logo_300x300.png) [![Build Status](https://travis-ci.org/jaredfolkins/badactor.svg?branch=master)](https://travis-ci.org/jaredfolkins/badactor) [![Coverage Status](https://coveralls.io/repos/jaredfolkins/badactor/badge.png?branch=master)](https://coveralls.io/r/jaredfolkins/badactor?branch=master)
 
 # BadActor 
 
