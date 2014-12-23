@@ -82,6 +82,9 @@ func (a *Actor) switchBoard(in *Incoming) {
 	case IS_JAILED_FOR:
 		res := a.isJailedFor(in.RuleName)
 		in.Outgoing <- &Outgoing{Message: strconv.FormatBool(res), Error: nil}
+	case INFRACTION_EXISTS:
+		res := a.infractionExists(in.RuleName)
+		in.Outgoing <- &Outgoing{Message: strconv.FormatBool(res), Error: nil}
 	}
 }
 

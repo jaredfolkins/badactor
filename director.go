@@ -3,6 +3,7 @@ package badactor
 import (
 	"fmt"
 	"strconv"
+	"sync"
 )
 
 const (
@@ -15,12 +16,14 @@ const (
 	REMOVE_ACTOR      = "remove_actor"
 	KEEP_ALIVE        = "keep_alive"
 	CREATE_INFRACTION = "create_infraction"
+	INFRACTION_EXISTS = "infraction_exists"
 )
 
 type Director struct {
 	Actors    map[string]*Actor
 	Rules     map[string]*Rule
 	delete_me chan *Incoming
+	rwmu      sync.RWMutex
 }
 
 func NewDirector() *Director {
@@ -257,8 +260,9 @@ func (d *Director) InfractionExists(an string, rn string) bool {
 		return false
 	}
 
-	if _, ok := d.Actors[an].Infractions[rn]; ok {
-		return true
-	}
-	return false
+	in := NewIncoming(an, rn, INFRACTION_EXISTS)
+	d.Actors[an].Incoming <- in
+	out := <-in.Outgoing
+	res, _ := strconv.ParseBool(out.Message)
+	return res
 }
