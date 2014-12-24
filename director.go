@@ -2,6 +2,7 @@ package badactor
 
 import (
 	"fmt"
+	"log"
 	"strconv"
 	"sync"
 )
@@ -32,22 +33,6 @@ func NewDirector() *Director {
 		Rules:     make(map[string]*Rule),
 		delete_me: make(chan *Incoming),
 	}
-	//d.Run()
-	return d
-}
-
-// the classic Director has a predefined rule
-// for easier comprehension and initial setup
-func NewClassicDirector() *Director {
-	// create director
-	d := NewDirector()
-
-	// create default login rule
-	r := NewClassicRule("Login", "You exceeded the allowed login attempts")
-
-	// assign default rule
-	d.Rules[r.Name] = r
-	d.Run()
 	return d
 }
 
@@ -57,77 +42,80 @@ func (d *Director) Run() {
 		for {
 			select {
 			case in := <-d.delete_me:
-				if _, ok := d.Actors[in.ActorName]; ok {
-					delete(d.Actors, in.ActorName)
-					in.Outgoing <- &Outgoing{"success", nil}
-				} else {
-					err := fmt.Errorf("[%v] already deleted", in.ActorName)
-					in.Outgoing <- &Outgoing{"fail", err}
-				}
+				d.rwmu.Lock()
+				log.Printf("director.Actors[%v] is deleted\n", in.ActorName)
+				delete(d.Actors, in.ActorName)
+				d.rwmu.Unlock()
 			}
 		}
 	}()
 }
 
-func (d *Director) switchBoard(in *Incoming) {
-	switch in.Type {
-	case REMOVE_ACTOR:
-		if !d.ActorExists(in.ActorName) {
-			delete(d.Actors, in.ActorName)
-			out := &Outgoing{"Success", nil}
-			in.Outgoing <- out
-		}
-	}
-}
+/*
+func (d *Director) Strikes(an string, rn string) (int, error) {
+	d.rwmu.RLock()
+	defer d.rwmu.RUnlock()
 
-func (d *Director) KeepAlive(an string) error {
-	// bail if no actor
-	if !d.ActorExists(an) {
-		return fmt.Errorf("KeepAlive failed, Actor does not exists")
+	if !d.actorExists(an) {
+		return 0, fmt.Errorf("director.Strikes() failed, Actor does not exists")
 	}
 
-	in := NewIncoming(an, "", KEEP_ALIVE)
-	d.Actors[an].Incoming <- in
-	out := <-in.Outgoing
-	close(in.Outgoing)
-	return out.Error
-}
+	if !d.infractionExists(an, rn) {
+		return 0, fmt.Errorf("director.Strikes() failed, Infraction does not exists")
+	}
 
+	return d.strikes(an, rn)
+}
+*/
+
+// Infraction does the most
 func (d *Director) Infraction(an string, rn string) error {
 
-	// create actor if needed
-	if !d.ActorExists(an) {
-		err := d.createActor(an, rn)
-		if err != nil {
-			return err
-		}
+	var res bool
+	var err error
+
+	log.Println("leastCostly: start")
+	d.rwmu.RLock()
+	res, err = d.leastCostlyInfraction(an, rn)
+	d.rwmu.RUnlock()
+	if res {
+		log.Println("leastCostly: end")
+		return err
 	}
 
-	// create infraction if needed
-	if !d.InfractionExists(an, rn) {
-		err := d.createInfraction(an, rn)
-		if err != nil {
-			return err
-		}
+	log.Println("mostCostly: start")
+	d.rwmu.Lock()
+	res, err = d.mostCostlyInfraction(an, rn)
+	d.rwmu.Unlock()
+	if res {
+		log.Println("mostCostly: end")
+		return err
 	}
 
-	// increment the infraction and return
-	return d.incrementInfraction(an, rn)
+	return fmt.Errorf("director.Infraction() failed for [ActorName:%v, RuleName:%v]", an, rn)
 }
 
+// returns the total strikes of an Actor
 func (d *Director) AddRule(r *Rule) error {
+	d.rwmu.Lock()
+	defer d.rwmu.Unlock()
 
-	if d.Rules[r.Name] != nil {
+	if d.ruleExists(r.Name) {
 		return fmt.Errorf("AddRule failed, Rule [%s] already exists", r.Name)
 	}
 
+	// add the rule
 	d.Rules[r.Name] = r
 
 	return nil
 }
 
-func (d *Director) createActor(an string, rn string) error {
+//
+// NO LOCKS - UNSAFE - BECAREFUL
+//
+// below this point are helper functions that are dependant on the calling functions to preform the appropriate locking
 
+func (d *Director) createActor(an string, rn string) error {
 	if _, ok := d.Rules[rn]; !ok {
 		return fmt.Errorf("createActor failed for Actor [%s], Rule [%s] does not exist", an, rn)
 	}
@@ -143,84 +131,18 @@ func (d *Director) createActor(an string, rn string) error {
 	return nil
 }
 
-func (d *Director) createClassicActor(an string, rn string) error {
-
-	if d.Rules[rn] == nil {
-		return fmt.Errorf("createActor failed for Actor [%s], Rule [%s] does not exist", an, rn)
-	}
-
-	a := NewActor(an, d)
-	d.Actors[an] = a
-	if d.Actors[an] == nil {
-		return fmt.Errorf("createActor failed for Actor [%s] and Rule [%s]", an, rn)
-	}
-
-	return nil
+func (d *Director) ruleExists(rn string) bool {
+	_, ok := d.Rules[rn]
+	return ok
 }
 
-// returns the total strikes of an Actor
-func (d *Director) Strikes(an string, rn string) (int, error) {
-	// return false if actor doesn't exist
-	if !d.ActorExists(an) {
-		return 0, fmt.Errorf("Actor does not exist [%v]", an)
-	}
-
-	if !d.InfractionExists(an, rn) {
-		return 0, fmt.Errorf("Infraction does not exist [%v]", rn)
-	}
-
-	in := NewIncoming(an, rn, STRIKES)
-	d.Actors[an].Incoming <- in
-	out := <-in.Outgoing
-	close(in.Outgoing)
-	i, _ := strconv.Atoi(out.Message)
-	return i, nil
-}
-
-func (d *Director) IsJailed(an string) bool {
-	// return false if actor doesn't exist
-	if !d.ActorExists(an) {
-		return false
-	}
-
-	in := NewIncoming(an, "", IS_JAILED)
-	d.Actors[an].Incoming <- in
-	out := <-in.Outgoing
-	res, _ := strconv.ParseBool(out.Message)
-	return res
-}
-
-func (d *Director) IsJailedFor(an string, rn string) bool {
-	// return false if actor doesn't exist
-	if !d.ActorExists(an) {
-		return false
-	}
-
-	// return false if infraction still exists
-	if d.InfractionExists(an, rn) {
-		return false
-	}
-
-	in := NewIncoming(an, rn, IS_JAILED_FOR)
-	d.Actors[an].Incoming <- in
-	out := <-in.Outgoing
-	res, _ := strconv.ParseBool(out.Message)
-	return res
+func (d *Director) actorExists(an string) bool {
+	_, ok := d.Actors[an]
+	return ok
 }
 
 func (d *Director) incrementInfraction(an string, rn string) error {
-	if !d.ActorExists(an) {
-		return fmt.Errorf("Actor [%v] does not exist", an)
-	}
-
-	if !d.InfractionExists(an, rn) {
-		return fmt.Errorf("Infraction [%v] does not exist", rn)
-	}
-
-	if d.IsJailedFor(an, rn) {
-		return fmt.Errorf("Actor already jailed for [%v:%v] ", an, rn)
-	}
-
+	log.Println("incrementInfraction")
 	in := NewIncoming(an, rn, INFRACTION)
 	d.Actors[an].Incoming <- in
 	out := <-in.Outgoing
@@ -230,15 +152,6 @@ func (d *Director) incrementInfraction(an string, rn string) error {
 
 // takes an ActorName and RuleName and creates an Infraction
 func (d *Director) createInfraction(an string, rn string) error {
-
-	if !d.ActorExists(an) {
-		return fmt.Errorf("createInfraction failed: Actor does not exist")
-	}
-
-	if d.InfractionExists(an, rn) {
-		return fmt.Errorf("createInfraction failed: Infraction already exists")
-	}
-
 	in := NewIncoming(an, rn, CREATE_INFRACTION)
 	inf := NewInfraction(d.Rules[rn])
 	in.Infraction = inf
@@ -248,21 +161,81 @@ func (d *Director) createInfraction(an string, rn string) error {
 	return out.Error
 }
 
-// ActorExists asserts that you are checking for an Actor
-// in anticipation to operate on said Actor in the near future
-func (d *Director) ActorExists(an string) bool {
-	_, ok := d.Actors[an]
-	return ok
-}
-
-func (d *Director) InfractionExists(an string, rn string) bool {
-	if !d.ActorExists(an) {
-		return false
-	}
-
+func (d *Director) infractionExists(an string, rn string) bool {
+	log.Println("infractionExists")
 	in := NewIncoming(an, rn, INFRACTION_EXISTS)
 	d.Actors[an].Incoming <- in
 	out := <-in.Outgoing
 	res, _ := strconv.ParseBool(out.Message)
 	return res
+}
+
+func (d *Director) isJailed(an string) bool {
+	in := NewIncoming(an, "", IS_JAILED)
+	d.Actors[an].Incoming <- in
+	out := <-in.Outgoing
+	res, _ := strconv.ParseBool(out.Message)
+	return res
+}
+
+func (d *Director) isJailedFor(an string, rn string) bool {
+	in := NewIncoming(an, rn, IS_JAILED_FOR)
+	d.Actors[an].Incoming <- in
+	out := <-in.Outgoing
+	res, _ := strconv.ParseBool(out.Message)
+	return res
+}
+
+func (d *Director) strikes(an string, rn string) (int, error) {
+	in := NewIncoming(an, rn, STRIKES)
+	d.Actors[an].Incoming <- in
+	out := <-in.Outgoing
+	close(in.Outgoing)
+	i, _ := strconv.Atoi(out.Message)
+	return i, nil
+}
+
+func (d *Director) keepAlive(an string) error {
+	in := NewIncoming(an, "", KEEP_ALIVE)
+	d.Actors[an].Incoming <- in
+	out := <-in.Outgoing
+	close(in.Outgoing)
+	return out.Error
+}
+
+func (d *Director) mostCostlyInfraction(an string, rn string) (bool, error) {
+	var res bool
+	var err error
+
+	res = d.actorExists(an)
+	if res == false {
+		err := d.createActor(an, rn)
+		if err != nil {
+			return false, err
+		}
+	}
+
+	// create infraction if needed
+	res = d.infractionExists(an, rn)
+	if res == false {
+		err := d.createInfraction(an, rn)
+		if err != nil {
+			return false, err
+		}
+	}
+
+	err = d.incrementInfraction(an, rn)
+	return true, err
+}
+
+func (d *Director) leastCostlyInfraction(an string, rn string) (bool, error) {
+	if !d.actorExists(an) {
+		return false, fmt.Errorf("director.leastCostlyInfraction() actorExists() failed [%v:%v]", an, rn)
+	}
+
+	if !d.infractionExists(an, rn) {
+		return false, fmt.Errorf("director.leastCostlyInfraction() infractionExists() failed [%v:%v]", an, rn)
+	}
+
+	return true, d.incrementInfraction(an, rn)
 }

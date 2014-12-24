@@ -2,9 +2,12 @@ package badactor
 
 import (
 	"fmt"
+	"log"
 	"strconv"
 	"time"
 )
+
+const TTL = 10
 
 type Actor struct {
 	Name        string
@@ -22,7 +25,7 @@ func NewActor(n string, d *Director) *Actor {
 		Jails:       make(map[string]*Sentence),
 		Incoming:    make(chan *Incoming),
 		director:    d,
-		ttl:         time.Now().Add(time.Millisecond * 100),
+		ttl:         time.Now().Add(time.Second * TTL),
 	}
 	return a
 }
@@ -34,7 +37,7 @@ func NewClassicActor(n string, r *Rule, d *Director) *Actor {
 		Jails:       make(map[string]*Sentence),
 		Incoming:    make(chan *Incoming),
 		director:    d,
-		ttl:         time.Now().Add(time.Millisecond * 100),
+		ttl:         time.Now().Add(time.Second * TTL),
 	}
 
 	a.Infractions[r.Name] = NewInfraction(r)
@@ -48,7 +51,9 @@ func (a *Actor) Run() {
 			case in := <-a.Incoming:
 				a.switchBoard(in)
 			default:
-				a.overwatch()
+				if a.overwatch() {
+					return
+				}
 			}
 		}
 	}()
@@ -58,7 +63,8 @@ func (a *Actor) rebaseAll() error {
 	for _, inf := range a.Infractions {
 		inf.Rebase()
 	}
-	a.ttl = time.Now().Add(time.Second * 5)
+	a.ttl = time.Now().Add(time.Second * TTL)
+	log.Println("rebase")
 	return nil
 }
 
@@ -126,7 +132,6 @@ func (a *Actor) isJailed() bool {
 // overwatch does some background tasks
 // Locksup, Expires, or Releases any Actors
 func (a *Actor) overwatch() bool {
-	//log.Println("overwatch")
 	for _, s := range a.Jails {
 		a.timeServed(s)
 	}
@@ -136,12 +141,10 @@ func (a *Actor) overwatch() bool {
 		a.lockup(inf.Rule.Name)
 	}
 
-	a.quit()
-
-	return false
+	return a.shouldReturn()
 }
 
-func (a *Actor) quit() bool {
+func (a *Actor) shouldReturn() bool {
 	// if the Infractions OR Jails maps are not empty, we can return
 	// certain, that we do not want the Actor to quit
 	if a.hasInfractions() || a.hasJails() {
@@ -152,22 +155,21 @@ func (a *Actor) quit() bool {
 	// a few milliseconds to get its State setup
 	// avoiding a potential errouneous quit
 	if time.Now().After(a.ttl) {
-		in := NewIncoming(a.Name, "", REMOVE_ACTOR)
-		a.director.delete_me <- in
-		out := <-in.Outgoing
-		close(in.Outgoing)
-		if out.Error == nil {
-			return true
+		in := &Incoming{
+			ActorName: a.Name,
+			Type:      REMOVE_ACTOR,
 		}
+		a.director.delete_me <- in
+		return true
 	}
 
 	return false
 }
 
 func (a *Actor) timeServed(s *Sentence) bool {
-
 	if time.Now().After(s.ReleaseBy) && s != nil {
 		delete(a.Jails, s.Rule.Name)
+		a.rebaseAll()
 		return true
 	}
 	return false
@@ -201,7 +203,9 @@ func (a *Actor) lockup(rn string) error {
 		sen := NewSentence(inf.Rule, inf.Rule.Sentence)
 		a.Jails[inf.Rule.Name] = sen
 		delete(a.Infractions, inf.Rule.Name)
+		a.rebaseAll()
 	}
+
 	return nil
 }
 
