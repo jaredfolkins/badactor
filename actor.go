@@ -2,7 +2,6 @@ package badactor
 
 import (
 	"fmt"
-	"log"
 	"strconv"
 	"time"
 )
@@ -64,7 +63,6 @@ func (a *Actor) rebaseAll() error {
 		inf.Rebase()
 	}
 	a.ttl = time.Now().Add(time.Second * TTL)
-	log.Println("rebase")
 	return nil
 }
 

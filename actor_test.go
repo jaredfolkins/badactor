@@ -23,7 +23,6 @@ func TestActorIsJailedFor(t *testing.T) {
 		Sentence:    time.Second * 60,
 	}
 	a := NewClassicActor(an, r, d)
-	a.Run()
 
 	//test
 	for i := 1; i < 3; i++ {
@@ -63,7 +62,6 @@ func TestActorLockup(t *testing.T) {
 		Sentence:    time.Millisecond * 3,
 	}
 	a := NewClassicActor(an, r, d)
-	a.Run()
 
 	// test
 	for i := 0; i < 3; i++ {
@@ -96,7 +94,6 @@ func TestActorTimeServed(t *testing.T) {
 		Sentence:    time.Millisecond * 50,
 	}
 	a := NewClassicActor(an, r, d)
-	a.Run()
 
 	b = a.isJailedFor(rn)
 	if b == true {
@@ -113,13 +110,14 @@ func TestActorTimeServed(t *testing.T) {
 
 	// .lockup should happen in the goroutine background
 	time.Sleep(dur)
+	a.maintenance()
 	b = a.isJailedFor(rn)
 	if b == false {
 		t.Errorf("isJailedFor should be true instead [%v]", b)
 	}
 
-	// timeServed should fire
 	time.Sleep(time.Millisecond * 40)
+	a.maintenance()
 	b = a.isJailedFor(rn)
 	if b == true {
 		t.Errorf("isJailedFor should be false instead [%v]", b)
@@ -146,7 +144,6 @@ func TestActorExpire(t *testing.T) {
 	}
 
 	a := NewClassicActor(an, r, d)
-	a.Run()
 
 	err = a.expire(br)
 	if err == nil {
@@ -201,7 +198,6 @@ func TestActorInfraction(t *testing.T) {
 	}
 
 	a := NewClassicActor(an, r, d)
-	a.Run()
 
 	rde := "ruledoesntexist"
 	err = a.infraction(rde)
@@ -245,7 +241,6 @@ func TestActorCreateInfraction(t *testing.T) {
 	}
 
 	a := NewClassicActor(an, r, d)
-	a.Run()
 
 	inf := NewInfraction(r)
 
@@ -277,7 +272,6 @@ func TestActorRebaseAll(t *testing.T) {
 		Sentence:    time.Millisecond * 10,
 	}
 	a := NewClassicActor(an, r, d)
-	a.Run()
 
 	inf := NewInfraction(r)
 
@@ -313,7 +307,6 @@ func TestActorStrikes(t *testing.T) {
 		Sentence:    time.Millisecond * 10,
 	}
 	a := NewClassicActor(an, r, d)
-	a.Run()
 
 	i = a.strikes(rn)
 	if i != 1 {
@@ -355,7 +348,6 @@ func TestActorQuit(t *testing.T) {
 		Sentence:    time.Millisecond * 50,
 	}
 	a := NewClassicActor(an, r, d)
-	a.Run()
 
 	// test
 	// assert all falsey
@@ -394,7 +386,7 @@ func TestActorQuit(t *testing.T) {
 
 	// sleep, quit, should NOT be jailed
 	time.Sleep(dur)
-
+	a.maintenance()
 	b = a.isJailedFor(rn)
 	if b == true {
 		t.Errorf("isJailedFor should be false instead [%v]", b)
@@ -424,7 +416,6 @@ func TestActorInfractionExists(t *testing.T) {
 		Sentence:    time.Millisecond * 50,
 	}
 	a := NewActor(an, d)
-	a.Run()
 
 	b = a.infractionExists(rn)
 	if b == true {
@@ -458,7 +449,6 @@ func TestActorTotalJails(t *testing.T) {
 		Sentence:    time.Millisecond * 50,
 	}
 	a := NewClassicActor(an, r, d)
-	a.Run()
 
 	for i := 1; i < 3; i++ {
 		a.infraction(rn)

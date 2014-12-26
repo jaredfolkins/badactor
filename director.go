@@ -51,10 +51,65 @@ func (d *Director) Run() {
 	}()
 }
 
+// takes an ActorName and RuleName and creates an Infraction
+func (d *Director) CreateInfraction(an string, rn string) error {
+	d.rwmu.Lock()
+	defer d.rwmu.Unlock()
+	if !d.actorExists(an) {
+		return fmt.Errorf("director.CreateInfraction() failed, Actor does not exists")
+	}
+	return d.createInfraction(an, rn)
+}
+
+func (d *Director) CreateActor(an string, rn string) error {
+	d.rwmu.Lock()
+	defer d.rwmu.Unlock()
+	if d.actorExists(an) {
+		return fmt.Errorf("director.CreateActor() failed, Actor already exists")
+	}
+	return d.createActor(an, rn)
+}
+
+func (d *Director) KeepAlive(an string) error {
+	d.rwmu.RLock()
+	defer d.rwmu.RUnlock()
+	if !d.actorExists(an) {
+		return fmt.Errorf("director.KeepAlive() failed, Actor does not exists")
+	}
+	return d.keepAlive(an)
+}
+
 func (d *Director) ActorExists(an string) bool {
 	d.rwmu.RLock()
 	defer d.rwmu.RUnlock()
 	return d.actorExists(an)
+}
+
+func (d *Director) InfractionExists(an string, rn string) bool {
+	d.rwmu.RLock()
+	defer d.rwmu.RUnlock()
+	if !d.actorExists(an) {
+		return false
+	}
+	return d.infractionExists(an, rn)
+}
+
+func (d *Director) IsJailedFor(an string, rn string) bool {
+	d.rwmu.RLock()
+	defer d.rwmu.RUnlock()
+	if !d.actorExists(an) {
+		return false
+	}
+	return d.isJailedFor(an, rn)
+}
+
+func (d *Director) IsJailed(an string) bool {
+	d.rwmu.RLock()
+	defer d.rwmu.RUnlock()
+	if !d.actorExists(an) {
+		return false
+	}
+	return d.isJailed(an)
 }
 
 func (d *Director) Strikes(an string, rn string) (int, error) {
@@ -142,7 +197,6 @@ func (d *Director) actorExists(an string) bool {
 }
 
 func (d *Director) incrementInfraction(an string, rn string) error {
-	log.Println("incrementInfraction")
 	in := NewIncoming(an, rn, INFRACTION)
 	d.Actors[an].Incoming <- in
 	out := <-in.Outgoing
@@ -162,7 +216,6 @@ func (d *Director) createInfraction(an string, rn string) error {
 }
 
 func (d *Director) infractionExists(an string, rn string) bool {
-	log.Println("infractionExists")
 	in := NewIncoming(an, rn, INFRACTION_EXISTS)
 	d.Actors[an].Incoming <- in
 	out := <-in.Outgoing
