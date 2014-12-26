@@ -13,13 +13,100 @@ Egor Homakov's [otp calculator](http://sakurity.com/otp) provides a good descrip
 # Design
 
 - observer pattern
-- concurrent, non blocking, self governed workers
-- accessable to multiple systems across the internet
+- speed (subsecond response underload and submillisecond with standard operations)
 - no external dependencies 
+- concurrent, non blocking, self governed workers
 - 100% code coverage and thorough tests
+- accessable to multiple systems across the internet using an HTTP API (TODO)
+
 
 # Httprouter & Negroni Example
 
+```go
+package main
+
+import (
+  "log"
+  "net/http"
+  "time"
+
+  "github.com/codegangsta/negroni"
+  "github.com/jaredfolkins/badactor"                                                                                                                                                                                                                                                                                                                                               "github.com/julienschmidt/httprouter"
+  "gopkg.in/unrolled/render.v1"
+)
+
+var d *badactor.Director
+func main() {
+
+  // create new director
+  d = badactor.NewDirector()
+  // create and add rule                                                                                                                                                                                                                                                                                                                                                           ru := &badactor.Rule{
+    Name:        "Login",
+    Message:     "You have failed to login too many times",
+    StrikeLimit: 10,
+    ExpireBase:  time.Second * 2,                                                                                                                                                                                                                                                                                                                                                    Sentence:    time.Second * 2,
+  }
+                                                                                                                                                                                                                                                                                                                                                                                   err := d.AddRule(ru)
+  if err != nil {
+    panic(err)                                                                                                                                                                                                                                                                                                                                                                     }
+  // run the director
+  d.Run()
+
+  // router
+  router := httprouter.New()
+  router.GET("/success", Success)
+  router.GET("/fail", Fail)
+  router.POST("/login", Login)
+
+  // middleware
+  n := negroni.Classic()
+  n.UseHandler(router)
+  n.Run(":9999")
+}
+
+func Success(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+  ren := render.New(render.Options{IndentJSON: true})
+  ren.JSON(w, http.StatusOK, map[string]string{"status": "success"})
+  return
+}
+
+func Fail(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+  ren := render.New(render.Options{IndentJSON: true})
+  ren.JSON(w, http.StatusOK, map[string]string{"status": "fail"})
+  return
+}
+
+func Login(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+
+  // this is a niave login function for example purposes
+  var err error
+  un := r.FormValue("username")
+  pw := r.FormValue("password")
+  rn := "Login"
+
+  if un == "example_user" && pw == "example_pass" {
+    http.Redirect(w, r, "/success", 302)
+    return
+  }
+
+  err = d.Infraction(un, rn)
+  if err != nil {
+    log.Printf("[%v] has err %v", un, err)
+  }
+
+  i, err := d.Strikes(un, "Login")
+  log.Printf("[%v] has [%d] strikes, err is %v", un, i, err)
+
+  b := d.IsJailed(un)
+  log.Printf("[%v] IsJailed = [%t]", un, b)
+
+  b = d.IsJailedFor(un, rn)
+  log.Printf("[%v] IsJailedFor = [%t] [%v]", un, b, rn)
+
+  http.Redirect(w, r, "/fail", 302)
+  return
+}
+```
 
 
 # Does It Scale?
