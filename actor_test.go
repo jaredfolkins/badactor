@@ -330,7 +330,7 @@ func TestActorStrikes(t *testing.T) {
 
 }
 
-func TestActorQuit(t *testing.T) {
+func TestActorShouldReturn(t *testing.T) {
 	// setup
 	var err error
 	var b bool
@@ -373,6 +373,8 @@ func TestActorQuit(t *testing.T) {
 			t.Errorf("Infraction [%v] should not error %v", rn, err)
 		}
 	}
+
+	a.maintenance()
 
 	b = a.isJailedFor(rn)
 	if b == false {

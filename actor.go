@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-const TTL = 10
+const TTL = 100
 
 type Actor struct {
 	Name        string
@@ -24,7 +24,7 @@ func NewActor(n string, d *Director) *Actor {
 		Jails:       make(map[string]*Sentence),
 		Incoming:    make(chan *Incoming),
 		director:    d,
-		ttl:         time.Now().Add(time.Second * TTL),
+		ttl:         time.Now().Add(time.Millisecond * TTL),
 	}
 	return a
 }

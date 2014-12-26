@@ -2,7 +2,6 @@ package badactor
 
 import (
 	"fmt"
-	"log"
 	"strconv"
 	"sync"
 )
@@ -43,7 +42,6 @@ func (d *Director) Run() {
 			select {
 			case in := <-d.delete_me:
 				d.rwmu.Lock()
-				log.Printf("director.Actors[%v] is deleted\n", in.ActorName)
 				delete(d.Actors, in.ActorName)
 				d.rwmu.Unlock()
 			}
