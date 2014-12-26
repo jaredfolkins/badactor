@@ -86,10 +86,13 @@ func TestKeepAlive(t *testing.T) {
 	}
 }
 
-func TestInfraction(t *testing.T) {
+func TestStrikes(t *testing.T) {
+	var i int
 	var err error
 	d := NewDirector()
 	d.Run()
+	ban := "badname"
+	brn := "badrule"
 	an := "an_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	rn := "rn_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	rm := "rm_" + strconv.FormatInt(time.Now().UnixNano(), 10)
@@ -104,6 +107,113 @@ func TestInfraction(t *testing.T) {
 	err = d.AddRule(r)
 	if err != nil {
 		t.Errorf("AddRule for Actor [%s] should not fail", an)
+	}
+
+	// setup valid infraction
+	err = d.Infraction(an, rn)
+	if err != nil {
+		t.Errorf("Ifraction should not fail : %v ", err)
+	}
+
+	i, err = d.Strikes(ban, brn)
+	if err == nil {
+		t.Errorf("Strikes should fail : %v ", err)
+	}
+
+	if i != 0 {
+		t.Errorf("Strikes should be [%v]:[%v] ", 0, err)
+	}
+
+	i, err = d.Strikes(an, brn)
+	if err == nil {
+		t.Errorf("Strikes should fail : %v ", err)
+	}
+
+	if i != 0 {
+		t.Errorf("Strikes should be [%v]:[%v] ", 0, err)
+	}
+
+	i, err = d.Strikes(an, rn)
+	if err != nil {
+		t.Errorf("Strikes should not fail : %v ", err)
+	}
+
+	if i != 1 {
+		t.Errorf("Strikes should be [%v]:[%v] ", 1, err)
+	}
+
+}
+
+func TestLeastCostlyInfraction(t *testing.T) {
+	var b bool
+	var err error
+	d := NewDirector()
+	d.Run()
+	ban := "badname"
+	brn := "badrule"
+	an := "an_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	rn := "rn_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	rm := "rm_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	r := &Rule{
+		Name:        rn,
+		Message:     rm,
+		StrikeLimit: 3,
+		ExpireBase:  time.Minute * 10,
+		Sentence:    time.Minute * 10,
+	}
+
+	err = d.AddRule(r)
+	if err != nil {
+		t.Errorf("AddRule for Actor [%s] should not fail", an)
+	}
+
+	err = d.Infraction(an, rn)
+	if err != nil {
+		t.Errorf("LeastCostlyIfraction should fail : %v %v", err, b)
+	}
+
+	b, err = d.LeastCostlyInfraction(an, brn)
+	if err == nil {
+		t.Errorf("LeastCostlyIfraction should fail : %v %v", err, b)
+	}
+
+	b, err = d.LeastCostlyInfraction(ban, rn)
+	if err == nil {
+		t.Errorf("Ifraction should fail : %v  %v", err, b)
+	}
+
+}
+
+func TestInfraction(t *testing.T) {
+	var err error
+	d := NewDirector()
+	d.Run()
+	ban := "badname"
+	brn := "badrule"
+	an := "an_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	rn := "rn_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	rm := "rm_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	r := &Rule{
+		Name:        rn,
+		Message:     rm,
+		StrikeLimit: 3,
+		ExpireBase:  time.Minute * 10,
+		Sentence:    time.Minute * 10,
+	}
+
+	err = d.AddRule(r)
+	if err != nil {
+		t.Errorf("AddRule for Actor [%s] should not fail", an)
+	}
+
+	err = d.Infraction(ban, brn)
+	if err == nil {
+		t.Errorf("Ifraction should fail : %v ", err)
+	}
+
+	err = d.Infraction(an, brn)
+	if err == nil {
+		t.Errorf("Ifraction should fail : %v ", err)
 	}
 
 	err = d.Infraction(an, rn)
@@ -158,6 +268,90 @@ func TestInfractionIncrement(t *testing.T) {
 
 }
 
+func TestIsJailedFor(t *testing.T) {
+	var b bool
+	var err error
+	expect_false := false
+	expect_true := true
+	d := NewDirector()
+	d.Run()
+	an := "an_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	rn := "rn_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	rm := "rm_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	r := &Rule{
+		Name:        rn,
+		Message:     rm,
+		StrikeLimit: 3,
+		ExpireBase:  time.Millisecond * 10,
+		Sentence:    time.Millisecond * 10,
+	}
+
+	err = d.AddRule(r)
+	if err != nil {
+		t.Errorf("AddRule for Actor [%s] should not fail", an)
+	}
+
+	b = d.IsJailedFor(an, rn)
+	if b != expect_false {
+		t.Errorf("IsJailedFor() should be [%v] instead %v", expect_false, b)
+	}
+
+	for i := 0; i < 3; i++ {
+		err = d.Infraction(an, rn)
+		if err != nil {
+			t.Errorf("IsJailedFor() Infraction should not error [%v]", err)
+		}
+	}
+
+	b = d.IsJailedFor(an, rn)
+	if b != expect_true {
+		t.Errorf("IsJailedFor() should be [%v] instead %v", expect_true, b)
+	}
+
+}
+
+func TestIsJailed(t *testing.T) {
+	var b bool
+	var err error
+	expect_false := false
+	expect_true := true
+	d := NewDirector()
+	d.Run()
+	an := "an_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	rn := "rn_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	rm := "rm_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	r := &Rule{
+		Name:        rn,
+		Message:     rm,
+		StrikeLimit: 3,
+		ExpireBase:  time.Millisecond * 10,
+		Sentence:    time.Millisecond * 10,
+	}
+
+	err = d.AddRule(r)
+	if err != nil {
+		t.Errorf("AddRule for Actor [%s] should not fail", an)
+	}
+
+	b = d.IsJailed(an)
+	if b != expect_false {
+		t.Errorf("IsJailed should be should be [%v] instead %v", expect_false, b)
+	}
+
+	for i := 0; i < 3; i++ {
+		err = d.Infraction(an, rn)
+		if err != nil {
+			t.Errorf("IsJailedFor Infraction should not error [%v]", err)
+		}
+	}
+
+	b = d.IsJailed(an)
+	if b != expect_true {
+		t.Errorf("IsJailed should be should be [%v] instead %v", expect_true, b)
+	}
+
+}
+
 func TestInfractionExists(t *testing.T) {
 	var b bool
 	var err error
@@ -193,7 +387,7 @@ func TestInfractionExists(t *testing.T) {
 
 }
 
-func TestcreateInfraction(t *testing.T) {
+func TestCreateInfraction(t *testing.T) {
 	var err error
 	d := NewDirector()
 	d.Run()
@@ -230,7 +424,7 @@ func TestcreateInfraction(t *testing.T) {
 		t.Errorf("Should not error, Actor and Rule exist: %v", err)
 	}
 
-	err = d.createInfraction(an, rn)
+	err = d.CreateInfraction(an, rn)
 	if err != nil {
 		t.Errorf("Should not error, Actor and Rule exist: %v", err)
 	}
@@ -304,4 +498,35 @@ func TestDirectorIsJailedFor(t *testing.T) {
 		t.Errorf("IsJailedFor should be true instead [%v]", b)
 	}
 
+}
+
+func TestCreateActor(t *testing.T) {
+	var err error
+	d := NewDirector()
+	d.Run()
+	an := "an_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	rn := "rn_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	rm := "rm_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	r := &Rule{
+		Name:        rn,
+		Message:     rm,
+		StrikeLimit: 3,
+		ExpireBase:  time.Second * 10,
+		Sentence:    time.Second * 10,
+	}
+
+	err = d.AddRule(r)
+	if err != nil {
+		t.Errorf("AddRule for Actor [%s] should not fail", an)
+	}
+
+	err = d.CreateActor(an, rn)
+	if err != nil {
+		t.Errorf("director.CreateActor() for [%s] should not fail", an)
+	}
+
+	err = d.CreateActor(an, rn)
+	if err == nil {
+		t.Errorf("director.CreateActor() for [%s] should fail", an)
+	}
 }

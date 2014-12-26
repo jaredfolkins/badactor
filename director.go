@@ -49,6 +49,59 @@ func (d *Director) Run() {
 	}()
 }
 
+func (d *Director) MostCostlyInfraction(an string, rn string) (bool, error) {
+	d.rwmu.Lock()
+	defer d.rwmu.Unlock()
+	var res bool
+
+	res = d.actorExists(an)
+	if res == false {
+		err := d.createActor(an, rn)
+		if err != nil {
+			return false, err
+		}
+	}
+
+	// create infraction if needed
+
+	res = d.infractionExists(an, rn)
+	if res == false {
+		// i can't detect a way for this to fail with
+		// all the previous checks in place
+		d.createInfraction(an, rn)
+		/*
+			if err != nil {
+				return false, err
+			}
+		*/
+	}
+
+	// i can't detect a way for this to fail with
+	// all the previous checks in place
+	d.incrementInfraction(an, rn)
+	/*
+		err = d.incrementInfraction(an, rn)
+		if err != nil {
+			return false, err
+		}
+	*/
+	return true, nil
+}
+
+func (d *Director) LeastCostlyInfraction(an string, rn string) (bool, error) {
+	d.rwmu.RLock()
+	defer d.rwmu.RUnlock()
+	if !d.actorExists(an) {
+		return false, fmt.Errorf("director.leastCostlyInfraction() actorExists() failed [%v:%v]", an, rn)
+	}
+
+	if !d.infractionExists(an, rn) {
+		return false, fmt.Errorf("director.leastCostlyInfraction() infractionExists() failed [%v:%v]", an, rn)
+	}
+
+	return true, d.incrementInfraction(an, rn)
+}
+
 // takes an ActorName and RuleName and creates an Infraction
 func (d *Director) CreateInfraction(an string, rn string) error {
 	d.rwmu.Lock()
@@ -131,16 +184,14 @@ func (d *Director) Infraction(an string, rn string) error {
 	var res bool
 	var err error
 
-	d.rwmu.RLock()
-	res, err = d.leastCostlyInfraction(an, rn)
-	d.rwmu.RUnlock()
+	//try
+	res, err = d.LeastCostlyInfraction(an, rn)
 	if res {
 		return err
 	}
 
-	d.rwmu.Lock()
-	res, err = d.mostCostlyInfraction(an, rn)
-	d.rwmu.Unlock()
+	// then try
+	res, err = d.MostCostlyInfraction(an, rn)
 	if res {
 		return err
 	}
@@ -172,15 +223,9 @@ func (d *Director) createActor(an string, rn string) error {
 	if _, ok := d.Rules[rn]; !ok {
 		return fmt.Errorf("createActor failed for Actor [%s], Rule [%s] does not exist", an, rn)
 	}
-
 	a := NewActor(an, d)
 	a.Run()
 	d.Actors[an] = a
-
-	if _, ok := d.Actors[an]; !ok {
-		return fmt.Errorf("createActor failed for Actor [%s] and Rule [%s]", an, rn)
-	}
-
 	return nil
 }
 
@@ -252,44 +297,4 @@ func (d *Director) keepAlive(an string) error {
 	out := <-in.Outgoing
 	close(in.Outgoing)
 	return out.Error
-}
-
-func (d *Director) mostCostlyInfraction(an string, rn string) (bool, error) {
-	var res bool
-	var err error
-
-	res = d.actorExists(an)
-	if res == false {
-		err := d.createActor(an, rn)
-		if err != nil {
-			return false, err
-		}
-	}
-
-	// create infraction if needed
-	res = d.infractionExists(an, rn)
-	if res == false {
-		err := d.createInfraction(an, rn)
-		if err != nil {
-			return false, err
-		}
-	}
-
-	err = d.incrementInfraction(an, rn)
-	if err != nil {
-		return false, err
-	}
-	return true, nil
-}
-
-func (d *Director) leastCostlyInfraction(an string, rn string) (bool, error) {
-	if !d.actorExists(an) {
-		return false, fmt.Errorf("director.leastCostlyInfraction() actorExists() failed [%v:%v]", an, rn)
-	}
-
-	if !d.infractionExists(an, rn) {
-		return false, fmt.Errorf("director.leastCostlyInfraction() infractionExists() failed [%v:%v]", an, rn)
-	}
-
-	return true, d.incrementInfraction(an, rn)
 }
