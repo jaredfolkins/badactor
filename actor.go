@@ -51,7 +51,7 @@ func (a *Actor) Run() {
 			case in := <-a.Incoming:
 				a.switchBoard(in)
 			default:
-				if a.overwatch() {
+				if a.maintenance() {
 					return
 				}
 			}
@@ -129,9 +129,9 @@ func (a *Actor) isJailed() bool {
 	return false
 }
 
-// overwatch does some background tasks
+// maintenance does some background tasks
 // Locksup, Expires, or Releases any Actors
-func (a *Actor) overwatch() bool {
+func (a *Actor) maintenance() bool {
 	for _, s := range a.Jails {
 		a.timeServed(s)
 	}

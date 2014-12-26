@@ -51,7 +51,12 @@ func (d *Director) Run() {
 	}()
 }
 
-/*
+func (d *Director) ActorExists(an string) bool {
+	d.rwmu.RLock()
+	defer d.rwmu.RUnlock()
+	return d.actorExists(an)
+}
+
 func (d *Director) Strikes(an string, rn string) (int, error) {
 	d.rwmu.RLock()
 	defer d.rwmu.RUnlock()
@@ -66,7 +71,6 @@ func (d *Director) Strikes(an string, rn string) (int, error) {
 
 	return d.strikes(an, rn)
 }
-*/
 
 // Infraction does the most
 func (d *Director) Infraction(an string, rn string) error {
@@ -74,21 +78,17 @@ func (d *Director) Infraction(an string, rn string) error {
 	var res bool
 	var err error
 
-	log.Println("leastCostly: start")
 	d.rwmu.RLock()
 	res, err = d.leastCostlyInfraction(an, rn)
 	d.rwmu.RUnlock()
 	if res {
-		log.Println("leastCostly: end")
 		return err
 	}
 
-	log.Println("mostCostly: start")
 	d.rwmu.Lock()
 	res, err = d.mostCostlyInfraction(an, rn)
 	d.rwmu.Unlock()
 	if res {
-		log.Println("mostCostly: end")
 		return err
 	}
 
@@ -225,7 +225,10 @@ func (d *Director) mostCostlyInfraction(an string, rn string) (bool, error) {
 	}
 
 	err = d.incrementInfraction(an, rn)
-	return true, err
+	if err != nil {
+		return false, err
+	}
+	return true, nil
 }
 
 func (d *Director) leastCostlyInfraction(an string, rn string) (bool, error) {

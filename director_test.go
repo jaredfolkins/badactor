@@ -16,21 +16,6 @@ func TestNewDirector(t *testing.T) {
 	}
 }
 
-func TestNewClassicDirector(t *testing.T) {
-	d := NewClassicDirector()
-	d.Run()
-	rn := "Login"
-	br := "badrule"
-
-	if d.Rules[rn] == nil {
-		t.Errorf("Rule [%s] should be found", rn)
-	}
-
-	if d.Rules[br] != nil {
-		t.Errorf("Rule [%s] should not be found", br)
-	}
-}
-
 func TestActorExists(t *testing.T) {
 	var err error
 	d := NewDirector()
@@ -254,7 +239,7 @@ func TestcreateInfraction(t *testing.T) {
 
 func TestAddRule(t *testing.T) {
 	var err error
-	d := NewClassicDirector()
+	d := NewDirector()
 	d.Run()
 
 	r := NewClassicRule("PasswordReset", "You have requested a password reset too often")
@@ -274,7 +259,7 @@ func TestAddRule(t *testing.T) {
 func TestDirectorIsJailedFor(t *testing.T) {
 	var b bool
 	var err error
-	d := NewClassicDirector()
+	d := NewDirector()
 	d.Run()
 	an := "an_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	rn := "rn_" + strconv.FormatInt(time.Now().UnixNano(), 10)

@@ -359,9 +359,9 @@ func TestActorQuit(t *testing.T) {
 
 	// test
 	// assert all falsey
-	b = a.quit()
+	b = a.shouldReturn()
 	if b {
-		t.Errorf("quit should be false instead [%v]", b)
+		t.Errorf("shouldReturn should be false instead [%v]", b)
 	}
 
 	b = a.isJailedFor(rn)
