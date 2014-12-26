@@ -31,7 +31,8 @@ import (
   "time"
 
   "github.com/codegangsta/negroni"
-  "github.com/jaredfolkins/badactor"                                                                                                                                                                                                                                                                                                                                               "github.com/julienschmidt/httprouter"
+  "github.com/jaredfolkins/badactor"
+  "github.com/julienschmidt/httprouter"
   "gopkg.in/unrolled/render.v1"
 )
 
@@ -40,15 +41,19 @@ func main() {
 
   // create new director
   d = badactor.NewDirector()
-  // create and add rule                                                                                                                                                                                                                                                                                                                                                           ru := &badactor.Rule{
+  // create and add rule
+  ru := &badactor.Rule{
     Name:        "Login",
     Message:     "You have failed to login too many times",
     StrikeLimit: 10,
-    ExpireBase:  time.Second * 2,                                                                                                                                                                                                                                                                                                                                                    Sentence:    time.Second * 2,
+    ExpireBase:  time.Second * 2,                                                                                                                                                                                                                                                                                                      Sentence:    time.Second * 2,
   }
-                                                                                                                                                                                                                                                                                                                                                                                   err := d.AddRule(ru)
+
+  err := d.AddRule(ru)
   if err != nil {
-    panic(err)                                                                                                                                                                                                                                                                                                                                                                     }
+    panic(err)
+  }
+
   // run the director
   d.Run()
 
@@ -94,7 +99,7 @@ func Login(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
     log.Printf("[%v] has err %v", un, err)
   }
 
-  i, err := d.Strikes(un, "Login")
+  i, err := d.Strikes(un, rn)
   log.Printf("[%v] has [%d] strikes, err is %v", un, i, err)
 
   b := d.IsJailed(un)
