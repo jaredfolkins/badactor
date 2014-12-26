@@ -22,8 +22,8 @@ func TestNewInfraction(t *testing.T) {
 
 	inf := NewInfraction(r)
 
-	if inf.Strikes != 1 {
-		t.Errorf("Infraction.Strikes should be [%v]", 1)
+	if inf.Strikes != 0 {
+		t.Errorf("Infraction.Strikes should be [%v]", 0)
 	}
 
 }

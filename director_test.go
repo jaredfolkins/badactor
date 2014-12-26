@@ -116,8 +116,8 @@ func TestInfraction(t *testing.T) {
 		t.Errorf("Strikes should not fail : %v ", err)
 	}
 
-	if i != 2 {
-		t.Errorf("Strikes return value is %d should equal %d : %v ", i, 2, err)
+	if i != 1 {
+		t.Errorf("Strikes return value is %d should equal %d : %v ", i, 1, err)
 	}
 
 }
@@ -152,8 +152,8 @@ func TestInfractionIncrement(t *testing.T) {
 		t.Errorf("Strikes should no fail : %v ", err)
 	}
 
-	if i != 2 {
-		t.Errorf("Strikes should return %d instead %d", 2, i)
+	if i != 1 {
+		t.Errorf("Strikes should return %d instead %d", 1, i)
 	}
 
 }
@@ -273,7 +273,7 @@ func TestDirectorIsJailedFor(t *testing.T) {
 	}
 	d.AddRule(r)
 
-	for i := 1; i < 3; i++ {
+	for i := 0; i < 3; i++ {
 		err = d.Infraction(an, rn)
 		if err != nil {
 			t.Errorf("IsJailedFor Infraction should not error [%v]", err)

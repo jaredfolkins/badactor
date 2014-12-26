@@ -25,7 +25,7 @@ func TestActorIsJailedFor(t *testing.T) {
 	a := NewClassicActor(an, r, d)
 
 	//test
-	for i := 1; i < 3; i++ {
+	for i := 0; i < 3; i++ {
 		a.infraction(rn)
 	}
 
@@ -101,7 +101,7 @@ func TestActorTimeServed(t *testing.T) {
 	}
 
 	// test
-	for i := 1; i < 3; i++ {
+	for i := 0; i < 3; i++ {
 		err = a.infraction(rn)
 		if err != nil {
 			t.Errorf("Infraction should not error instead [%v]", err)
@@ -205,7 +205,7 @@ func TestActorInfraction(t *testing.T) {
 		t.Errorf("Infraction should error [%v:%v:%v]", err, an, rde)
 	}
 
-	for i := 1; i < 3; i++ {
+	for i := 0; i < 3; i++ {
 		err = a.infraction(rn)
 		if err != nil {
 			t.Errorf("Infraction should not error [%v:%v]", an, rn)
@@ -309,7 +309,7 @@ func TestActorStrikes(t *testing.T) {
 	a := NewClassicActor(an, r, d)
 
 	i = a.strikes(rn)
-	if i != 1 {
+	if i != 0 {
 		t.Errorf("Strike count for [%v:%v] must be 1", an, rn)
 	}
 
@@ -319,8 +319,8 @@ func TestActorStrikes(t *testing.T) {
 	}
 
 	i = a.strikes(rn)
-	if i != 2 {
-		t.Errorf("Strike count for [%v:%v] must be 2", an, rn)
+	if i != 1 {
+		t.Errorf("Strike count for [%v:%v] must be 1", an, rn)
 	}
 
 	i = a.strikes(bn)
@@ -367,7 +367,7 @@ func TestActorShouldReturn(t *testing.T) {
 	}
 
 	// assert all truthy
-	for i := 1; i < 3; i++ {
+	for i := 0; i < 3; i++ {
 		err = a.infraction(rn)
 		if err != nil {
 			t.Errorf("Infraction [%v] should not error %v", rn, err)
@@ -452,7 +452,7 @@ func TestActorTotalJails(t *testing.T) {
 	}
 	a := NewClassicActor(an, r, d)
 
-	for i := 1; i < 3; i++ {
+	for i := 0; i < 3; i++ {
 		a.infraction(rn)
 	}
 

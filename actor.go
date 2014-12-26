@@ -100,7 +100,7 @@ func (a *Actor) infraction(rn string) error {
 
 	if _, ok := a.Infractions[rn]; ok {
 		inf := a.Infractions[rn]
-		inf.Strikes = inf.Strikes + 1
+		inf.Strikes++
 		inf.Rebase()
 		return a.lockup(rn)
 	}

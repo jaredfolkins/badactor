@@ -11,7 +11,7 @@ type Infraction struct {
 func NewInfraction(r *Rule) *Infraction {
 	return &Infraction{
 		Rule:     r,
-		Strikes:  1,
+		Strikes:  0,
 		ExpireBy: time.Now().Add(r.ExpireBase),
 	}
 }
