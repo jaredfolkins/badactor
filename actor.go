@@ -157,7 +157,7 @@ func (a *Actor) shouldReturn() bool {
 			ActorName: a.Name,
 			Type:      REMOVE_ACTOR,
 		}
-		a.director.delete_me <- in
+		a.director.remove <- in
 		return true
 	}
 

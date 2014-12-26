@@ -20,17 +20,17 @@ const (
 )
 
 type Director struct {
-	Actors    map[string]*Actor
-	Rules     map[string]*Rule
-	delete_me chan *Incoming
-	rwmu      sync.RWMutex
+	Actors map[string]*Actor
+	Rules  map[string]*Rule
+	remove chan *Incoming
+	rwmu   sync.RWMutex
 }
 
 func NewDirector() *Director {
 	d := &Director{
-		Actors:    make(map[string]*Actor),
-		Rules:     make(map[string]*Rule),
-		delete_me: make(chan *Incoming),
+		Actors: make(map[string]*Actor),
+		Rules:  make(map[string]*Rule),
+		remove: make(chan *Incoming),
 	}
 	return d
 }
@@ -40,7 +40,7 @@ func (d *Director) Run() {
 	go func() {
 		for {
 			select {
-			case in := <-d.delete_me:
+			case in := <-d.remove:
 				d.rwmu.Lock()
 				delete(d.Actors, in.ActorName)
 				d.rwmu.Unlock()
