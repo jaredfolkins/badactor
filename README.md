@@ -31,22 +31,31 @@ If we first wrap an Infraction() call around a call to IsJailed(), we can limit 
 
 We benchmark both to show the performance gain.
 
-```bash
-➜  badactor git:(master) ✗ go test -benchtime=20s -bench=.
-PASS
-BenchmarkInfraction1                  10000     2591953 ns/op
-BenchmarkInfraction10                 10000     2971275 ns/op
-BenchmarkInfraction100                10000     3012567 ns/op
-BenchmarkInfraction1000               10000     2876825 ns/op
-BenchmarkInfraction10000              10000     2979037 ns/op
-BenchmarkInfractionWithIsJailed1      20000     1385695 ns/op
-BenchmarkInfractionWithIsJailed10     20000     1401137 ns/op
-BenchmarkInfractionWithIsJailed100    20000     1495828 ns/op
-BenchmarkInfractionWithIsJailed1000   20000     1495634 ns/op
-BenchmarkInfractionWithIsJailed10000  20000     1560425 ns/op
-ok    github.com/jaredfolkins/badactor  342.351s
-➜  badactor git:(master) ✗
+Model Name: MacBook Pro
+Model Identifier: MacBookPro11,3
+Processor Name: Intel Core i7
+Processor Speed:  2.3 GHz
+Number of Processors: 1
+Total Number of Cores:  4
+L2 Cache (per Core):  256 KB
+L3 Cache: 6 MB
+Memory: 16 GB
 
+```bash
+➜  badactor git:(master) go test -bench=. -benchtime=5s -benchmem 2>/dev/null | column -t
+PASS
+BenchmarkInfraction1                  2000                              2679694   ns/op  518  B/op  10  allocs/op
+BenchmarkInfraction10                 2000                              3050845   ns/op  516  B/op  10  allocs/op
+BenchmarkInfraction100                2000                              3430051   ns/op  516  B/op  10  allocs/op
+BenchmarkInfraction1000               2000                              3738125   ns/op  516  B/op  10  allocs/op
+BenchmarkInfraction10000              2000                              4004534   ns/op  516  B/op  10  allocs/op
+BenchmarkInfractionWithIsJailed1      3000                              1832770   ns/op  193  B/op  3   allocs/op
+BenchmarkInfractionWithIsJailed10     3000                              1968030   ns/op  193  B/op  3   allocs/op
+BenchmarkInfractionWithIsJailed100    3000                              2120179   ns/op  193  B/op  3   allocs/op
+BenchmarkInfractionWithIsJailed1000   3000                              1955656   ns/op  193  B/op  3   allocs/op
+BenchmarkInfractionWithIsJailed10000  3000                              1943728   ns/op  193  B/op  3   allocs/op
+ok                                    github.com/jaredfolkins/badactor  109.879s
+➜  badactor git:(master)
 ```
 
 # Httprouter & Negroni Example
