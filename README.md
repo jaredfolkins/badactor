@@ -38,7 +38,7 @@ import (
   "github.com/jaredfolkins/badactor"
   "github.com/julienschmidt/httprouter"
 
-    )
+)
 
 var d *badactor.Director
 
@@ -53,15 +53,13 @@ func main() {
     StrikeLimit: 10,
     ExpireBase:  time.Second * 2, // if no activity is detected the infraction will expire after 2 seconds
     Sentence:    time.Minute * 5, // the sentence for breaking the rule is to be jailed for 5 minutes
-  
-    }
+  }
 
   // add the rule to the stack
   err := d.AddRule(ru)
-         if err != nil {
+  if err != nil {
     panic(err)
-  
-         }
+  }
   // run the director
   d.Run()
 
@@ -87,25 +85,20 @@ type BadActorMiddleware struct {
 
 func NewBadActorMiddleware() *BadActorMiddleware {
   return &BadActorMiddleware{}
-
 }
 
 func (um *BadActorMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
 
   // snag the IP as the actor's name
   an, _, err := net.SplitHostPort(r.RemoteAddr)
-    if err != nil {
+  if err != nil {
     panic(err)
-  
-    }
+  }
 
-  an = "localhost"
-
-    if d.IsJailed(an) {
+  if d.IsJailed(an) {
     http.Redirect(w, r, "", http.StatusTeapot)
     return
-  
-    }
+  }
 
   // call the next middleware in the chain
   next(w, r)
@@ -127,26 +120,22 @@ func LoginHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
   an, _, err := net.SplitHostPort(r.RemoteAddr)
   if err != nil {
     panic(err)
-  
   }
 
   // mock authentication
   if un == "example_user" && pw == "example_pass" {
     http.Redirect(w, r, "", http.StatusOK)
     return
-  
   }
 
   // auth fails, increment infraction
   err = d.Infraction(an, rn)
-    if err != nil {
+  if err != nil {
     log.Printf("[%v] has err %v", an, err)
-  
-    }
+  }
 
-  //
+  // unauthorized
   http.Redirect(w, r, "", http.StatusUnauthorized)
   return
-
 }
 ```
