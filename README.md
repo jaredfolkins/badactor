@@ -80,14 +80,13 @@ func main() {
 //
 type BadActorMiddleware struct {
   negroni.Handler
-
 }
 
 func NewBadActorMiddleware() *BadActorMiddleware {
   return &BadActorMiddleware{}
 }
 
-func (um *BadActorMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
+func (bam *BadActorMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
 
   // snag the IP as the actor's name
   an, _, err := net.SplitHostPort(r.RemoteAddr)
@@ -102,7 +101,6 @@ func (um *BadActorMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request, 
 
   // call the next middleware in the chain
   next(w, r)
-
 }
 
 //
