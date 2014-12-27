@@ -3,7 +3,7 @@ package badactor
 type Incoming struct {
 	ActorName  string
 	RuleName   string
-	Type       string
+	Type       int
 	Infraction *Infraction
 	Outgoing   chan *Outgoing
 }
@@ -13,7 +13,7 @@ type Outgoing struct {
 	Error   error
 }
 
-func NewIncoming(an string, rn string, t string) *Incoming {
+func NewIncoming(an string, rn string, t int) *Incoming {
 	return &Incoming{
 		ActorName: an,
 		RuleName:  rn,

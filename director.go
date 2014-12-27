@@ -7,16 +7,16 @@ import (
 )
 
 const (
-	QUIT              = "quit"
-	CREATE_ACTOR      = "create_actor"
-	INFRACTION        = "infraction"
-	STRIKES           = "strikes"
-	IS_JAILED         = "is_jailed"
-	IS_JAILED_FOR     = "is_jailed_for"
-	REMOVE_ACTOR      = "remove_actor"
-	KEEP_ALIVE        = "keep_alive"
-	CREATE_INFRACTION = "create_infraction"
-	INFRACTION_EXISTS = "infraction_exists"
+	QUIT              = 1
+	CREATE_ACTOR      = 2
+	INFRACTION        = 3
+	STRIKES           = 4
+	IS_JAILED         = 5
+	IS_JAILED_FOR     = 6
+	REMOVE_ACTOR      = 7
+	KEEP_ALIVE        = 8
+	CREATE_INFRACTION = 9
+	INFRACTION_EXISTS = 10
 )
 
 type Director struct {
