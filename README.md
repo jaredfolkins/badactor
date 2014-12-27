@@ -2,7 +2,7 @@
 
 # BadActor 
 
-BadActor is an application driven in-memory jailer, in the spirit of fail2ban. It can be used as either middleware or a standalone server with its primary goal to increase the expense for "bad actors" who engage in system probing or attacks.
+BadActor is an in-memory, application driven jailer built in the spirit of fail2ban. It can be used as either middleware or a standalone server (TDOD) with its primary goal to increase the expense for "bad actors" who engage in system probing or attacks.
 
 # Use Case
 
