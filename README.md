@@ -31,15 +31,32 @@ If we first wrap an Infraction() call around a call to IsJailed(), we can limit 
 
 We benchmark both to show the performance gain.
 
-Model Name: MacBook Pro
-Model Identifier: MacBookPro11,3
-Processor Name: Intel Core i7
-Processor Speed:  2.3 GHz
-Number of Processors: 1
-Total Number of Cores:  4
-L2 Cache (per Core):  256 KB
-L3 Cache: 6 MB
-Memory: 16 GB
+###Model Name: 
+MacBook Pro
+
+###Model Identifier: 
+MacBookPro11,3
+
+###Processor Name: 
+Intel Core i7
+
+###Processor Speed:
+2.3 GHz
+
+###Number of Processors:
+1
+
+###Total Number of Cores:
+4
+
+###L2 Cache (per Core):
+256 KB
+
+###L3 Cache:
+6 MB
+
+###Memory:
+16 GB
 
 ```bash
 ➜  badactor git:(master) go test -bench=. -benchtime=5s -benchmem 2>/dev/null | column -t
