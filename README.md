@@ -49,7 +49,8 @@ func main() {
     Name:        "Login",
     Message:     "You have failed to login too many times",
     StrikeLimit: 10,
-    ExpireBase:  time.Second * 2,                                                                                                                                                                                                                                                                                                      Sentence:    time.Second * 2,
+    ExpireBase:  time.Second * 2,
+    Sentence:    time.Minute * 5,
   }
 
   err := d.AddRule(ru)
