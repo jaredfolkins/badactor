@@ -20,10 +20,10 @@ const (
 )
 
 type Director struct {
+	sync.RWMutex
 	Actors map[string]*Actor
 	Rules  map[string]*Rule
 	remove chan *Incoming
-	rwmu   sync.RWMutex
 }
 
 func NewDirector() *Director {
@@ -41,17 +41,17 @@ func (d *Director) Run() {
 		for {
 			select {
 			case in := <-d.remove:
-				d.rwmu.Lock()
+				d.Lock()
 				delete(d.Actors, in.ActorName)
-				d.rwmu.Unlock()
+				d.Unlock()
 			}
 		}
 	}()
 }
 
 func (d *Director) MostCostlyInfraction(an string, rn string) (bool, error) {
-	d.rwmu.Lock()
-	defer d.rwmu.Unlock()
+	d.Lock()
+	defer d.Unlock()
 
 	if !d.actorExists(an) {
 		err := d.createActor(an, rn)
@@ -70,8 +70,9 @@ func (d *Director) MostCostlyInfraction(an string, rn string) (bool, error) {
 }
 
 func (d *Director) LeastCostlyInfraction(an string, rn string) (bool, error) {
-	d.rwmu.RLock()
-	defer d.rwmu.RUnlock()
+	d.RLock()
+	defer d.RUnlock()
+
 	if !d.actorExists(an) {
 		return false, fmt.Errorf("director.leastCostlyInfraction() actorExists() failed [%v:%v]", an, rn)
 	}
@@ -85,8 +86,9 @@ func (d *Director) LeastCostlyInfraction(an string, rn string) (bool, error) {
 
 // takes an ActorName and RuleName and creates an Infraction
 func (d *Director) CreateInfraction(an string, rn string) error {
-	d.rwmu.Lock()
-	defer d.rwmu.Unlock()
+	d.Lock()
+	defer d.Unlock()
+
 	if !d.actorExists(an) {
 		return fmt.Errorf("director.CreateInfraction() failed, Actor does not exists")
 	}
@@ -94,8 +96,9 @@ func (d *Director) CreateInfraction(an string, rn string) error {
 }
 
 func (d *Director) CreateActor(an string, rn string) error {
-	d.rwmu.Lock()
-	defer d.rwmu.Unlock()
+	d.Lock()
+	defer d.Unlock()
+
 	if d.actorExists(an) {
 		return fmt.Errorf("director.CreateActor() failed, Actor already exists")
 	}
@@ -103,8 +106,8 @@ func (d *Director) CreateActor(an string, rn string) error {
 }
 
 func (d *Director) KeepAlive(an string) error {
-	d.rwmu.RLock()
-	defer d.rwmu.RUnlock()
+	d.RLock()
+	defer d.RUnlock()
 	if !d.actorExists(an) {
 		return fmt.Errorf("director.KeepAlive() failed, Actor does not exists")
 	}
@@ -112,14 +115,14 @@ func (d *Director) KeepAlive(an string) error {
 }
 
 func (d *Director) ActorExists(an string) bool {
-	d.rwmu.RLock()
-	defer d.rwmu.RUnlock()
+	d.RLock()
+	defer d.RUnlock()
 	return d.actorExists(an)
 }
 
 func (d *Director) InfractionExists(an string, rn string) bool {
-	d.rwmu.RLock()
-	defer d.rwmu.RUnlock()
+	d.RLock()
+	defer d.RUnlock()
 	if !d.actorExists(an) {
 		return false
 	}
@@ -127,8 +130,8 @@ func (d *Director) InfractionExists(an string, rn string) bool {
 }
 
 func (d *Director) IsJailedFor(an string, rn string) bool {
-	d.rwmu.RLock()
-	defer d.rwmu.RUnlock()
+	d.RLock()
+	defer d.RUnlock()
 	if !d.actorExists(an) {
 		return false
 	}
@@ -136,8 +139,8 @@ func (d *Director) IsJailedFor(an string, rn string) bool {
 }
 
 func (d *Director) IsJailed(an string) bool {
-	d.rwmu.RLock()
-	defer d.rwmu.RUnlock()
+	d.RLock()
+	defer d.RUnlock()
 	if !d.actorExists(an) {
 		return false
 	}
@@ -145,8 +148,8 @@ func (d *Director) IsJailed(an string) bool {
 }
 
 func (d *Director) Strikes(an string, rn string) (int, error) {
-	d.rwmu.RLock()
-	defer d.rwmu.RUnlock()
+	d.RLock()
+	defer d.RUnlock()
 
 	if !d.actorExists(an) {
 		return 0, fmt.Errorf("director.Strikes() failed, Actor does not exists")
@@ -182,8 +185,8 @@ func (d *Director) Infraction(an string, rn string) error {
 
 // returns the total strikes of an Actor
 func (d *Director) AddRule(r *Rule) error {
-	d.rwmu.Lock()
-	defer d.rwmu.Unlock()
+	d.Lock()
+	defer d.Unlock()
 
 	if d.ruleExists(r.Name) {
 		return fmt.Errorf("AddRule failed, Rule [%s] already exists", r.Name)
