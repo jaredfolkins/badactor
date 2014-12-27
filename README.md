@@ -21,7 +21,7 @@ Egor Homakov's [otp calculator](http://sakurity.com/otp) provides a good descrip
 
 # Does It Scale?
 
-BadActor can be included in your go application and ran concurrently. It can also be stood up on its own, ran as a service, and accessed via the server's HTTP API (TODO). This allows you an easy way to scale up as BadActor's memory footprint is tiny. Because it uitlizes Go's goroutines and channels, it allows most organizations to be confident that BadActor will not be a bottleneck. 
+BadActor can be included in your go application and ran concurrently. It can also be stood up on its own, ran as a service, and accessed via the server's HTTP API (TODO). This allows you an easy way to scale up as BadActor's memory footprint is tiny. Because it leverages Go's goroutines and channels, it allows most organizations to be confident that BadActor will not be a bottleneck. 
 
 # Httprouter & Negroni Example
 
