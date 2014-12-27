@@ -52,10 +52,8 @@ func (d *Director) Run() {
 func (d *Director) MostCostlyInfraction(an string, rn string) (bool, error) {
 	d.rwmu.Lock()
 	defer d.rwmu.Unlock()
-	var res bool
 
-	res = d.actorExists(an)
-	if res == false {
+	if !d.actorExists(an) {
 		err := d.createActor(an, rn)
 		if err != nil {
 			return false, err
@@ -63,28 +61,11 @@ func (d *Director) MostCostlyInfraction(an string, rn string) (bool, error) {
 	}
 
 	// create infraction if needed
-
-	res = d.infractionExists(an, rn)
-	if res == false {
-		// i can't detect a way for this to fail with
-		// all the previous checks in place
+	if !d.infractionExists(an, rn) {
 		d.createInfraction(an, rn)
-		/*
-			if err != nil {
-				return false, err
-			}
-		*/
 	}
 
-	// i can't detect a way for this to fail with
-	// all the previous checks in place
 	d.incrementInfraction(an, rn)
-	/*
-		err = d.incrementInfraction(an, rn)
-		if err != nil {
-			return false, err
-		}
-	*/
 	return true, nil
 }
 
