@@ -25,20 +25,28 @@ BadActor can be included in your go application and ran concurrently. It can als
 
 # Benchmarks 
 
+Infraction() is the easiest but also most expensive function to use. You simply pass it an ActorName (IP address in our example) and the RuleName ("Login" in our example).
+
+If we first wrap an Infraction() call around a call to IsJailed(), we can limit the expense of Infraction() because we know that our BadActor is already Jailed.
+
+We benchmark both to show the performance gain.
+
 ```bash
 ➜  badactor git:(master) ✗ go test -benchtime=20s -bench=.
 PASS
-BenchmarkInfraction10000                10000   2513393 ns/op
-BenchmarkInfraction10000                10000   2566005 ns/op
-BenchmarkInfraction10000                10000   2829123 ns/op
-BenchmarkInfraction10000                10000   2815154 ns/op
-BenchmarkInfraction10000                10000   2570939 ns/op
-BenchmarkInfractionWithIsJailed10000    30000   1087086 ns/op
-BenchmarkInfractionWithIsJailed10000    30000   1090376 ns/op
-BenchmarkInfractionWithIsJailed10000    30000   1013201 ns/op
-BenchmarkInfractionWithIsJailed10000    30000   1018105 ns/op
-BenchmarkInfractionWithIsJailed10000    30000   1013791 ns/op
-ok    github.com/jaredfolkins/badactor355.851s
+BenchmarkInfraction1                  10000     2591953 ns/op
+BenchmarkInfraction10                 10000     2971275 ns/op
+BenchmarkInfraction100                10000     3012567 ns/op
+BenchmarkInfraction1000               10000     2876825 ns/op
+BenchmarkInfraction10000              10000     2979037 ns/op
+BenchmarkInfractionWithIsJailed1      20000     1385695 ns/op
+BenchmarkInfractionWithIsJailed10     20000     1401137 ns/op
+BenchmarkInfractionWithIsJailed100    20000     1495828 ns/op
+BenchmarkInfractionWithIsJailed1000   20000     1495634 ns/op
+BenchmarkInfractionWithIsJailed10000  20000     1560425 ns/op
+ok    github.com/jaredfolkins/badactor  342.351s
+➜  badactor git:(master) ✗
+
 ```
 
 # Httprouter & Negroni Example
