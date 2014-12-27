@@ -31,31 +31,31 @@ If we first wrap an Infraction() call around a call to IsJailed(), we can limit 
 
 We benchmark both to show the performance gain.
 
-###Model Name: 
+*Model Name:* 
 MacBook Pro
 
-###Model Identifier: 
+*Model Identifier:*
 MacBookPro11,3
 
-###Processor Name: 
+*Processor Name:*
 Intel Core i7
 
-###Processor Speed:
+*Processor Speed:*
 2.3 GHz
 
-###Number of Processors:
+*Number of Processors:*
 1
 
-###Total Number of Cores:
+*Total Number of Cores:*
 4
 
-###L2 Cache (per Core):
+*L2 Cache (per Core):*
 256 KB
 
-###L3 Cache:
+*L3 Cache:*
 6 MB
 
-###Memory:
+*Memory:*
 16 GB
 
 ```bash
