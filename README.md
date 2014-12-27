@@ -19,9 +19,25 @@ Egor Homakov's [otp calculator](http://sakurity.com/otp) provides a good descrip
 - 100% code coverage and thorough tests
 - accessable to multiple systems across the internet using an HTTP API (TODO)
 
-# Does It Scale?
+# Benchmarks
 
 BadActor can be included in your go application and ran concurrently. It can also be stood up on its own, ran as a service, and accessed via the server's HTTP API (TODO). This allows you an easy way to scale up as BadActor's memory footprint is tiny. Because it leverages Go's goroutines and channels, it allows most organizations to be confident that BadActor will not be a bottleneck. 
+
+```bash
+➜  badactor git:(master) ✗ go test -benchtime=20s -bench=.
+PASS
+BenchmarkInfraction10000   10000   2513393 ns/op
+BenchmarkInfraction10000   10000   2566005 ns/op
+BenchmarkInfraction10000   10000   2829123 ns/op
+BenchmarkInfraction10000   10000   2815154 ns/op
+BenchmarkInfraction10000   10000   2570939 ns/op
+BenchmarkInfractionWithIsJailed10000   30000   1087086 ns/op
+BenchmarkInfractionWithIsJailed10000   30000   1090376 ns/op
+BenchmarkInfractionWithIsJailed10000   30000   1013201 ns/op
+BenchmarkInfractionWithIsJailed10000   30000   1018105 ns/op
+BenchmarkInfractionWithIsJailed10000   30000   1013791 ns/op
+ok    github.com/jaredfolkins/badactor355.851s
+```
 
 # Httprouter & Negroni Example
 
