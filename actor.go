@@ -135,8 +135,8 @@ func (a *Actor) maintenance() bool {
 	}
 
 	for _, inf := range a.Infractions {
-		a.expire(inf.Rule.Name)
 		a.lockup(inf.Rule.Name)
+		a.expire(inf.Rule.Name)
 	}
 
 	return a.shouldReturn()

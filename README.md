@@ -30,62 +30,92 @@ package main
 
 import (
   "log"
+  "net"
   "net/http"
   "time"
 
   "github.com/codegangsta/negroni"
   "github.com/jaredfolkins/badactor"
   "github.com/julienschmidt/httprouter"
-  "gopkg.in/unrolled/render.v1"
-)
+
+    )
 
 var d *badactor.Director
+
 func main() {
 
   // create new director
   d = badactor.NewDirector()
   // create and add rule
-  ru := &badactor.Rule{
+    ru := &badactor.Rule{
     Name:        "Login",
     Message:     "You have failed to login too many times",
     StrikeLimit: 10,
-    ExpireBase:  time.Second * 2,
-    Sentence:    time.Minute * 5,
-  }
+    ExpireBase:  time.Second * 2, // if no activity is detected the infraction will expire after 2 seconds
+    Sentence:    time.Minute * 5, // the sentence for breaking the rule is to be jailed for 5 minutes
+  
+    }
 
+  // add the rule to the stack
   err := d.AddRule(ru)
-  if err != nil {
+         if err != nil {
     panic(err)
-  }
-
+  
+         }
   // run the director
   d.Run()
 
   // router
   router := httprouter.New()
-  router.GET("/success", Success)
-  router.GET("/fail", Fail)
-  router.POST("/login", Login)
+  router.POST("/login", LoginHandler)
 
   // middleware
   n := negroni.Classic()
+  n.Use(NewBadActorMiddleware())
   n.UseHandler(router)
   n.Run(":9999")
+
 }
 
-func Success(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-  ren := render.New(render.Options{IndentJSON: true})
-  ren.JSON(w, http.StatusOK, map[string]string{"status": "success"})
-  return
+//
+// MIDDLEWARE
+//
+type BadActorMiddleware struct {
+  negroni.Handler
+
 }
 
-func Fail(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-  ren := render.New(render.Options{IndentJSON: true})
-  ren.JSON(w, http.StatusOK, map[string]string{"status": "fail"})
-  return
+func NewBadActorMiddleware() *BadActorMiddleware {
+  return &BadActorMiddleware{}
+
 }
 
-func Login(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+func (um *BadActorMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
+
+  // snag the IP as the actor's name
+  an, _, err := net.SplitHostPort(r.RemoteAddr)
+    if err != nil {
+    panic(err)
+  
+    }
+
+  an = "localhost"
+
+    if d.IsJailed(an) {
+    http.Redirect(w, r, "", http.StatusTeapot)
+    return
+  
+    }
+
+  // call the next middleware in the chain
+  next(w, r)
+
+}
+
+//
+// HANDLER
+//
+func LoginHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
   // this is a niave login function for example purposes
   var err error
@@ -93,26 +123,30 @@ func Login(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
   pw := r.FormValue("password")
   rn := "Login"
 
-  if un == "example_user" && pw == "example_pass" {
-    http.Redirect(w, r, "/success", 302)
-    return
-  }
-
-  err = d.Infraction(un, rn)
+  // snag the IP for use as the actor's name
+  an, _, err := net.SplitHostPort(r.RemoteAddr)
   if err != nil {
-    log.Printf("[%v] has err %v", un, err)
+    panic(err)
+  
   }
 
-  i, err := d.Strikes(un, rn)
-  log.Printf("[%v] has [%d] strikes, err is %v", un, i, err)
+  // mock authentication
+  if un == "example_user" && pw == "example_pass" {
+    http.Redirect(w, r, "", http.StatusOK)
+    return
+  
+  }
 
-  b := d.IsJailed(un)
-  log.Printf("[%v] IsJailed = [%t]", un, b)
+  // auth fails, increment infraction
+  err = d.Infraction(an, rn)
+    if err != nil {
+    log.Printf("[%v] has err %v", an, err)
+  
+    }
 
-  b = d.IsJailedFor(un, rn)
-  log.Printf("[%v] IsJailedFor = [%t] [%v]", un, b, rn)
-
-  http.Redirect(w, r, "/fail", 302)
+  //
+  http.Redirect(w, r, "", http.StatusUnauthorized)
   return
+
 }
 ```
