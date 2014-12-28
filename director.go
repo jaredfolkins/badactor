@@ -49,41 +49,6 @@ func (d *Director) Run() {
 	}()
 }
 
-func (d *Director) MostCostlyInfraction(an string, rn string) (bool, error) {
-	d.Lock()
-	defer d.Unlock()
-
-	if !d.actorExists(an) {
-		err := d.createActor(an, rn)
-		if err != nil {
-			return false, err
-		}
-	}
-
-	// create infraction if needed
-	if !d.infractionExists(an, rn) {
-		d.createInfraction(an, rn)
-	}
-
-	d.incrementInfraction(an, rn)
-	return true, nil
-}
-
-func (d *Director) LeastCostlyInfraction(an string, rn string) (bool, error) {
-	d.RLock()
-	defer d.RUnlock()
-
-	if !d.actorExists(an) {
-		return false, fmt.Errorf("director.leastCostlyInfraction() actorExists() failed [%v:%v]", an, rn)
-	}
-
-	if !d.infractionExists(an, rn) {
-		return false, fmt.Errorf("director.leastCostlyInfraction() infractionExists() failed [%v:%v]", an, rn)
-	}
-
-	return true, d.incrementInfraction(an, rn)
-}
-
 // takes an ActorName and RuleName and creates an Infraction
 func (d *Director) CreateInfraction(an string, rn string) error {
 	d.Lock()
@@ -132,6 +97,7 @@ func (d *Director) InfractionExists(an string, rn string) bool {
 func (d *Director) IsJailedFor(an string, rn string) bool {
 	d.RLock()
 	defer d.RUnlock()
+
 	if !d.actorExists(an) {
 		return false
 	}
@@ -162,11 +128,30 @@ func (d *Director) Strikes(an string, rn string) (int, error) {
 	return d.strikes(an, rn)
 }
 
+func (d *Director) LeastCostlyInfraction(an string, rn string) (bool, error) {
+	d.RLock()
+	defer d.RUnlock()
+
+	if !d.actorExists(an) {
+		return false, fmt.Errorf("director.LeastCostlyInfraction() actorExists() failed [%v:%v]", an, rn)
+	}
+
+	if !d.infractionExists(an, rn) {
+		return false, fmt.Errorf("director.LeastCostlyInfraction() infractionExists() failed [%v:%v]", an, rn)
+	}
+
+	return true, d.incrementInfraction(an, rn)
+}
+
 // Infraction does the most
 func (d *Director) Infraction(an string, rn string) error {
 
 	var res bool
 	var err error
+
+	if d.IsJailedFor(an, rn) {
+		return fmt.Errorf("Actor [%v] is already jailed for [%v]", an, rn)
+	}
 
 	//try
 	res, err = d.LeastCostlyInfraction(an, rn)
@@ -181,6 +166,26 @@ func (d *Director) Infraction(an string, rn string) error {
 	}
 
 	return fmt.Errorf("director.Infraction() failed for [ActorName:%v, RuleName:%v]", an, rn)
+}
+
+func (d *Director) MostCostlyInfraction(an string, rn string) (bool, error) {
+	d.Lock()
+	defer d.Unlock()
+
+	if !d.actorExists(an) {
+		err := d.createActor(an, rn)
+		if err != nil {
+			return false, err
+		}
+	}
+
+	// create infraction if needed
+	if !d.infractionExists(an, rn) {
+		d.createInfraction(an, rn)
+	}
+
+	d.incrementInfraction(an, rn)
+	return true, nil
 }
 
 // returns the total strikes of an Actor

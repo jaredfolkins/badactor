@@ -31,7 +31,7 @@ func BenchmarkInfraction(b *testing.B) {
 	}
 }
 
-func BenchmarkInfractionWithIsJailed(b *testing.B) {
+func BenchmarkIsJailed(b *testing.B) {
 	var err error
 	d := NewDirector()
 	d.Run()
@@ -51,17 +51,17 @@ func BenchmarkInfractionWithIsJailed(b *testing.B) {
 		b.Errorf("AddRule for Actor [%s] should not fail", an)
 	}
 
+	d.Infraction(an, rn)
 	for i := 0; i < b.N; i++ {
-		if !d.IsJailed(an) {
-			d.Infraction(an, rn)
-		}
+		d.IsJailed(an)
 	}
 }
 
-func BenchmarkInfractionWithIsJailed2000(b *testing.B) {
+func BenchmarkIsJailedFor(b *testing.B) {
 	var err error
 	d := NewDirector()
 	d.Run()
+	an := "an_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	rn := "rn_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	rm := "rm_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	r := &Rule{
@@ -74,15 +74,69 @@ func BenchmarkInfractionWithIsJailed2000(b *testing.B) {
 
 	err = d.AddRule(r)
 	if err != nil {
-		b.Errorf("AddRule [%v] should not fail", rn)
+		b.Errorf("AddRule for Actor [%s] should not fail", an)
 	}
 
+	d.Infraction(an, rn)
 	for i := 0; i < b.N; i++ {
-		for a := 0; a < 2000; a++ {
-			an := "an_" + strconv.FormatInt(time.Now().UnixNano(), 10)
-			if !d.IsJailed(an) {
-				d.Infraction(an, rn)
-			}
-		}
+		d.IsJailedFor(an, rn)
+	}
+}
+
+func BenchmarkInfractionLeastCostly(b *testing.B) {
+	var err error
+	d := NewDirector()
+	d.Run()
+	an := "an_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	rn := "rn_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	rm := "rm_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	r := &Rule{
+		Name:        rn,
+		Message:     rm,
+		StrikeLimit: 3,
+		ExpireBase:  time.Second * 60,
+		Sentence:    time.Minute * 5,
+	}
+
+	err = d.AddRule(r)
+	if err != nil {
+		b.Errorf("AddRule for Actor [%s] should not fail", an)
+	}
+
+	// create initial infraction
+	d.Infraction(an, rn)
+
+	// bench the Least Costly way
+	for i := 0; i < b.N; i++ {
+		d.LeastCostlyInfraction(an, rn)
+	}
+}
+
+func BenchmarkInfractionMostCostly(b *testing.B) {
+	var err error
+	d := NewDirector()
+	d.Run()
+	an := "an_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	rn := "rn_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	rm := "rm_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	r := &Rule{
+		Name:        rn,
+		Message:     rm,
+		StrikeLimit: 3,
+		ExpireBase:  time.Second * 60,
+		Sentence:    time.Minute * 5,
+	}
+
+	err = d.AddRule(r)
+	if err != nil {
+		b.Errorf("AddRule for Actor [%s] should not fail", an)
+	}
+
+	// create initial infraction
+	d.Infraction(an, rn)
+
+	// bench the Least Costly way
+	for i := 0; i < b.N; i++ {
+		d.MostCostlyInfraction(an, rn)
 	}
 }
