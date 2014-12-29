@@ -6,7 +6,10 @@ import (
 	"time"
 )
 
-const TTL = 100
+const (
+	TTL          = 100
+	REMOVE_ACTOR = 007
+)
 
 type Actor struct {
 	sync.RWMutex

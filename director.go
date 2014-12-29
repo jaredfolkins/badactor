@@ -5,19 +5,6 @@ import (
 	"sync"
 )
 
-const (
-	QUIT              = 1
-	CREATE_ACTOR      = 2
-	INFRACTION        = 3
-	STRIKES           = 4
-	IS_JAILED         = 5
-	IS_JAILED_FOR     = 6
-	REMOVE_ACTOR      = 7
-	KEEP_ALIVE        = 8
-	CREATE_INFRACTION = 9
-	INFRACTION_EXISTS = 10
-)
-
 type Director struct {
 	sync.RWMutex
 	Actors map[string]*Actor

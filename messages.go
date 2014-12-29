@@ -12,12 +12,3 @@ type Outgoing struct {
 	Message string
 	Error   error
 }
-
-func NewIncoming(an string, rn string, t int) *Incoming {
-	return &Incoming{
-		ActorName: an,
-		RuleName:  rn,
-		Type:      t,
-		Outgoing:  make(chan *Outgoing),
-	}
-}
