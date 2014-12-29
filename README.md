@@ -25,43 +25,22 @@ BadActor can be included in your go application and ran concurrently. It can als
 
 # Benchmarks 
 
-*Infraction()* is the easiest but also most expensive function to use. You simply pass it an *ActorName* (*IP Address* in our example) and the RuleName (*Login* in our example).
-
-If we first wrap an *Infraction()* call around a call to *IsJailed()*, we can limit the expense of *Infraction()* because we know that our BadActor is already Jailed.
-
-We benchmark both to show the performance gain.
-
-**Model Name:** 
-MacBook Pro
-
-**Model Identifier:**
-MacBookPro11,3
-
-**Processor Name:**
-Intel Core i7
-
-**Processor Speed:**
-2.3 GHz
-
-**Number of Processors:**
-1
-
-**Total Number of Cores:**
-4
-
-**L2 Cache (per Core):**
-256 KB
-
-**L3 Cache:**
-6 MB
-
-**Memory:**
-16 GB
+| Type    |  Value   |
+| --- | --- |
+| **Model Name** | MacBook Pro |
+| **Model Identifier** | MacBookPro11,3 |
+| **Processor Name** | Intel Core i7 | 
+| **Processor Speed** | 2.3 GHz | 
+| **Number of Processors** | 1 |
+| **Total Number of Cores** | 4 |
+| **L2 Cache (per Core)** | 256 KB | 
+| **L3 Cache** | 6 MB | 
+| **Memory** | 16 GB |
 
 ###### NEW
 
 ```bash
-➜  badactor git:(jailed_for) ✗ go test -bench=. -benchtime=5s -benchmem | column -t
+➜  badactor git:(master) ✗ go test -bench=. -benchtime=5s -benchmem | column -t
 PASS
 BenchmarkInfraction             10000000                          952        ns/op  129       B/op  4       allocs/op
 BenchmarkIsJailed               50000000                          159        ns/op  0         B/op  0       allocs/op
@@ -70,17 +49,16 @@ BenchmarkInfractionLeastCostly  10000000                          1068       ns/
 BenchmarkInfractionMostCostly   10000000                          1029       ns/op  128       B/op  4       allocs/op
 BenchmarkActors10000            50                                204973174  ns/op  18757615  B/op  250577  allocs/op
 ok                              github.com/jaredfolkins/badactor  63.694s
-➜  badactor git:(jailed_for) ✗
+➜  badactor git:(master) ✗
 
 ```
 
-
 ###### OLD
 
-This was after a heavy refactoring session.
+This was **before** a serious refactoring.
  
 ```bash
-➜  badactor git:(master) go test -bench=. -benchtime=5s -benchmem 2>/dev/null | column -t
+➜  badactor git:(master) go test -bench=. -benchtime=5s -benchmem | column -t
 PASS
 BenchmarkInfraction1                  2000                              2679694   ns/op  518  B/op  10  allocs/op
 BenchmarkInfraction10                 2000                              3050845   ns/op  516  B/op  10  allocs/op
