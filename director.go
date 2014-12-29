@@ -2,7 +2,6 @@ package badactor
 
 import (
 	"fmt"
-	"strconv"
 	"sync"
 )
 
@@ -76,7 +75,8 @@ func (d *Director) KeepAlive(an string) error {
 	if !d.actorExists(an) {
 		return fmt.Errorf("director.KeepAlive() failed, Actor does not exists")
 	}
-	return d.keepAlive(an)
+	d.keepAlive(an)
+	return nil
 }
 
 func (d *Director) ActorExists(an string) bool {
@@ -125,7 +125,7 @@ func (d *Director) Strikes(an string, rn string) (int, error) {
 		return 0, fmt.Errorf("director.Strikes() failed, Infraction does not exists")
 	}
 
-	return d.strikes(an, rn)
+	return d.strikes(an, rn), nil
 }
 
 func (d *Director) LeastCostlyInfraction(an string, rn string) (bool, error) {
@@ -229,61 +229,31 @@ func (d *Director) actorExists(an string) bool {
 }
 
 func (d *Director) incrementInfraction(an string, rn string) error {
-	in := NewIncoming(an, rn, INFRACTION)
-	d.Actors[an].Incoming <- in
-	out := <-in.Outgoing
-	close(in.Outgoing)
-	return out.Error
+	return d.Actors[an].Infraction(rn)
 }
 
 // takes an ActorName and RuleName and creates an Infraction
 func (d *Director) createInfraction(an string, rn string) error {
-	in := NewIncoming(an, rn, CREATE_INFRACTION)
 	inf := NewInfraction(d.Rules[rn])
-	in.Infraction = inf
-	d.Actors[an].Incoming <- in
-	out := <-in.Outgoing
-	close(in.Outgoing)
-	return out.Error
+	return d.Actors[an].CreateInfraction(inf)
 }
 
 func (d *Director) infractionExists(an string, rn string) bool {
-	in := NewIncoming(an, rn, INFRACTION_EXISTS)
-	d.Actors[an].Incoming <- in
-	out := <-in.Outgoing
-	res, _ := strconv.ParseBool(out.Message)
-	return res
+	return d.Actors[an].InfractionExists(rn)
 }
 
 func (d *Director) isJailed(an string) bool {
-	in := NewIncoming(an, "", IS_JAILED)
-	d.Actors[an].Incoming <- in
-	out := <-in.Outgoing
-	res, _ := strconv.ParseBool(out.Message)
-	return res
+	return d.Actors[an].IsJailed()
 }
 
 func (d *Director) isJailedFor(an string, rn string) bool {
-	in := NewIncoming(an, rn, IS_JAILED_FOR)
-	d.Actors[an].Incoming <- in
-	out := <-in.Outgoing
-	res, _ := strconv.ParseBool(out.Message)
-	return res
+	return d.Actors[an].IsJailedFor(rn)
 }
 
-func (d *Director) strikes(an string, rn string) (int, error) {
-	in := NewIncoming(an, rn, STRIKES)
-	d.Actors[an].Incoming <- in
-	out := <-in.Outgoing
-	close(in.Outgoing)
-	i, _ := strconv.Atoi(out.Message)
-	return i, nil
+func (d *Director) strikes(an string, rn string) int {
+	return d.Actors[an].Strikes(rn)
 }
 
-func (d *Director) keepAlive(an string) error {
-	in := NewIncoming(an, "", KEEP_ALIVE)
-	d.Actors[an].Incoming <- in
-	out := <-in.Outgoing
-	close(in.Outgoing)
-	return out.Error
+func (d *Director) keepAlive(an string) {
+	d.Actors[an].RebaseAll()
 }

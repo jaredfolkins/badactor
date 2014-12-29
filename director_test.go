@@ -486,7 +486,7 @@ func TestDirectorIsJailedFor(t *testing.T) {
 
 	// STATE CHANGE
 	// sleep to make sure actor is jailed
-	time.Sleep(time.Millisecond * 50)
+	time.Sleep(time.Second * 3)
 
 	b = d.IsJailed(an)
 	if b == true {

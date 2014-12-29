@@ -58,6 +58,27 @@ Intel Core i7
 **Memory:**
 16 GB
 
+###### NEW
+
+```bash
+➜  badactor git:(jailed_for) ✗ go test -bench=. -benchtime=5s -benchmem | column -t
+PASS
+BenchmarkInfraction             10000000                          952        ns/op  129       B/op  4       allocs/op
+BenchmarkIsJailed               50000000                          159        ns/op  0         B/op  0       allocs/op
+BenchmarkIsJailedFor            50000000                          159        ns/op  0         B/op  0       allocs/op
+BenchmarkInfractionLeastCostly  10000000                          1068       ns/op  160       B/op  4       allocs/op
+BenchmarkInfractionMostCostly   10000000                          1029       ns/op  128       B/op  4       allocs/op
+BenchmarkActors10000            50                                204973174  ns/op  18757615  B/op  250577  allocs/op
+ok                              github.com/jaredfolkins/badactor  63.694s
+➜  badactor git:(jailed_for) ✗
+
+```
+
+
+###### OLD
+
+This was after a heavy refactoring session.
+ 
 ```bash
 ➜  badactor git:(master) go test -bench=. -benchtime=5s -benchmem 2>/dev/null | column -t
 PASS
