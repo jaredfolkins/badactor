@@ -55,7 +55,7 @@ ok                                github.com/jaredfolkins/badactor  73.592s
 
 ###### OLD
 
-This was **before** a serious refactoring. I am keeping it here because **(a)** I'd like to encourage others to Benchmark their code and **(b)** I learned many valuable lessons while doing it. 
+This was **before** a serious refactoring. I am keeping it here because **(a)** I'd like to encourage others to *benchmark* their code and **(b)** I learned many valuable lessons while doing it. 
  
 ```bash
 ➜  badactor git:(master) go test -bench=. -benchtime=5s -benchmem | column -t
