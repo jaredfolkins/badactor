@@ -42,13 +42,13 @@ BadActor can be included in your go application and ran concurrently. It can als
 ```bash
 ➜  badactor git:(master) ✗ go test -bench=. -benchtime=5s -benchmem | column -t
 PASS
-BenchmarkInfraction             10000000                          952        ns/op  129       B/op  4       allocs/op
-BenchmarkIsJailed               50000000                          159        ns/op  0         B/op  0       allocs/op
-BenchmarkIsJailedFor            50000000                          159        ns/op  0         B/op  0       allocs/op
-BenchmarkInfractionLeastCostly  10000000                          1068       ns/op  160       B/op  4       allocs/op
-BenchmarkInfractionMostCostly   10000000                          1029       ns/op  128       B/op  4       allocs/op
-BenchmarkActors10000            50                                204973174  ns/op  18757615  B/op  250577  allocs/op
-ok                              github.com/jaredfolkins/badactor  63.694s
+BenchmarkIsJailed                 50000000                          138        ns/op  0         B/op  0       allocs/op
+BenchmarkIsJailedFor              50000000                          140        ns/op  0         B/op  0       allocs/op
+BenchmarkInfraction               10000000                          943        ns/op  128       B/op  4       allocs/op
+BenchmarkInfractionMostCostly     10000000                          1008       ns/op  128       B/op  4       allocs/op
+Benchmark10000Actors              100                               140566388  ns/op  13150354  B/op  150598  allocs/op
+Benchmark10000Actors4Infractions  50                                241030802  ns/op  17278074  B/op  210614  allocs/op
+ok                                github.com/jaredfolkins/badactor  73.592s
 ➜  badactor git:(master) ✗
 
 ```

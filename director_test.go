@@ -144,7 +144,7 @@ func TestStrikes(t *testing.T) {
 
 }
 
-func TestLeastCostlyInfraction(t *testing.T) {
+func TestMostCostlyInfraction(t *testing.T) {
 	var b bool
 	var err error
 	d := NewDirector()
@@ -167,19 +167,14 @@ func TestLeastCostlyInfraction(t *testing.T) {
 		t.Errorf("AddRule for Actor [%s] should not fail", an)
 	}
 
-	err = d.Infraction(an, rn)
+	b, err = d.MostCostlyInfraction(an, brn)
+	if err == nil {
+		t.Errorf("MostCostlyIfraction should not fail : %v %v", err, b)
+	}
+
+	b, err = d.MostCostlyInfraction(ban, rn)
 	if err != nil {
-		t.Errorf("LeastCostlyIfraction should fail : %v %v", err, b)
-	}
-
-	b, err = d.LeastCostlyInfraction(an, brn)
-	if err == nil {
-		t.Errorf("LeastCostlyIfraction should fail : %v %v", err, b)
-	}
-
-	b, err = d.LeastCostlyInfraction(ban, rn)
-	if err == nil {
-		t.Errorf("Ifraction should fail : %v  %v", err, b)
+		t.Errorf("MostCostlyIfraction should fail : %v  %v", err, b)
 	}
 
 }
