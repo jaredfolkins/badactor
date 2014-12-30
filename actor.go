@@ -2,13 +2,15 @@ package badactor
 
 import (
 	"fmt"
+	"math/rand"
 	"sync"
 	"time"
 )
 
 const (
-	TTL          = 100
-	REMOVE_ACTOR = 007
+	TTL    = 100
+	MAX_NS = 5000000000
+	MIN_NS = 1000000000
 )
 
 type Actor struct {
@@ -47,7 +49,8 @@ func NewClassicActor(n string, r *Rule, d *Director) *Actor {
 }
 
 func (a *Actor) Run() {
-	ticker := time.NewTicker(time.Second * 20)
+	r := time.Duration(rand.Intn(MAX_NS-MIN_NS) + 1)
+	ticker := time.NewTicker(time.Nanosecond * r)
 	go func() {
 		// 1.4 means i refractor this
 		for _ = range ticker.C {
@@ -229,6 +232,8 @@ func (a *Actor) shouldReturn() bool {
 	// a few milliseconds to get its State setup
 	// avoiding a potential errouneous quit
 	if time.Now().After(a.ttl) {
+		r := time.Duration(rand.Intn(MAX_NS-MIN_NS) + 1)
+		time.Sleep(time.Nanosecond * r)
 		a.director.remove <- a.Name
 		return true
 	}

@@ -2,7 +2,9 @@ package badactor
 
 import (
 	"fmt"
+	"math/rand"
 	"sync"
+	"time"
 )
 
 type Director struct {
@@ -13,6 +15,7 @@ type Director struct {
 }
 
 func NewDirector() *Director {
+	rand.Seed(time.Now().Unix())
 	d := &Director{
 		Actors: make(map[string]*Actor),
 		Rules:  make(map[string]*Rule),
