@@ -64,62 +64,6 @@ func BenchmarkIsJailedFor(b *testing.B) {
 	}
 }
 
-func BenchmarkIsJailedInfraction(b *testing.B) {
-	var err error
-	d := NewDirector()
-	d.Run()
-	rn := "rn_" + strconv.FormatInt(time.Now().UnixNano(), 10)
-	rm := "rm_" + strconv.FormatInt(time.Now().UnixNano(), 10)
-	r := &Rule{
-		Name:        rn,
-		Message:     rm,
-		StrikeLimit: 3,
-		ExpireBase:  time.Second * 60,
-		Sentence:    time.Minute * 5,
-	}
-
-	err = d.AddRule(r)
-	if err != nil {
-		b.Errorf("AddRule [%s] should not fail", rn)
-	}
-
-	for i := 0; i < b.N; i++ {
-		an := "an_" + strconv.FormatInt(time.Now().UnixNano(), 10)
-		for i := 0; i < 3; i++ {
-			d.Infraction(an, rn)
-		}
-		d.IsJailed(an)
-	}
-}
-
-func BenchmarkIsJailedForInfraction(b *testing.B) {
-	var err error
-	d := NewDirector()
-	d.Run()
-	rn := "rn_" + strconv.FormatInt(time.Now().UnixNano(), 10)
-	rm := "rm_" + strconv.FormatInt(time.Now().UnixNano(), 10)
-	r := &Rule{
-		Name:        rn,
-		Message:     rm,
-		StrikeLimit: 3,
-		ExpireBase:  time.Second * 60,
-		Sentence:    time.Minute * 5,
-	}
-
-	err = d.AddRule(r)
-	if err != nil {
-		b.Errorf("AddRule [%s] should not fail", rn)
-	}
-
-	for i := 0; i < b.N; i++ {
-		an := "an_" + strconv.FormatInt(time.Now().UnixNano(), 10)
-		for i := 0; i < 3; i++ {
-			d.Infraction(an, rn)
-		}
-		d.IsJailedFor(an, rn)
-	}
-}
-
 func BenchmarkInfraction(b *testing.B) {
 	var err error
 	d := NewDirector()
@@ -171,6 +115,62 @@ func BenchmarkInfractionMostCostly(b *testing.B) {
 	// bench the Least Costly way
 	for i := 0; i < b.N; i++ {
 		d.MostCostlyInfraction(an, rn)
+	}
+}
+
+func BenchmarkInfractionIsJailed(b *testing.B) {
+	var err error
+	d := NewDirector()
+	d.Run()
+	rn := "rn_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	rm := "rm_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	r := &Rule{
+		Name:        rn,
+		Message:     rm,
+		StrikeLimit: 3,
+		ExpireBase:  time.Second * 60,
+		Sentence:    time.Minute * 5,
+	}
+
+	err = d.AddRule(r)
+	if err != nil {
+		b.Errorf("AddRule [%s] should not fail", rn)
+	}
+
+	for i := 0; i < b.N; i++ {
+		an := "an_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+		for i := 0; i < 3; i++ {
+			d.Infraction(an, rn)
+		}
+		d.IsJailed(an)
+	}
+}
+
+func BenchmarkInfractionIsJailedFor(b *testing.B) {
+	var err error
+	d := NewDirector()
+	d.Run()
+	rn := "rn_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	rm := "rm_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	r := &Rule{
+		Name:        rn,
+		Message:     rm,
+		StrikeLimit: 3,
+		ExpireBase:  time.Second * 60,
+		Sentence:    time.Minute * 5,
+	}
+
+	err = d.AddRule(r)
+	if err != nil {
+		b.Errorf("AddRule [%s] should not fail", rn)
+	}
+
+	for i := 0; i < b.N; i++ {
+		an := "an_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+		for i := 0; i < 3; i++ {
+			d.Infraction(an, rn)
+		}
+		d.IsJailedFor(an, rn)
 	}
 }
 
@@ -236,12 +236,13 @@ func Benchmark1000000Actors(b *testing.B) {
 	var err error
 	d := NewDirector()
 	d.Run()
+	an := "an_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	rn := "rn_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	rm := "rm_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	r := &Rule{
 		Name:        rn,
 		Message:     rm,
-		StrikeLimit: 3,
+		StrikeLimit: 1,
 		ExpireBase:  time.Second * 60,
 		Sentence:    time.Minute * 5,
 	}
@@ -252,12 +253,14 @@ func Benchmark1000000Actors(b *testing.B) {
 	}
 
 	aN := 1000000
+	for i := 0; i < aN; i++ {
+		lan := "lan_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+		d.Infraction(lan, rn)
+		d.Infraction(lan, rn)
+	}
 
 	for i := 0; i < b.N; i++ {
-		for a := 0; a < aN; a++ {
-			an := "an_" + strconv.FormatInt(time.Now().UnixNano(), 10)
-			d.Infraction(an, rn)
-		}
+		d.Infraction(an, rn)
 	}
 }
 

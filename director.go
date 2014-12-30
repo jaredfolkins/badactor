@@ -9,14 +9,14 @@ type Director struct {
 	sync.RWMutex
 	Actors map[string]*Actor
 	Rules  map[string]*Rule
-	remove chan *Incoming
+	remove chan string
 }
 
 func NewDirector() *Director {
 	d := &Director{
 		Actors: make(map[string]*Actor),
 		Rules:  make(map[string]*Rule),
-		remove: make(chan *Incoming),
+		remove: make(chan string),
 	}
 	return d
 }
@@ -26,9 +26,9 @@ func (d *Director) Run() {
 	go func() {
 		for {
 			select {
-			case in := <-d.remove:
+			case an := <-d.remove:
 				d.Lock()
-				delete(d.Actors, in.ActorName)
+				delete(d.Actors, an)
 				d.Unlock()
 			}
 		}

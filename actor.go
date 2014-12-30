@@ -47,7 +47,7 @@ func NewClassicActor(n string, r *Rule, d *Director) *Actor {
 }
 
 func (a *Actor) Run() {
-	ticker := time.NewTicker(time.Second * 2)
+	ticker := time.NewTicker(time.Second * 20)
 	go func() {
 		// 1.4 means i refractor this
 		for _ = range ticker.C {
@@ -220,7 +220,7 @@ func (a *Actor) maintenance() bool {
 func (a *Actor) shouldReturn() bool {
 
 	// if the Infractions OR Jails maps are not empty, we can return
-	// certain, that we do not want the Actor to quit
+	// as we are certain that we do not want the Actor to quit
 	if a.hasInfractions() || a.hasJails() {
 		return false
 	}
@@ -229,11 +229,7 @@ func (a *Actor) shouldReturn() bool {
 	// a few milliseconds to get its State setup
 	// avoiding a potential errouneous quit
 	if time.Now().After(a.ttl) {
-		in := &Incoming{
-			ActorName: a.Name,
-			Type:      REMOVE_ACTOR,
-		}
-		a.director.remove <- in
+		a.director.remove <- a.Name
 		return true
 	}
 
