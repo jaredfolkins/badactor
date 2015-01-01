@@ -37,7 +37,27 @@ BadActor can be included in your go application and ran concurrently. It can als
 | **L3 Cache** | 6 MB | 
 | **Memory** | 16 GB |
 
-###### NEW
+###### 12.30.2014
+
+```bash
+➜  badactor git:(master) ✗ go test -benchtime=5s -bench=. -benchmem -cpu=4 | column -t
+PASS
+BenchmarkIsJailed-4                  50000000                          133        ns/op  0          B/op  0        allocs/op
+BenchmarkIsJailedFor-4               50000000                          136        ns/op  0          B/op  0        allocs/op
+BenchmarkInfraction-4                10000000                          824        ns/op  116        B/op  5        allocs/op
+BenchmarkInfractionMostCostly-4      10000000                          891        ns/op  116        B/op  5        allocs/op
+BenchmarkInfractionIsJailed-4        3000000                           2569       ns/op  340        B/op  13       allocs/op
+BenchmarkInfractionIsJailedFor-4     3000000                           2611       ns/op  340        B/op  13       allocs/op
+Benchmark10000Actors1Infraction-4    1000                              8571335    ns/op  1162931    B/op  50023    allocs/op
+Benchmark100000Actors1Infraction-4   100                               87687224   ns/op  11630938   B/op  500248   allocs/op
+Benchmark1000000Actors1Infraction-4  10                                841989544  ns/op  116292788  B/op  5002740  allocs/op
+Benchmark10000Actors4Infractions-4   200                               30728688   ns/op  4522659    B/op  170013   allocs/op
+ok                                   github.com/jaredfolkins/badactor  93.868s
+➜  badactor git:(master) ✗
+
+```
+
+###### 12.24.2014
 
 ```bash
 ➜  badactor git:(master) ✗ go test -bench=. -benchtime=5s -benchmem | column -t
@@ -53,7 +73,7 @@ ok                                github.com/jaredfolkins/badactor  73.592s
 
 ```
 
-###### OLD
+###### 12.16.2014
 
 This was **before** a serious refactoring. I am keeping it here because **(a)** I'd like to encourage others to *benchmark* their code and **(b)** I learned many valuable lessons while doing it. 
  
@@ -102,7 +122,7 @@ func main() {
     Name:        "Login",
     Message:     "You have failed to login too many times",
     StrikeLimit: 10,
-    ExpireBase:  time.Second * 2, // if no activity is detected the infraction will expire after 2 seconds
+    ExpireBase:  time.Minute * 10, // if no activity is detected the infraction will expire after 10 minutes 
     Sentence:    time.Minute * 5, // the sentence for breaking the rule is to be jailed for 5 minutes
   }
 

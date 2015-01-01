@@ -17,7 +17,7 @@ func NewClassicRule(n string, m string) *Rule {
 		Name:        n,
 		Message:     m,
 		StrikeLimit: 10,
-		ExpireBase:  time.Second * 2,
-		Sentence:    time.Second * 2,
+		ExpireBase:  time.Minute * 10,
+		Sentence:    time.Minute * 10,
 	}
 }

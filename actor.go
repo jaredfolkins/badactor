@@ -7,10 +7,13 @@ import (
 	"time"
 )
 
+// ttl is the time to live value for newly created Actors
+// maxNs is used as the max value in the range for the Ticker
+// minNs is used as the min value in the range for the Ticker
 const (
-	TTL    = 100
-	MAX_NS = 5000000000
-	MIN_NS = 1000000000
+	ttl   = 100
+	maxNs = 3000000000
+	minNs = 1000000000
 )
 
 type Actor struct {
@@ -25,7 +28,7 @@ type Actor struct {
 func NewActor(n string, d *Director) *Actor {
 	a := &Actor{
 		director:    d,
-		ttl:         time.Now().Add(time.Millisecond * TTL),
+		ttl:         time.Now().Add(time.Millisecond * ttl),
 		Name:        n,
 		Infractions: make(map[string]*Infraction),
 		Jails:       make(map[string]*Sentence),
@@ -36,7 +39,7 @@ func NewActor(n string, d *Director) *Actor {
 func NewClassicActor(n string, r *Rule, d *Director) *Actor {
 	a := &Actor{
 		director:    d,
-		ttl:         time.Now().Add(time.Millisecond * TTL),
+		ttl:         time.Now().Add(time.Millisecond * ttl),
 		Name:        n,
 		Infractions: make(map[string]*Infraction),
 		Jails:       make(map[string]*Sentence),
@@ -49,7 +52,7 @@ func NewClassicActor(n string, r *Rule, d *Director) *Actor {
 }
 
 func (a *Actor) Run() {
-	r := time.Duration(rand.Intn(MAX_NS-MIN_NS) + 1)
+	r := time.Duration(rand.Intn(maxNs-minNs) + 1)
 	ticker := time.NewTicker(time.Nanosecond * r)
 	go func() {
 		// 1.4 means i refractor this
@@ -158,7 +161,7 @@ func (a *Actor) rebaseAll() error {
 		inf.Rebase()
 	}
 
-	a.ttl = time.Now().Add(time.Second * TTL)
+	a.ttl = time.Now().Add(time.Second * ttl)
 
 	return nil
 }
@@ -232,7 +235,7 @@ func (a *Actor) shouldReturn() bool {
 	// a few milliseconds to get its State setup
 	// avoiding a potential errouneous quit
 	if time.Now().After(a.ttl) {
-		r := time.Duration(rand.Intn(MAX_NS-MIN_NS) + 1)
+		r := time.Duration(rand.Intn(maxNs-minNs) + 1)
 		time.Sleep(time.Nanosecond * r)
 		a.director.remove <- a.Name
 		return true

@@ -1,6 +1,7 @@
 package badactor
 
 import (
+	"math/rand"
 	"strconv"
 	"testing"
 	"time"
@@ -85,15 +86,16 @@ func BenchmarkInfraction(b *testing.B) {
 	}
 
 	for i := 0; i < b.N; i++ {
+		an = string(rand.Int63())
 		d.Infraction(an, rn)
 	}
 }
 
 func BenchmarkInfractionMostCostly(b *testing.B) {
+	var an string
 	var err error
 	d := NewDirector()
 	d.Run()
-	an := "an_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	rn := "rn_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	rm := "rm_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	r := &Rule{
@@ -106,19 +108,18 @@ func BenchmarkInfractionMostCostly(b *testing.B) {
 
 	err = d.AddRule(r)
 	if err != nil {
-		b.Errorf("AddRule for Actor [%s] should not fail", an)
+		b.Errorf("AddRule for [%s] should not fail", rn)
 	}
-
-	// create initial infraction
-	d.Infraction(an, rn)
 
 	// bench the Least Costly way
 	for i := 0; i < b.N; i++ {
+		an = string(rand.Int63())
 		d.MostCostlyInfraction(an, rn)
 	}
 }
 
 func BenchmarkInfractionIsJailed(b *testing.B) {
+	var an string
 	var err error
 	d := NewDirector()
 	d.Run()
@@ -138,7 +139,7 @@ func BenchmarkInfractionIsJailed(b *testing.B) {
 	}
 
 	for i := 0; i < b.N; i++ {
-		an := "an_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+		an = string(rand.Int63())
 		for i := 0; i < 3; i++ {
 			d.Infraction(an, rn)
 		}
@@ -147,6 +148,7 @@ func BenchmarkInfractionIsJailed(b *testing.B) {
 }
 
 func BenchmarkInfractionIsJailedFor(b *testing.B) {
+	var an string
 	var err error
 	d := NewDirector()
 	d.Run()
@@ -166,7 +168,7 @@ func BenchmarkInfractionIsJailedFor(b *testing.B) {
 	}
 
 	for i := 0; i < b.N; i++ {
-		an := "an_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+		an = string(rand.Int63())
 		for i := 0; i < 3; i++ {
 			d.Infraction(an, rn)
 		}
@@ -174,7 +176,8 @@ func BenchmarkInfractionIsJailedFor(b *testing.B) {
 	}
 }
 
-func Benchmark10000Actors(b *testing.B) {
+func Benchmark10000Actors1Infraction(b *testing.B) {
+	var an string
 	var err error
 	d := NewDirector()
 	d.Run()
@@ -194,16 +197,16 @@ func Benchmark10000Actors(b *testing.B) {
 	}
 
 	aN := 10000
-
 	for i := 0; i < b.N; i++ {
 		for a := 0; a < aN; a++ {
-			an := "an_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+			an = string(rand.Int63())
 			d.Infraction(an, rn)
 		}
 	}
 }
 
-func Benchmark100000Actors(b *testing.B) {
+func Benchmark100000Actors1Infraction(b *testing.B) {
+	var an string
 	var err error
 	d := NewDirector()
 	d.Run()
@@ -223,20 +226,20 @@ func Benchmark100000Actors(b *testing.B) {
 	}
 
 	aN := 100000
-
 	for i := 0; i < b.N; i++ {
 		for a := 0; a < aN; a++ {
-			an := "an_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+			an = string(rand.Int63())
 			d.Infraction(an, rn)
 		}
 	}
 }
 
-func Benchmark1000000Actors(b *testing.B) {
+func Benchmark1000000Actors1Infraction(b *testing.B) {
+	var an string
 	var err error
+
 	d := NewDirector()
 	d.Run()
-	an := "an_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	rn := "rn_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	rm := "rm_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	r := &Rule{
@@ -253,18 +256,16 @@ func Benchmark1000000Actors(b *testing.B) {
 	}
 
 	aN := 1000000
-	for i := 0; i < aN; i++ {
-		lan := "lan_" + strconv.FormatInt(time.Now().UnixNano(), 10)
-		d.Infraction(lan, rn)
-		d.Infraction(lan, rn)
-	}
-
 	for i := 0; i < b.N; i++ {
-		d.Infraction(an, rn)
+		for a := 0; a < aN; a++ {
+			an = string(rand.Int63())
+			d.Infraction(an, rn)
+		}
 	}
 }
 
 func Benchmark10000Actors4Infractions(b *testing.B) {
+	var an string
 	var err error
 	d := NewDirector()
 	d.Run()
@@ -287,7 +288,7 @@ func Benchmark10000Actors4Infractions(b *testing.B) {
 
 	for i := 0; i < b.N; i++ {
 		for a := 0; a < aN; a++ {
-			an := "an_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+			an = string(rand.Int63())
 			for inf := 0; inf < 4; inf++ {
 				d.Infraction(an, rn)
 			}
