@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// ttl is the time to live value for newly created Actors
+// ttl is the time to live value for newly created actors
 // maxNs is used as the max value in the range for the Ticker
 // minNs is used as the min value in the range for the Ticker
 const (
@@ -16,48 +16,48 @@ const (
 	minNs = 1000000000
 )
 
-type Actor struct {
+type actor struct {
 	sync.RWMutex
-	Name        string
-	Infractions map[string]*Infraction
-	Jails       map[string]*Sentence
+	name        string
+	infractions map[string]*infraction
+	jails       map[string]*sentence
 	director    *Director
 	ttl         time.Time
 }
 
-func NewActor(n string, d *Director) *Actor {
-	a := &Actor{
+func newActor(n string, d *Director) *actor {
+	a := &actor{
 		director:    d,
 		ttl:         time.Now().Add(time.Millisecond * ttl),
-		Name:        n,
-		Infractions: make(map[string]*Infraction),
-		Jails:       make(map[string]*Sentence),
+		name:        n,
+		infractions: make(map[string]*infraction),
+		jails:       make(map[string]*sentence),
 	}
 	return a
 }
 
-func NewClassicActor(n string, r *Rule, d *Director) *Actor {
-	a := &Actor{
+func newClassicActor(n string, r *Rule, d *Director) *actor {
+	a := &actor{
 		director:    d,
 		ttl:         time.Now().Add(time.Millisecond * ttl),
-		Name:        n,
-		Infractions: make(map[string]*Infraction),
-		Jails:       make(map[string]*Sentence),
+		name:        n,
+		infractions: make(map[string]*infraction),
+		jails:       make(map[string]*sentence),
 	}
 
 	a.Lock()
-	a.Infractions[r.Name] = NewInfraction(r)
+	a.infractions[r.Name] = NewInfraction(r)
 	a.Unlock()
 	return a
 }
 
-func (a *Actor) Run() {
+func (a *actor) run() {
 	r := time.Duration(rand.Intn(maxNs-minNs) + 1)
 	ticker := time.NewTicker(time.Nanosecond * r)
 	go func() {
 		// 1.4 means i refractor this
 		for _ = range ticker.C {
-			if a.Maintenance() {
+			if a.lMaintenance() {
 				ticker.Stop()
 				return
 			}
@@ -65,85 +65,85 @@ func (a *Actor) Run() {
 	}()
 }
 
-func (a *Actor) HasJails() bool {
+func (a *actor) lHasJails() bool {
 	a.RLock()
 	res := a.hasJails()
 	a.RUnlock()
 	return res
 }
 
-func (a *Actor) ShouldReturn() bool {
+func (a *actor) lShouldReturn() bool {
 	a.Lock()
 	res := a.shouldReturn()
 	a.Unlock()
 	return res
 }
 
-func (a *Actor) InfractionExists(rn string) bool {
+func (a *actor) lInfractionExists(rn string) bool {
 	a.RLock()
 	res := a.infractionExists(rn)
 	a.RUnlock()
 	return res
 }
 
-// Lockup the Actor if the Limit has been reached
-func (a *Actor) Lockup(rn string) error {
+// Lockup the actor if the Limit has been reached
+func (a *actor) lLockup(rn string) error {
 	a.Lock()
 	err := a.lockup(rn)
 	a.Unlock()
 	return err
 }
 
-func (a *Actor) HasInfractions() bool {
+func (a *actor) lHasInfractions() bool {
 	a.RLock()
 	res := a.hasInfractions()
 	a.RUnlock()
 	return res
 }
 
-func (a *Actor) Expire(rn string) error {
+func (a *actor) lExpire(rn string) error {
 	a.Lock()
 	err := a.expire(rn)
 	a.Unlock()
 	return err
 }
 
-func (a *Actor) Infraction(rn string) error {
+func (a *actor) lInfraction(rn string) error {
 	a.Lock()
 	err := a.infraction(rn)
 	a.Unlock()
 	return err
 }
 
-func (a *Actor) CreateInfraction(inf *Infraction) error {
+func (a *actor) lCreateInfraction(inf *infraction) error {
 	a.Lock()
 	err := a.createInfraction(inf)
 	a.Unlock()
 	return err
 }
 
-func (a *Actor) IsJailed() bool {
+func (a *actor) lIsJailed() bool {
 	a.RLock()
 	res := a.isJailed()
 	a.RUnlock()
 	return res
 }
 
-func (a *Actor) IsJailedFor(rn string) bool {
+func (a *actor) lIsJailedFor(rn string) bool {
 	a.RLock()
 	res := a.isJailedFor(rn)
 	a.RUnlock()
 	return res
 }
 
-func (a *Actor) Strikes(rn string) int {
+func (a *actor) lStrikes(rn string) int {
 	a.RLock()
 	res := a.strikes(rn)
 	a.RUnlock()
 	return res
 }
 
-func (a *Actor) RebaseAll() error {
+func (a *actor) lRebaseAll() error {
 	a.Lock()
 	res := a.rebaseAll()
 	a.Unlock()
@@ -155,10 +155,10 @@ func (a *Actor) RebaseAll() error {
 //
 // below this point are helper functions that are dependant on the calling functions to preform the appropriate locking
 
-func (a *Actor) rebaseAll() error {
+func (a *actor) rebaseAll() error {
 
-	for _, inf := range a.Infractions {
-		inf.Rebase()
+	for _, inf := range a.infractions {
+		inf.rebase()
 	}
 
 	a.ttl = time.Now().Add(time.Second * ttl)
@@ -166,42 +166,42 @@ func (a *Actor) rebaseAll() error {
 	return nil
 }
 
-func (a *Actor) infraction(rn string) error {
+func (a *actor) infraction(rn string) error {
 
 	if a.isJailed() {
-		return fmt.Errorf("Actor [%v] is already Jailed for [%v]", a.Name, rn)
+		return fmt.Errorf("actor [%v] is already Jailed for [%v]", a.name, rn)
 	}
 
-	if _, ok := a.Infractions[rn]; ok {
-		inf := a.Infractions[rn]
-		inf.Strikes++
-		inf.Rebase()
+	if _, ok := a.infractions[rn]; ok {
+		inf := a.infractions[rn]
+		inf.strikes++
+		inf.rebase()
 		return a.lockup(rn)
 	}
 
-	return fmt.Errorf("Infraction against Actor [%v]", a.Name)
+	return fmt.Errorf("Infraction against actor [%v]", a.name)
 }
 
-func (a *Actor) strikes(rn string) int {
-	if _, ok := a.Infractions[rn]; ok {
-		return a.Infractions[rn].Strikes
+func (a *actor) strikes(rn string) int {
+	if _, ok := a.infractions[rn]; ok {
+		return a.infractions[rn].strikes
 	}
 	return 0
 }
 
-func (a *Actor) isJailedFor(rn string) bool {
-	_, ok := a.Jails[rn]
+func (a *actor) isJailedFor(rn string) bool {
+	_, ok := a.jails[rn]
 	return ok
 }
 
-func (a *Actor) isJailed() bool {
-	if len(a.Jails) > 0 {
+func (a *actor) isJailed() bool {
+	if len(a.jails) > 0 {
 		return true
 	}
 	return false
 }
 
-func (a *Actor) Maintenance() bool {
+func (a *actor) lMaintenance() bool {
 	a.Lock()
 	res := a.maintenance()
 	a.Unlock()
@@ -209,24 +209,24 @@ func (a *Actor) Maintenance() bool {
 }
 
 // maintenance does some background tasks
-// Locksup, Expires, or Releases any Actors
-func (a *Actor) maintenance() bool {
-	for _, s := range a.Jails {
+// Locksup, Expires, or Releases any actors
+func (a *actor) maintenance() bool {
+	for _, s := range a.jails {
 		a.timeServed(s)
 	}
 
-	for _, inf := range a.Infractions {
-		a.lockup(inf.Rule.Name)
-		a.expire(inf.Rule.Name)
+	for _, inf := range a.infractions {
+		a.lockup(inf.rule.Name)
+		a.expire(inf.rule.Name)
 	}
 
 	return a.shouldReturn()
 }
 
-func (a *Actor) shouldReturn() bool {
+func (a *actor) shouldReturn() bool {
 
 	// if the Infractions OR Jails maps are not empty, we can return
-	// as we are certain that we do not want the Actor to quit
+	// as we are certain that we do not want the actor to quit
 	if a.hasInfractions() || a.hasJails() {
 		return false
 	}
@@ -237,84 +237,84 @@ func (a *Actor) shouldReturn() bool {
 	if time.Now().After(a.ttl) {
 		r := time.Duration(rand.Intn(maxNs-minNs) + 1)
 		time.Sleep(time.Nanosecond * r)
-		a.director.remove <- a.Name
+		a.director.remove <- a.name
 		return true
 	}
 
 	return false
 }
 
-func (a *Actor) timeServed(s *Sentence) bool {
+func (a *actor) timeServed(s *sentence) bool {
 
-	if time.Now().After(s.ReleaseBy) && s != nil {
-		delete(a.Jails, s.Rule.Name)
+	if time.Now().After(s.releaseBy) && s != nil {
+		delete(a.jails, s.rule.Name)
 		a.rebaseAll()
 		return true
 	}
 	return false
 }
 
-func (a *Actor) expire(rn string) error {
+func (a *actor) expire(rn string) error {
 
 	// validate key exists
-	if _, ok := a.Infractions[rn]; !ok {
+	if _, ok := a.infractions[rn]; !ok {
 		return fmt.Errorf("Infraction [%v] does not exist", rn)
 	}
 
-	if time.Now().After(a.Infractions[rn].ExpireBy) {
-		delete(a.Infractions, rn)
+	if time.Now().After(a.infractions[rn].expireBy) {
+		delete(a.infractions, rn)
 		return nil
 	}
 
 	return nil
 }
 
-// Lockup the Actor if the Limit has been reached
-func (a *Actor) lockup(rn string) error {
+// Lockup the actor if the Limit has been reached
+func (a *actor) lockup(rn string) error {
 
 	if !a.infractionExists(rn) {
 		return fmt.Errorf("Lockup failed, infraction [%v] does not exist", rn)
 	}
 
-	inf := a.Infractions[rn]
+	inf := a.infractions[rn]
 
-	if inf.Strikes >= inf.Rule.StrikeLimit {
-		sen := NewSentence(inf.Rule, inf.Rule.Sentence)
-		a.Jails[inf.Rule.Name] = sen
-		delete(a.Infractions, inf.Rule.Name)
+	if inf.strikes >= inf.rule.StrikeLimit {
+		sen := NewSentence(inf.rule, inf.rule.Sentence)
+		a.jails[inf.rule.Name] = sen
+		delete(a.infractions, inf.rule.Name)
 		a.rebaseAll()
 	}
 
 	return nil
 }
 
-func (a *Actor) createInfraction(inf *Infraction) error {
-	if _, exists := a.Infractions[inf.Rule.Name]; !exists {
-		a.Infractions[inf.Rule.Name] = inf
+func (a *actor) createInfraction(inf *infraction) error {
+	if _, exists := a.infractions[inf.rule.Name]; !exists {
+		a.infractions[inf.rule.Name] = inf
 		return nil
 	}
-	return fmt.Errorf("Unable to create infraction [%v]", inf.Rule.Name)
+	return fmt.Errorf("Unable to create infraction [%v]", inf.rule.Name)
 }
 
-func (a *Actor) hasInfractions() bool {
-	if len(a.Infractions) > 0 {
+func (a *actor) hasInfractions() bool {
+	if len(a.infractions) > 0 {
 		return true
 	}
 	return false
 }
 
-func (a *Actor) infractionExists(rn string) bool {
-	_, ok := a.Infractions[rn]
+func (a *actor) infractionExists(rn string) bool {
+	_, ok := a.infractions[rn]
 	return ok
 }
 
-func (a *Actor) hasJails() bool {
-	if len(a.Jails) > 0 {
+func (a *actor) hasJails() bool {
+	if len(a.jails) > 0 {
 		return true
 	}
 	return false
 }
 
-func (a *Actor) totalJails() int {
-	return len(a.Jails)
+func (a *actor) totalJails() int {
+	return len(a.jails)
 }

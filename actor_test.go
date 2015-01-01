@@ -22,23 +22,23 @@ func TestActorIsJailedFor(t *testing.T) {
 		ExpireBase:  time.Second * 60,
 		Sentence:    time.Second * 60,
 	}
-	a := NewClassicActor(an, r, d)
+	a := newClassicActor(an, r, d)
 
 	//test
 	for i := 0; i < 3; i++ {
-		a.Infraction(rn)
+		a.lInfraction(rn)
 	}
 
-	b = a.IsJailedFor(an)
+	b = a.lIsJailedFor(an)
 	if b {
 		t.Errorf("isJailedFor should be false instead [%v]", b)
 	}
 
 	for i := 0; i < 3; i++ {
-		a.Infraction(rn)
+		a.lInfraction(rn)
 	}
 
-	b = a.IsJailedFor(rn)
+	b = a.lIsJailedFor(rn)
 	if !b {
 		t.Errorf("isJailedFor should be false instead [%v]", b)
 	}
@@ -61,14 +61,14 @@ func TestActorLockup(t *testing.T) {
 		ExpireBase:  time.Second * 60,
 		Sentence:    time.Millisecond * 3,
 	}
-	a := NewClassicActor(an, r, d)
+	a := newClassicActor(an, r, d)
 
 	// test
 	for i := 0; i < 3; i++ {
-		a.Infraction(rn)
+		a.lInfraction(rn)
 	}
 
-	b = a.IsJailedFor(rn)
+	b = a.lIsJailedFor(rn)
 	if b == false {
 		t.Errorf("isJailedFor should be true instead [%v]", b)
 	}
@@ -93,16 +93,16 @@ func TestActorTimeServed(t *testing.T) {
 		ExpireBase:  time.Second * 60,
 		Sentence:    time.Millisecond * 50,
 	}
-	a := NewClassicActor(an, r, d)
+	a := newClassicActor(an, r, d)
 
-	b = a.IsJailedFor(rn)
+	b = a.lIsJailedFor(rn)
 	if b == true {
 		t.Errorf("isJailedFor should be false instead [%v]", b)
 	}
 
 	// test
 	for i := 0; i < 3; i++ {
-		err = a.Infraction(rn)
+		err = a.lInfraction(rn)
 		if err != nil {
 			t.Errorf("Infraction should not error instead [%v]", err)
 		}
@@ -110,22 +110,22 @@ func TestActorTimeServed(t *testing.T) {
 
 	// .lockup should happen in the goroutine background
 	time.Sleep(dur)
-	a.Maintenance()
-	b = a.IsJailedFor(rn)
+	a.lMaintenance()
+	b = a.lIsJailedFor(rn)
 	if b == false {
 		t.Errorf("isJailedFor should be true instead [%v]", b)
 	}
 
 	time.Sleep(time.Millisecond * 40)
-	a.Maintenance()
-	b = a.IsJailedFor(rn)
+	a.lMaintenance()
+	b = a.lIsJailedFor(rn)
 	if b == true {
 		t.Errorf("isJailedFor should be false instead [%v]", b)
 	}
 
 }
 
-func TestActorExpire(t *testing.T) {
+func TestActorlExpire(t *testing.T) {
 
 	var err error
 	br := "badrule"
@@ -143,38 +143,38 @@ func TestActorExpire(t *testing.T) {
 		Sentence:    time.Millisecond * 50,
 	}
 
-	a := NewClassicActor(an, r, d)
+	a := newClassicActor(an, r, d)
 
-	err = a.Expire(br)
+	err = a.lExpire(br)
 	if err == nil {
 		t.Errorf("Expire should error for [%v]", err)
 	}
 
-	a.Infraction(rn)
+	a.lInfraction(rn)
 
-	err = a.Expire(rn)
+	err = a.lExpire(rn)
 	if err != nil {
 		t.Errorf("Expire should not fail: %v", err)
 	}
 
 	time.Sleep(dur)
 
-	err = a.Expire(rn)
+	err = a.lExpire(rn)
 	if err != nil {
 		t.Errorf("Expire should not delete [%v:%v]", an, rn)
 	}
 
-	if !a.HasInfractions() {
+	if !a.lHasInfractions() {
 		t.Errorf("Infractions should exist [%v:%v]", an, rn)
 	}
 
 	time.Sleep(dur)
-	err = a.Expire(rn)
+	err = a.lExpire(rn)
 	if err != nil {
 		t.Errorf("Expire should delete [%v:%v]", an, rn)
 	}
 
-	if !a.HasInfractions() {
+	if !a.lHasInfractions() {
 		t.Errorf("Infractions should not exist [%v:%v]", an, rn)
 	}
 
@@ -197,27 +197,27 @@ func TestActorInfraction(t *testing.T) {
 		Sentence:    time.Millisecond * 10,
 	}
 
-	a := NewClassicActor(an, r, d)
+	a := newClassicActor(an, r, d)
 
 	rde := "ruledoesntexist"
-	err = a.Infraction(rde)
+	err = a.lInfraction(rde)
 	if err == nil {
 		t.Errorf("Infraction should error [%v:%v:%v]", err, an, rde)
 	}
 
 	for i := 0; i < 3; i++ {
-		err = a.Infraction(rn)
+		err = a.lInfraction(rn)
 		if err != nil {
 			t.Errorf("Infraction should not error [%v:%v]", an, rn)
 		}
 	}
 
-	err = a.Lockup(rn)
+	err = a.lLockup(rn)
 	if err == nil {
 		t.Errorf("Lockup err should not be nil instead [%v]", err)
 	}
 
-	err = a.Infraction(rn)
+	err = a.lInfraction(rn)
 	if err == nil {
 		t.Errorf("Infraction should error [%v:%v]", an, rn)
 	}
@@ -240,17 +240,17 @@ func TestActorCreateInfraction(t *testing.T) {
 		Sentence:    time.Millisecond * 10,
 	}
 
-	a := NewClassicActor(an, r, d)
+	a := newClassicActor(an, r, d)
 
 	inf := NewInfraction(r)
 
-	err = a.CreateInfraction(inf)
+	err = a.lCreateInfraction(inf)
 	if err == nil {
 		t.Errorf("CreateInfraction [%v:%v] should error %v", an, rn, err)
 	}
 
-	ninf := a.Infractions[rn]
-	if ninf.Rule.Name != rn {
+	ninf := a.infractions[rn]
+	if ninf.rule.Name != rn {
 		t.Errorf("CreateInfraction Name incorrect [%v:%v]", an, rn)
 	}
 
@@ -271,20 +271,20 @@ func TestActorRebaseAll(t *testing.T) {
 		ExpireBase:  time.Millisecond * 10,
 		Sentence:    time.Millisecond * 10,
 	}
-	a := NewClassicActor(an, r, d)
+	a := newClassicActor(an, r, d)
 
 	inf := NewInfraction(r)
 
-	err = a.CreateInfraction(inf)
+	err = a.lCreateInfraction(inf)
 	if err == nil {
 		t.Errorf("CreateInfraction [%v:%v] should error %v", an, rn, err)
 	}
 
 	ts := time.Now()
-	a.RebaseAll()
-	for _, inf := range a.Infractions {
-		if inf.ExpireBy.Before(ts) {
-			t.Errorf("RebaseAll failed ExpireBy time is before TimeStamp [%v:%v:%v:%v]", an, rn, inf.ExpireBy, ts)
+	a.rebaseAll()
+	for _, inf := range a.infractions {
+		if inf.expireBy.Before(ts) {
+			t.Errorf("RebaseAll failed ExpireBy time is before TimeStamp [%v:%v:%v:%v]", an, rn, inf.expireBy, ts)
 		}
 	}
 
@@ -306,7 +306,7 @@ func TestActorStrikes(t *testing.T) {
 		ExpireBase:  time.Millisecond * 10,
 		Sentence:    time.Millisecond * 10,
 	}
-	a := NewClassicActor(an, r, d)
+	a := newClassicActor(an, r, d)
 
 	i = a.strikes(rn)
 	if i != 0 {
@@ -347,41 +347,41 @@ func TestActorShouldReturn(t *testing.T) {
 		ExpireBase:  time.Second * 1,
 		Sentence:    time.Millisecond * 50,
 	}
-	a := NewClassicActor(an, r, d)
+	a := newClassicActor(an, r, d)
 
 	// test
 	// assert all falsey
-	b = a.ShouldReturn()
+	b = a.lShouldReturn()
 	if b {
 		t.Errorf("shouldReturn should be false instead [%v]", b)
 	}
 
-	b = a.IsJailedFor(rn)
+	b = a.lIsJailedFor(rn)
 	if b == true {
 		t.Errorf("isJailedFor should be false instead [%v]", b)
 	}
 
-	b = a.HasJails()
+	b = a.lHasJails()
 	if b == true {
 		t.Errorf("hasJails should be false instead [%v]", b)
 	}
 
 	// assert all truthy
 	for i := 0; i < 3; i++ {
-		err = a.Infraction(rn)
+		err = a.lInfraction(rn)
 		if err != nil {
 			t.Errorf("Infraction [%v] should not error %v", rn, err)
 		}
 	}
 
-	a.Maintenance()
+	a.lMaintenance()
 
-	b = a.IsJailedFor(rn)
+	b = a.lIsJailedFor(rn)
 	if b == false {
 		t.Errorf("isJailedFor should be true instead [%v]", b)
 	}
 
-	b = a.HasJails()
+	b = a.lHasJails()
 	if b == false {
 		t.Errorf("hasJails should be true instead [%v]", b)
 	}
@@ -389,14 +389,14 @@ func TestActorShouldReturn(t *testing.T) {
 	// sleep, quit, should NOT be jailed
 	time.Sleep(dur)
 
-	a.Maintenance()
+	a.lMaintenance()
 
-	b = a.IsJailedFor(rn)
+	b = a.lIsJailedFor(rn)
 	if b == true {
 		t.Errorf("isJailedFor should be false instead [%v]", b)
 	}
 
-	b = a.HasJails()
+	b = a.lHasJails()
 	if b == true {
 		t.Errorf("hasJails should be false instead [%v]", b)
 	}
@@ -419,7 +419,7 @@ func TestActorInfractionExists(t *testing.T) {
 		ExpireBase:  time.Second * 1,
 		Sentence:    time.Millisecond * 50,
 	}
-	a := NewActor(an, d)
+	a := newActor(an, d)
 
 	b = a.infractionExists(rn)
 	if b == true {
@@ -452,7 +452,7 @@ func TestActorTotalJails(t *testing.T) {
 		ExpireBase:  time.Second * 1,
 		Sentence:    time.Millisecond * 50,
 	}
-	a := NewClassicActor(an, r, d)
+	a := newClassicActor(an, r, d)
 
 	for i := 0; i < 3; i++ {
 		a.infraction(rn)

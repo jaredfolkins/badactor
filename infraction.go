@@ -2,20 +2,20 @@ package badactor
 
 import "time"
 
-type Infraction struct {
-	Rule     *Rule
-	Strikes  int
-	ExpireBy time.Time
+type infraction struct {
+	rule     *Rule
+	strikes  int
+	expireBy time.Time
 }
 
-func NewInfraction(r *Rule) *Infraction {
-	return &Infraction{
-		Rule:     r,
-		Strikes:  0,
-		ExpireBy: time.Now().Add(r.ExpireBase),
+func NewInfraction(r *Rule) *infraction {
+	return &infraction{
+		rule:     r,
+		strikes:  0,
+		expireBy: time.Now().Add(r.ExpireBase),
 	}
 }
 
-func (inf *Infraction) Rebase() {
-	inf.ExpireBy = time.Now().Add(inf.Rule.ExpireBase)
+func (inf *infraction) rebase() {
+	inf.expireBy = time.Now().Add(inf.rule.ExpireBase)
 }

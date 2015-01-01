@@ -9,7 +9,7 @@ import (
 
 type Director struct {
 	sync.RWMutex
-	Actors map[string]*Actor
+	Actors map[string]*actor
 	Rules  map[string]*Rule
 	remove chan string
 }
@@ -17,7 +17,7 @@ type Director struct {
 func NewDirector() *Director {
 	rand.Seed(time.Now().Unix())
 	d := &Director{
-		Actors: make(map[string]*Actor),
+		Actors: make(map[string]*actor),
 		Rules:  make(map[string]*Rule),
 		remove: make(chan string),
 	}
@@ -179,8 +179,8 @@ func (d *Director) createActor(an string, rn string) error {
 	if _, ok := d.Rules[rn]; !ok {
 		return fmt.Errorf("createActor failed for Actor [%s], Rule [%s] does not exist", an, rn)
 	}
-	a := NewActor(an, d)
-	a.Run()
+	a := newActor(an, d)
+	a.run()
 	d.Actors[an] = a
 	return nil
 }
@@ -196,31 +196,31 @@ func (d *Director) actorExists(an string) bool {
 }
 
 func (d *Director) incrementInfraction(an string, rn string) error {
-	return d.Actors[an].Infraction(rn)
+	return d.Actors[an].lInfraction(rn)
 }
 
 // takes an ActorName and RuleName and creates an Infraction
 func (d *Director) createInfraction(an string, rn string) error {
 	inf := NewInfraction(d.Rules[rn])
-	return d.Actors[an].CreateInfraction(inf)
+	return d.Actors[an].lCreateInfraction(inf)
 }
 
 func (d *Director) infractionExists(an string, rn string) bool {
-	return d.Actors[an].InfractionExists(rn)
+	return d.Actors[an].lInfractionExists(rn)
 }
 
 func (d *Director) isJailed(an string) bool {
-	return d.Actors[an].IsJailed()
+	return d.Actors[an].lIsJailed()
 }
 
 func (d *Director) isJailedFor(an string, rn string) bool {
-	return d.Actors[an].IsJailedFor(rn)
+	return d.Actors[an].lIsJailedFor(rn)
 }
 
 func (d *Director) strikes(an string, rn string) int {
-	return d.Actors[an].Strikes(rn)
+	return d.Actors[an].lStrikes(rn)
 }
 
 func (d *Director) keepAlive(an string) {
-	d.Actors[an].RebaseAll()
+	d.Actors[an].lRebaseAll()
 }

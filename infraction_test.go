@@ -22,7 +22,7 @@ func TestNewInfraction(t *testing.T) {
 
 	inf := NewInfraction(r)
 
-	if inf.Strikes != 0 {
+	if inf.strikes != 0 {
 		t.Errorf("Infraction.Strikes should be [%v]", 0)
 	}
 
@@ -43,10 +43,10 @@ func TestInfractionRebase(t *testing.T) {
 	}
 
 	inf := NewInfraction(r)
-	ot := inf.ExpireBy
-	inf.Rebase()
-	if !inf.ExpireBy.After(ot) {
-		t.Errorf("Infraction.ExpireBy should be new, greater value, instead [%v:%v]", inf.ExpireBy, ot)
+	ot := inf.expireBy
+	inf.rebase()
+	if !inf.expireBy.After(ot) {
+		t.Errorf("Infraction.ExpireBy should be new, greater value, instead [%v:%v]", inf.expireBy, ot)
 	}
 
 }
