@@ -2,8 +2,7 @@ package badactor
 
 import "time"
 
-// A Rule is a worker and the programmer uses them
-// to enforce the desired behavior
+// Rule struct is used as a basic ruleset to Judge and Jail an Actor by
 type Rule struct {
 	Name        string
 	Message     string
@@ -12,6 +11,7 @@ type Rule struct {
 	Sentence    time.Duration
 }
 
+// NewClassicRule returns a Rule with basic default values
 func NewClassicRule(n string, m string) *Rule {
 	return &Rule{
 		Name:        n,

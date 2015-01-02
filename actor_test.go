@@ -242,7 +242,7 @@ func TestActorCreateInfraction(t *testing.T) {
 
 	a := newClassicActor(an, r, d)
 
-	inf := NewInfraction(r)
+	inf := newInfraction(r)
 
 	err = a.lCreateInfraction(inf)
 	if err == nil {
@@ -273,7 +273,7 @@ func TestActorRebaseAll(t *testing.T) {
 	}
 	a := newClassicActor(an, r, d)
 
-	inf := NewInfraction(r)
+	inf := newInfraction(r)
 
 	err = a.lCreateInfraction(inf)
 	if err == nil {
@@ -426,7 +426,7 @@ func TestActorInfractionExists(t *testing.T) {
 		t.Errorf("infractionExists should be false instead [%v]", b)
 	}
 
-	inf := NewInfraction(r)
+	inf := newInfraction(r)
 	err = a.createInfraction(inf)
 	if err != nil {
 		t.Errorf("createInfraction should not error %v", err)

@@ -266,8 +266,8 @@ func TestInfractionIncrement(t *testing.T) {
 func TestIsJailedFor(t *testing.T) {
 	var b bool
 	var err error
-	expect_false := false
-	expect_true := true
+	expectFalse := false
+	expectTrue := true
 	d := NewDirector()
 	d.Run()
 	an := "an_" + strconv.FormatInt(time.Now().UnixNano(), 10)
@@ -287,8 +287,8 @@ func TestIsJailedFor(t *testing.T) {
 	}
 
 	b = d.IsJailedFor(an, rn)
-	if b != expect_false {
-		t.Errorf("IsJailedFor() should be [%v] instead %v", expect_false, b)
+	if b != expectFalse {
+		t.Errorf("IsJailedFor() should be [%v] instead %v", expectFalse, b)
 	}
 
 	for i := 0; i < 3; i++ {
@@ -299,8 +299,8 @@ func TestIsJailedFor(t *testing.T) {
 	}
 
 	b = d.IsJailedFor(an, rn)
-	if b != expect_true {
-		t.Errorf("IsJailedFor() should be [%v] instead %v", expect_true, b)
+	if b != expectTrue {
+		t.Errorf("IsJailedFor() should be [%v] instead %v", expectTrue, b)
 	}
 
 }
@@ -308,8 +308,8 @@ func TestIsJailedFor(t *testing.T) {
 func TestIsJailed(t *testing.T) {
 	var b bool
 	var err error
-	expect_false := false
-	expect_true := true
+	expectFalse := false
+	expectTrue := true
 	d := NewDirector()
 	d.Run()
 	an := "an_" + strconv.FormatInt(time.Now().UnixNano(), 10)
@@ -329,8 +329,8 @@ func TestIsJailed(t *testing.T) {
 	}
 
 	b = d.IsJailed(an)
-	if b != expect_false {
-		t.Errorf("IsJailed should be should be [%v] instead %v", expect_false, b)
+	if b != expectFalse {
+		t.Errorf("IsJailed should be should be [%v] instead %v", expectFalse, b)
 	}
 
 	for i := 0; i < 3; i++ {
@@ -341,8 +341,8 @@ func TestIsJailed(t *testing.T) {
 	}
 
 	b = d.IsJailed(an)
-	if b != expect_true {
-		t.Errorf("IsJailed should be should be [%v] instead %v", expect_true, b)
+	if b != expectTrue {
+		t.Errorf("IsJailed should be should be [%v] instead %v", expectTrue, b)
 	}
 
 }
@@ -350,8 +350,8 @@ func TestIsJailed(t *testing.T) {
 func TestInfractionExists(t *testing.T) {
 	var b bool
 	var err error
-	expect_false := false
-	expect_true := true
+	expectFalse := false
+	expectTrue := true
 	d := NewDirector()
 	d.Run()
 	an := "an_" + strconv.FormatInt(time.Now().UnixNano(), 10)
@@ -370,14 +370,14 @@ func TestInfractionExists(t *testing.T) {
 	}
 
 	b = d.InfractionExists(an, rn)
-	if b != expect_false {
-		t.Errorf("Infraction should not exist: expected %v instead %v", expect_false, b)
+	if b != expectFalse {
+		t.Errorf("Infraction should not exist: expected %v instead %v", expectFalse, b)
 	}
 
 	d.Infraction(an, rn)
 	b = d.InfractionExists(an, rn)
-	if b != expect_true {
-		t.Errorf("Infraction should exist: expected %v instead %v", expect_true, b)
+	if b != expectTrue {
+		t.Errorf("Infraction should exist: expected %v instead %v", expectTrue, b)
 	}
 
 }

@@ -46,7 +46,7 @@ func newClassicActor(n string, r *Rule, d *Director) *actor {
 	}
 
 	a.Lock()
-	a.infractions[r.Name] = NewInfraction(r)
+	a.infractions[r.Name] = newInfraction(r)
 	a.Unlock()
 	return a
 }
@@ -279,7 +279,7 @@ func (a *actor) lockup(rn string) error {
 	inf := a.infractions[rn]
 
 	if inf.strikes >= inf.rule.StrikeLimit {
-		sen := NewSentence(inf.rule, inf.rule.Sentence)
+		sen := newSentence(inf.rule, inf.rule.Sentence)
 		a.jails[inf.rule.Name] = sen
 		delete(a.infractions, inf.rule.Name)
 		a.rebaseAll()

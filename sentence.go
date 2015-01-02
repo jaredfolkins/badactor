@@ -8,7 +8,7 @@ type sentence struct {
 	start     time.Time
 }
 
-func NewSentence(r *Rule, sen time.Duration) *sentence {
+func newSentence(r *Rule, sen time.Duration) *sentence {
 	return &sentence{
 		rule:      r,
 		releaseBy: time.Now().Add(sen),

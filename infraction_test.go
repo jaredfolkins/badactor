@@ -20,7 +20,7 @@ func TestNewInfraction(t *testing.T) {
 		Sentence:    s,
 	}
 
-	inf := NewInfraction(r)
+	inf := newInfraction(r)
 
 	if inf.strikes != 0 {
 		t.Errorf("Infraction.Strikes should be [%v]", 0)
@@ -42,7 +42,7 @@ func TestInfractionRebase(t *testing.T) {
 		Sentence:    s,
 	}
 
-	inf := NewInfraction(r)
+	inf := newInfraction(r)
 	ot := inf.expireBy
 	inf.rebase()
 	if !inf.expireBy.After(ot) {

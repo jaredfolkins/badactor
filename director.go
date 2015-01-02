@@ -7,6 +7,8 @@ import (
 	"time"
 )
 
+// Director is a singleton, only one should be running
+// it is engine of BadActor and exposes the primary set of Public Functions
 type Director struct {
 	sync.RWMutex
 	Actors map[string]*actor
@@ -14,6 +16,7 @@ type Director struct {
 	remove chan string
 }
 
+// NewDirector instantiates a Director Struct
 func NewDirector() *Director {
 	rand.Seed(time.Now().Unix())
 	d := &Director{
@@ -24,7 +27,7 @@ func NewDirector() *Director {
 	return d
 }
 
-// spin up all the Rules worker
+// Run must be called after a Director is instantiated and had Rules and Actions configured
 func (d *Director) Run() {
 	go func() {
 		for {
@@ -38,87 +41,7 @@ func (d *Director) Run() {
 	}()
 }
 
-// takes an ActorName and RuleName and creates an Infraction
-func (d *Director) CreateInfraction(an string, rn string) error {
-	d.Lock()
-	defer d.Unlock()
-
-	if !d.actorExists(an) {
-		return fmt.Errorf("director.CreateInfraction() failed, Actor does not exists")
-	}
-	return d.createInfraction(an, rn)
-}
-
-func (d *Director) CreateActor(an string, rn string) error {
-	d.Lock()
-	defer d.Unlock()
-
-	if d.actorExists(an) {
-		return fmt.Errorf("director.CreateActor() failed, Actor already exists")
-	}
-	return d.createActor(an, rn)
-}
-
-func (d *Director) KeepAlive(an string) error {
-	d.RLock()
-	defer d.RUnlock()
-	if !d.actorExists(an) {
-		return fmt.Errorf("director.KeepAlive() failed, Actor does not exists")
-	}
-	d.keepAlive(an)
-	return nil
-}
-
-func (d *Director) ActorExists(an string) bool {
-	d.RLock()
-	defer d.RUnlock()
-	return d.actorExists(an)
-}
-
-func (d *Director) InfractionExists(an string, rn string) bool {
-	d.RLock()
-	defer d.RUnlock()
-	if !d.actorExists(an) {
-		return false
-	}
-	return d.infractionExists(an, rn)
-}
-
-func (d *Director) IsJailedFor(an string, rn string) bool {
-	d.RLock()
-	defer d.RUnlock()
-
-	if !d.actorExists(an) {
-		return false
-	}
-	return d.isJailedFor(an, rn)
-}
-
-func (d *Director) IsJailed(an string) bool {
-	d.RLock()
-	defer d.RUnlock()
-	if !d.actorExists(an) {
-		return false
-	}
-	return d.isJailed(an)
-}
-
-func (d *Director) Strikes(an string, rn string) (int, error) {
-	d.RLock()
-	defer d.RUnlock()
-
-	if !d.actorExists(an) {
-		return 0, fmt.Errorf("director.Strikes() failed, Actor does not exists")
-	}
-
-	if !d.infractionExists(an, rn) {
-		return 0, fmt.Errorf("director.Strikes() failed, Infraction does not exists")
-	}
-
-	return d.strikes(an, rn), nil
-}
-
-// Infraction does the most
+// Infraction accepts an ActorName and RuleName and either creates, increments, or increments and jails the Actor
 func (d *Director) Infraction(an string, rn string) error {
 
 	var res bool
@@ -136,6 +59,94 @@ func (d *Director) Infraction(an string, rn string) error {
 	return fmt.Errorf("director.Infraction() failed for [ActorName:%v, RuleName:%v]", an, rn)
 }
 
+// CreateInfraction takes and ActorName and RuleName and creates an Infraction
+func (d *Director) CreateInfraction(an string, rn string) error {
+	d.Lock()
+	defer d.Unlock()
+
+	if !d.actorExists(an) {
+		return fmt.Errorf("director.CreateInfraction() failed, Actor does not exists")
+	}
+	return d.createInfraction(an, rn)
+}
+
+// CreateActor takes and ActorName and RuleName and creates an Actor
+func (d *Director) CreateActor(an string, rn string) error {
+	d.Lock()
+	defer d.Unlock()
+
+	if d.actorExists(an) {
+		return fmt.Errorf("director.CreateActor() failed, Actor already exists")
+	}
+	return d.createActor(an, rn)
+}
+
+// KeepAlive accepts an ActorName and allows you to rebase the TTL for the Actor so that it isn't removed from the stack as scheduled
+func (d *Director) KeepAlive(an string) error {
+	d.RLock()
+	defer d.RUnlock()
+	if !d.actorExists(an) {
+		return fmt.Errorf("director.KeepAlive() failed, Actor does not exists")
+	}
+	d.keepAlive(an)
+	return nil
+}
+
+// ActorExists accepts an ActorName and returns a bool if the Actor is found
+func (d *Director) ActorExists(an string) bool {
+	d.RLock()
+	defer d.RUnlock()
+	return d.actorExists(an)
+}
+
+// InfractionExists accepts an ActorName and RuleName and returns a bool if the Infraction is found
+func (d *Director) InfractionExists(an string, rn string) bool {
+	d.RLock()
+	defer d.RUnlock()
+	if !d.actorExists(an) {
+		return false
+	}
+	return d.infractionExists(an, rn)
+}
+
+// IsJailedFor accepts an ActorName and a RuleName and returns a bool if the Actor is Jailed for that particular Rule
+func (d *Director) IsJailedFor(an string, rn string) bool {
+	d.RLock()
+	defer d.RUnlock()
+
+	if !d.actorExists(an) {
+		return false
+	}
+	return d.isJailedFor(an, rn)
+}
+
+// IsJailed accepts an ActorName and returns a bool if the Actor is Jailed for ANY Rule
+func (d *Director) IsJailed(an string) bool {
+	d.RLock()
+	defer d.RUnlock()
+	if !d.actorExists(an) {
+		return false
+	}
+	return d.isJailed(an)
+}
+
+// Strikes accepts an ActorName and a RuleName and returns the total strikes an Actor holds for a particular Rule
+func (d *Director) Strikes(an string, rn string) (int, error) {
+	d.RLock()
+	defer d.RUnlock()
+
+	if !d.actorExists(an) {
+		return 0, fmt.Errorf("director.Strikes() failed, Actor does not exists")
+	}
+
+	if !d.infractionExists(an, rn) {
+		return 0, fmt.Errorf("director.Strikes() failed, Infraction does not exists")
+	}
+
+	return d.strikes(an, rn), nil
+}
+
+// MostCostlyInfraction accepts an ActorName and RuleName and then performs several validation operations that increate the cost but also the accuracy of creating an Infraction
 func (d *Director) MostCostlyInfraction(an string, rn string) (bool, error) {
 	d.Lock()
 	defer d.Unlock()
@@ -155,7 +166,7 @@ func (d *Director) MostCostlyInfraction(an string, rn string) (bool, error) {
 	return true, d.incrementInfraction(an, rn)
 }
 
-// returns the total strikes of an Actor
+// AddRule accepts a Rule struct and adds it to the Rules map if it doesn't exist
 func (d *Director) AddRule(r *Rule) error {
 	d.Lock()
 	defer d.Unlock()
@@ -199,9 +210,8 @@ func (d *Director) incrementInfraction(an string, rn string) error {
 	return d.Actors[an].lInfraction(rn)
 }
 
-// takes an ActorName and RuleName and creates an Infraction
 func (d *Director) createInfraction(an string, rn string) error {
-	inf := NewInfraction(d.Rules[rn])
+	inf := newInfraction(d.Rules[rn])
 	return d.Actors[an].lCreateInfraction(inf)
 }
 

@@ -8,7 +8,7 @@ type infraction struct {
 	expireBy time.Time
 }
 
-func NewInfraction(r *Rule) *infraction {
+func newInfraction(r *Rule) *infraction {
 	return &infraction{
 		rule:     r,
 		strikes:  0,
