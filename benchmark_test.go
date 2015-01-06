@@ -9,8 +9,7 @@ import (
 
 func BenchmarkIsJailed(b *testing.B) {
 	var err error
-	d := NewDirector()
-	d.Run()
+	d := NewDirector(ia)
 	an := "an_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	rn := "rn_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	rm := "rm_" + strconv.FormatInt(time.Now().UnixNano(), 10)
@@ -38,8 +37,7 @@ func BenchmarkIsJailed(b *testing.B) {
 
 func BenchmarkIsJailedFor(b *testing.B) {
 	var err error
-	d := NewDirector()
-	d.Run()
+	d := NewDirector(ia)
 	an := "an_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	rn := "rn_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	rm := "rm_" + strconv.FormatInt(time.Now().UnixNano(), 10)
@@ -67,8 +65,7 @@ func BenchmarkIsJailedFor(b *testing.B) {
 
 func BenchmarkInfraction(b *testing.B) {
 	var err error
-	d := NewDirector()
-	d.Run()
+	d := NewDirector(ia)
 	an := "an_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	rn := "rn_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	rm := "rm_" + strconv.FormatInt(time.Now().UnixNano(), 10)
@@ -94,8 +91,7 @@ func BenchmarkInfraction(b *testing.B) {
 func BenchmarkInfractionMostCostly(b *testing.B) {
 	var an string
 	var err error
-	d := NewDirector()
-	d.Run()
+	d := NewDirector(ia)
 	rn := "rn_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	rm := "rm_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	r := &Rule{
@@ -113,7 +109,7 @@ func BenchmarkInfractionMostCostly(b *testing.B) {
 
 	// bench the Least Costly way
 	for i := 0; i < b.N; i++ {
-		an = string(rand.Int63())
+		an = strconv.FormatInt(rand.Int63(), 10)
 		d.MostCostlyInfraction(an, rn)
 	}
 }
@@ -121,8 +117,7 @@ func BenchmarkInfractionMostCostly(b *testing.B) {
 func BenchmarkInfractionIsJailed(b *testing.B) {
 	var an string
 	var err error
-	d := NewDirector()
-	d.Run()
+	d := NewDirector(ia)
 	rn := "rn_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	rm := "rm_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	r := &Rule{
@@ -150,8 +145,7 @@ func BenchmarkInfractionIsJailed(b *testing.B) {
 func BenchmarkInfractionIsJailedFor(b *testing.B) {
 	var an string
 	var err error
-	d := NewDirector()
-	d.Run()
+	d := NewDirector(ia)
 	rn := "rn_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	rm := "rm_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	r := &Rule{
@@ -179,8 +173,7 @@ func BenchmarkInfractionIsJailedFor(b *testing.B) {
 func Benchmark10000Actors1Infraction(b *testing.B) {
 	var an string
 	var err error
-	d := NewDirector()
-	d.Run()
+	d := NewDirector(ia)
 	rn := "rn_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	rm := "rm_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	r := &Rule{
@@ -208,8 +201,7 @@ func Benchmark10000Actors1Infraction(b *testing.B) {
 func Benchmark100000Actors1Infraction(b *testing.B) {
 	var an string
 	var err error
-	d := NewDirector()
-	d.Run()
+	d := NewDirector(ia)
 	rn := "rn_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	rm := "rm_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	r := &Rule{
@@ -238,8 +230,7 @@ func Benchmark1000000Actors1Infraction(b *testing.B) {
 	var an string
 	var err error
 
-	d := NewDirector()
-	d.Run()
+	d := NewDirector(ia)
 	rn := "rn_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	rm := "rm_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	r := &Rule{
@@ -267,8 +258,7 @@ func Benchmark1000000Actors1Infraction(b *testing.B) {
 func Benchmark10000Actors4Infractions(b *testing.B) {
 	var an string
 	var err error
-	d := NewDirector()
-	d.Run()
+	d := NewDirector(ia)
 	rn := "rn_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	rm := "rm_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	r := &Rule{
@@ -292,6 +282,22 @@ func Benchmark10000Actors4Infractions(b *testing.B) {
 			for inf := 0; inf < 4; inf++ {
 				d.Infraction(an, rn)
 			}
+		}
+	}
+}
+
+func BenchmarkStudioInfraction(b *testing.B) {
+
+	st := NewStudio(65536)
+	st.CreateDirectors(1024)
+
+	rn := "Login"
+	for i := 0; i < b.N; i++ {
+		an := strconv.FormatInt(rand.Int63(), 10)
+		d := st.GetDirector(an)
+		err := d.Infraction(an, rn)
+		if err != nil {
+			panic(err)
 		}
 	}
 }

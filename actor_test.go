@@ -6,11 +6,12 @@ import (
 	"time"
 )
 
+const ia = 1024
+
 func TestActorIsJailedFor(t *testing.T) {
 	//setup
 	var b bool
-	d := NewDirector()
-	d.Run()
+	d := NewDirector(ia)
 	an := "an_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	rn := "rn_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	rm := "rm_" + strconv.FormatInt(time.Now().UnixNano(), 10)
@@ -51,8 +52,7 @@ func TestActorLockup(t *testing.T) {
 	an := "an_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	rn := "rn_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	rm := "rm_" + strconv.FormatInt(time.Now().UnixNano(), 10)
-	d := NewDirector()
-	d.Run()
+	d := NewDirector(ia)
 	sl := 3
 	r := &Rule{
 		Name:        rn,
@@ -83,8 +83,7 @@ func TestActorTimeServed(t *testing.T) {
 	rn := "rn_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	rm := "rm_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	dur := time.Millisecond * 10
-	d := NewDirector()
-	d.Run()
+	d := NewDirector(ia)
 	sl := 3
 	r := &Rule{
 		Name:        rn,
@@ -110,14 +109,14 @@ func TestActorTimeServed(t *testing.T) {
 
 	// .lockup should happen in the goroutine background
 	time.Sleep(dur)
-	a.lMaintenance()
+	//a.lMaintenance()
 	b = a.lIsJailedFor(rn)
 	if b == false {
 		t.Errorf("isJailedFor should be true instead [%v]", b)
 	}
 
 	time.Sleep(time.Millisecond * 40)
-	a.lMaintenance()
+	//a.lMaintenance()
 	b = a.lIsJailedFor(rn)
 	if b == true {
 		t.Errorf("isJailedFor should be false instead [%v]", b)
@@ -133,8 +132,7 @@ func TestActorlExpire(t *testing.T) {
 	rn := "rn_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	rm := "rm_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	dur := time.Millisecond * 40
-	d := NewDirector()
-	d.Run()
+	d := NewDirector(ia)
 	r := &Rule{
 		Name:        rn,
 		Message:     rm,
@@ -182,8 +180,7 @@ func TestActorlExpire(t *testing.T) {
 
 func TestActorInfraction(t *testing.T) {
 
-	d := NewDirector()
-	d.Run()
+	d := NewDirector(ia)
 	var err error
 	an := "an_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	rn := "rn_" + strconv.FormatInt(time.Now().UnixNano(), 10)
@@ -226,8 +223,7 @@ func TestActorInfraction(t *testing.T) {
 
 func TestActorCreateInfraction(t *testing.T) {
 
-	d := NewDirector()
-	d.Run()
+	d := NewDirector(ia)
 	var err error
 	an := "an_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	rn := "rn_" + strconv.FormatInt(time.Now().UnixNano(), 10)
@@ -258,8 +254,7 @@ func TestActorCreateInfraction(t *testing.T) {
 
 func TestActorRebaseAll(t *testing.T) {
 
-	d := NewDirector()
-	d.Run()
+	d := NewDirector(ia)
 	var err error
 	an := "an_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	rn := "rn_" + strconv.FormatInt(time.Now().UnixNano(), 10)
@@ -294,8 +289,7 @@ func TestActorStrikes(t *testing.T) {
 	var err error
 	var i int
 	bn := "badname"
-	d := NewDirector()
-	d.Run()
+	d := NewDirector(ia)
 	an := "an_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	rn := "rn_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	rm := "rm_" + strconv.FormatInt(time.Now().UnixNano(), 10)
@@ -334,8 +328,7 @@ func TestActorShouldReturn(t *testing.T) {
 	// setup
 	var err error
 	var b bool
-	d := NewDirector()
-	d.Run()
+	d := NewDirector(ia)
 	dur := time.Millisecond * 100
 	an := "an_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	rn := "rn_" + strconv.FormatInt(time.Now().UnixNano(), 10)
@@ -351,9 +344,9 @@ func TestActorShouldReturn(t *testing.T) {
 
 	// test
 	// assert all falsey
-	b = a.lShouldReturn()
+	b = a.lShouldDelete()
 	if b {
-		t.Errorf("shouldReturn should be false instead [%v]", b)
+		t.Errorf("shouldDelete should be false instead [%v]", b)
 	}
 
 	b = a.lIsJailedFor(rn)
@@ -374,7 +367,7 @@ func TestActorShouldReturn(t *testing.T) {
 		}
 	}
 
-	a.lMaintenance()
+	//a.lMaintenance()
 
 	b = a.lIsJailedFor(rn)
 	if b == false {
@@ -389,7 +382,7 @@ func TestActorShouldReturn(t *testing.T) {
 	// sleep, quit, should NOT be jailed
 	time.Sleep(dur)
 
-	a.lMaintenance()
+	//a.lMaintenance()
 
 	b = a.lIsJailedFor(rn)
 	if b == true {
@@ -407,8 +400,7 @@ func TestActorInfractionExists(t *testing.T) {
 	// setup
 	var b bool
 	var err error
-	d := NewDirector()
-	d.Run()
+	d := NewDirector(ia)
 	an := "an_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	rn := "rn_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	rm := "rm_" + strconv.FormatInt(time.Now().UnixNano(), 10)
@@ -440,8 +432,7 @@ func TestActorInfractionExists(t *testing.T) {
 
 func TestActorTotalJails(t *testing.T) {
 	// setup
-	d := NewDirector()
-	d.Run()
+	d := NewDirector(ia)
 	an := "an_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	rn := "rn_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	rm := "rm_" + strconv.FormatInt(time.Now().UnixNano(), 10)

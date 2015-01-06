@@ -8,8 +8,7 @@ import (
 )
 
 func TestNewDirector(t *testing.T) {
-	d := NewDirector()
-	d.Run()
+	d := NewDirector(ia)
 	typ := reflect.TypeOf(d)
 	if typ.Kind() == reflect.Ptr {
 		typ = typ.Elem()
@@ -18,8 +17,7 @@ func TestNewDirector(t *testing.T) {
 
 func TestActorExists(t *testing.T) {
 	var err error
-	d := NewDirector()
-	d.Run()
+	d := NewDirector(ia)
 	an := "an_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	rn := "rn_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	rm := "rm_" + strconv.FormatInt(time.Now().UnixNano(), 10)
@@ -52,8 +50,7 @@ func TestActorExists(t *testing.T) {
 
 func TestKeepAlive(t *testing.T) {
 	var err error
-	d := NewDirector()
-	d.Run()
+	d := NewDirector(ia)
 	an := "an_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	rn := "rn_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	rm := "rm_" + strconv.FormatInt(time.Now().UnixNano(), 10)
@@ -89,8 +86,7 @@ func TestKeepAlive(t *testing.T) {
 func TestStrikes(t *testing.T) {
 	var i int
 	var err error
-	d := NewDirector()
-	d.Run()
+	d := NewDirector(ia)
 	ban := "badname"
 	brn := "badrule"
 	an := "an_" + strconv.FormatInt(time.Now().UnixNano(), 10)
@@ -147,8 +143,7 @@ func TestStrikes(t *testing.T) {
 func TestMostCostlyInfraction(t *testing.T) {
 	var b bool
 	var err error
-	d := NewDirector()
-	d.Run()
+	d := NewDirector(ia)
 	ban := "badname"
 	brn := "badrule"
 	an := "an_" + strconv.FormatInt(time.Now().UnixNano(), 10)
@@ -181,8 +176,7 @@ func TestMostCostlyInfraction(t *testing.T) {
 
 func TestInfraction(t *testing.T) {
 	var err error
-	d := NewDirector()
-	d.Run()
+	d := NewDirector(ia)
 	ban := "badname"
 	brn := "badrule"
 	an := "an_" + strconv.FormatInt(time.Now().UnixNano(), 10)
@@ -229,8 +223,7 @@ func TestInfraction(t *testing.T) {
 
 func TestInfractionIncrement(t *testing.T) {
 	var err error
-	d := NewDirector()
-	d.Run()
+	d := NewDirector(ia)
 	an := "an_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	rn := "rn_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	rm := "rm_" + strconv.FormatInt(time.Now().UnixNano(), 10)
@@ -268,8 +261,7 @@ func TestIsJailedFor(t *testing.T) {
 	var err error
 	expectFalse := false
 	expectTrue := true
-	d := NewDirector()
-	d.Run()
+	d := NewDirector(ia)
 	an := "an_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	rn := "rn_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	rm := "rm_" + strconv.FormatInt(time.Now().UnixNano(), 10)
@@ -310,8 +302,7 @@ func TestIsJailed(t *testing.T) {
 	var err error
 	expectFalse := false
 	expectTrue := true
-	d := NewDirector()
-	d.Run()
+	d := NewDirector(ia)
 	an := "an_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	rn := "rn_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	rm := "rm_" + strconv.FormatInt(time.Now().UnixNano(), 10)
@@ -352,8 +343,7 @@ func TestInfractionExists(t *testing.T) {
 	var err error
 	expectFalse := false
 	expectTrue := true
-	d := NewDirector()
-	d.Run()
+	d := NewDirector(ia)
 	an := "an_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	rn := "rn_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	rm := "rm_" + strconv.FormatInt(time.Now().UnixNano(), 10)
@@ -384,8 +374,7 @@ func TestInfractionExists(t *testing.T) {
 
 func TestCreateInfraction(t *testing.T) {
 	var err error
-	d := NewDirector()
-	d.Run()
+	d := NewDirector(ia)
 	an := "an_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	rn := "rn_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	rm := "rm_" + strconv.FormatInt(time.Now().UnixNano(), 10)
@@ -428,8 +417,7 @@ func TestCreateInfraction(t *testing.T) {
 
 func TestAddRule(t *testing.T) {
 	var err error
-	d := NewDirector()
-	d.Run()
+	d := NewDirector(ia)
 
 	r := NewClassicRule("PasswordReset", "You have requested a password reset too often")
 
@@ -448,8 +436,7 @@ func TestAddRule(t *testing.T) {
 func TestDirectorIsJailedFor(t *testing.T) {
 	var b bool
 	var err error
-	d := NewDirector()
-	d.Run()
+	d := NewDirector(ia)
 	an := "an_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	rn := "rn_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	rm := "rm_" + strconv.FormatInt(time.Now().UnixNano(), 10)
@@ -497,8 +484,7 @@ func TestDirectorIsJailedFor(t *testing.T) {
 
 func TestCreateActor(t *testing.T) {
 	var err error
-	d := NewDirector()
-	d.Run()
+	d := NewDirector(ia)
 	an := "an_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	rn := "rn_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	rm := "rm_" + strconv.FormatInt(time.Now().UnixNano(), 10)

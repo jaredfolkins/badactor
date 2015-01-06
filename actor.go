@@ -2,19 +2,12 @@ package badactor
 
 import (
 	"fmt"
-	"math/rand"
 	"sync"
 	"time"
 )
 
 // ttl is the time to live value for newly created actors
-// maxNs is used as the max value in the range for the Ticker
-// minNs is used as the min value in the range for the Ticker
-const (
-	ttl   = 100
-	maxNs = 3000000000
-	minNs = 1000000000
-)
+const ttl = 100
 
 type actor struct {
 	sync.RWMutex
@@ -51,20 +44,6 @@ func newClassicActor(n string, r *Rule, d *Director) *actor {
 	return a
 }
 
-func (a *actor) run() {
-	r := time.Duration(rand.Intn(maxNs-minNs) + 1)
-	ticker := time.NewTicker(time.Nanosecond * r)
-	go func() {
-		// 1.4 means i refractor this
-		for _ = range ticker.C {
-			if a.lMaintenance() {
-				ticker.Stop()
-				return
-			}
-		}
-	}()
-}
-
 func (a *actor) lHasJails() bool {
 	a.RLock()
 	res := a.hasJails()
@@ -72,9 +51,9 @@ func (a *actor) lHasJails() bool {
 	return res
 }
 
-func (a *actor) lShouldReturn() bool {
+func (a *actor) lShouldDelete() bool {
 	a.Lock()
-	res := a.shouldReturn()
+	res := a.shouldDelete()
 	a.Unlock()
 	return res
 }
@@ -201,51 +180,17 @@ func (a *actor) isJailed() bool {
 	return false
 }
 
-func (a *actor) lMaintenance() bool {
-	a.Lock()
-	res := a.maintenance()
-	a.Unlock()
-	return res
-}
-
-// maintenance does some background tasks
-// Locksup, Expires, or Releases any actors
-func (a *actor) maintenance() bool {
-	for _, s := range a.jails {
-		a.timeServed(s)
+// shouldDelete returns a bool if the Infractions and Jails maps are empty and the ttl is expired
+func (a *actor) shouldDelete() bool {
+	if !a.hasInfractions() && !a.hasJails() {
+		if time.Now().After(a.ttl) {
+			return true
+		}
 	}
-
-	for _, inf := range a.infractions {
-		a.lockup(inf.rule.Name)
-		a.expire(inf.rule.Name)
-	}
-
-	return a.shouldReturn()
-}
-
-func (a *actor) shouldReturn() bool {
-
-	// if the Infractions OR Jails maps are not empty, we can return
-	// as we are certain that we do not want the actor to quit
-	if a.hasInfractions() || a.hasJails() {
-		return false
-	}
-
-	// the ttl is a time buffer, it allows a newly created actor
-	// a few milliseconds to get its State setup
-	// avoiding a potential errouneous quit
-	if time.Now().After(a.ttl) {
-		r := time.Duration(rand.Intn(maxNs-minNs) + 1)
-		time.Sleep(time.Nanosecond * r)
-		a.director.remove <- a.name
-		return true
-	}
-
 	return false
 }
 
 func (a *actor) timeServed(s *sentence) bool {
-
 	if time.Now().After(s.releaseBy) && s != nil {
 		delete(a.jails, s.rule.Name)
 		a.rebaseAll()
