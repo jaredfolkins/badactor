@@ -33,6 +33,7 @@ func (d *Director) readMaintenance() {
 
 	for _, a := range d.actors {
 		a.Lock()
+
 		for _, s := range a.jails {
 			a.timeServed(s)
 		}
@@ -65,19 +66,14 @@ func (d *Director) Maintenance() {
 // Infraction accepts an ActorName and RuleName and either creates, increments, or increments and jails the Actor
 func (d *Director) Infraction(an string, rn string) error {
 
-	var res bool
 	var err error
 
 	if d.IsJailedFor(an, rn) {
 		return fmt.Errorf("Actor [%v] is already jailed for [%v]", an, rn)
 	}
 
-	res, err = d.MostCostlyInfraction(an, rn)
-	if res {
-		return err
-	}
-
-	return fmt.Errorf("director.Infraction() failed for [ActorName:%v, RuleName:%v]", an, rn)
+	_, err = d.MostCostlyInfraction(an, rn)
+	return err
 }
 
 // CreateInfraction takes and ActorName and RuleName and creates an Infraction

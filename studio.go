@@ -31,7 +31,15 @@ func NewStudio(md int32) *Studio {
 }
 
 func (st *Studio) AddRule(r *Rule) {
+	st.Lock()
+	st.addRule(r)
+	st.Unlock()
+	return
+}
+
+func (st *Studio) addRule(r *Rule) {
 	st.rules[r.Name] = r
+	return
 }
 
 func (st *Studio) ApplyRules() {
@@ -40,6 +48,7 @@ func (st *Studio) ApplyRules() {
 			d.AddRule(r)
 		}
 	}
+	return
 }
 
 func (st *Studio) CreateDirectors(ma int32) error {
@@ -60,7 +69,7 @@ func (st *Studio) Infraction(an string, rn string) error {
 	return d.Infraction(an, rn)
 }
 
-func (st *Studio) maintenance() {
+func (st *Studio) Run() {
 	r := time.Duration(rand.Intn(maxNs-minNs) + 1)
 	ticker := time.NewTicker(time.Nanosecond * r)
 	go func() {

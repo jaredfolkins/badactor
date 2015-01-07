@@ -285,19 +285,3 @@ func Benchmark10000Actors4Infractions(b *testing.B) {
 		}
 	}
 }
-
-func BenchmarkStudioInfraction(b *testing.B) {
-
-	st := NewStudio(65536)
-	st.CreateDirectors(1024)
-
-	rn := "Login"
-	for i := 0; i < b.N; i++ {
-		an := strconv.FormatInt(rand.Int63(), 10)
-		d := st.GetDirector(an)
-		err := d.Infraction(an, rn)
-		if err != nil {
-			panic(err)
-		}
-	}
-}

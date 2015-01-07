@@ -470,6 +470,8 @@ func TestDirectorIsJailedFor(t *testing.T) {
 	// sleep to make sure actor is jailed
 	time.Sleep(time.Second * 3)
 
+	d.Maintenance()
+
 	b = d.IsJailed(an)
 	if b == true {
 		t.Errorf("IsJailed should be true instead [%v]", b)

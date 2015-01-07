@@ -109,14 +109,15 @@ func TestActorTimeServed(t *testing.T) {
 
 	// .lockup should happen in the goroutine background
 	time.Sleep(dur)
-	//a.lMaintenance()
 	b = a.lIsJailedFor(rn)
 	if b == false {
 		t.Errorf("isJailedFor should be true instead [%v]", b)
 	}
 
 	time.Sleep(time.Millisecond * 40)
-	//a.lMaintenance()
+	for _, s := range a.jails {
+		a.timeServed(s)
+	}
 	b = a.lIsJailedFor(rn)
 	if b == true {
 		t.Errorf("isJailedFor should be false instead [%v]", b)
@@ -367,7 +368,7 @@ func TestActorShouldReturn(t *testing.T) {
 		}
 	}
 
-	//a.lMaintenance()
+	a.lockup(rn)
 
 	b = a.lIsJailedFor(rn)
 	if b == false {
@@ -382,7 +383,9 @@ func TestActorShouldReturn(t *testing.T) {
 	// sleep, quit, should NOT be jailed
 	time.Sleep(dur)
 
-	//a.lMaintenance()
+	for _, s := range a.jails {
+		a.timeServed(s)
+	}
 
 	b = a.lIsJailedFor(rn)
 	if b == true {

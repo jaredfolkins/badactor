@@ -8,8 +8,9 @@ import (
 	"time"
 )
 
-func BenchmarkCacheInt63(b *testing.B) {
-	st := NewStudio(100000)
+func BenchmarkStudioInfraction(b *testing.B) {
+	st := NewStudio(65336)
+
 	rn := "Login"
 	r := &Rule{
 		Name:        rn,
@@ -25,6 +26,8 @@ func BenchmarkCacheInt63(b *testing.B) {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	st.Run()
 
 	for i := 0; i < b.N; i++ {
 		an := strconv.FormatInt(rand.Int63(), 10)
