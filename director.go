@@ -27,7 +27,7 @@ func NewDirector(ma int32) *Director {
 	return d
 }
 
-func (d *Director) readMaintenance() {
+func (d *Director) ReadMaintenance() {
 	d.RLock()
 	defer d.RUnlock()
 
@@ -47,7 +47,7 @@ func (d *Director) readMaintenance() {
 
 }
 
-func (d *Director) writeMaintenance() {
+func (d *Director) WriteMaintenance() {
 	d.Lock()
 	defer d.Unlock()
 
@@ -59,25 +59,21 @@ func (d *Director) writeMaintenance() {
 }
 
 func (d *Director) Maintenance() {
-	d.readMaintenance()
-	d.writeMaintenance()
+	d.ReadMaintenance()
+	d.WriteMaintenance()
 }
 
-// Infraction accepts an ActorName and RuleName and either creates, increments, or increments and jails the Actor
-func (d *Director) Infraction(an string, rn string) error {
+func (d *Director) lInfraction(an string, rn string) error {
 
-	var err error
-
-	if d.IsJailedFor(an, rn) {
+	if d.lIsJailedFor(an, rn) {
 		return fmt.Errorf("Actor [%v] is already jailed for [%v]", an, rn)
 	}
 
-	_, err = d.MostCostlyInfraction(an, rn)
+	_, err := d.costlyInfraction(an, rn)
 	return err
 }
 
-// CreateInfraction takes and ActorName and RuleName and creates an Infraction
-func (d *Director) CreateInfraction(an string, rn string) error {
+func (d *Director) lCreateInfraction(an string, rn string) error {
 	d.Lock()
 	defer d.Unlock()
 
@@ -87,8 +83,7 @@ func (d *Director) CreateInfraction(an string, rn string) error {
 	return d.createInfraction(an, rn)
 }
 
-// CreateActor takes and ActorName and RuleName and creates an Actor
-func (d *Director) CreateActor(an string, rn string) error {
+func (d *Director) lCreateActor(an string, rn string) error {
 	d.Lock()
 	defer d.Unlock()
 
@@ -98,8 +93,7 @@ func (d *Director) CreateActor(an string, rn string) error {
 	return d.createActor(an, rn)
 }
 
-// KeepAlive accepts an ActorName and allows you to rebase the TTL for the Actor so that it isn't removed from the stack as scheduled
-func (d *Director) KeepAlive(an string) error {
+func (d *Director) lKeepAlive(an string) error {
 	d.RLock()
 	defer d.RUnlock()
 	if !d.actorExists(an) {
@@ -109,15 +103,13 @@ func (d *Director) KeepAlive(an string) error {
 	return nil
 }
 
-// ActorExists accepts an ActorName and returns a bool if the Actor is found
-func (d *Director) ActorExists(an string) bool {
+func (d *Director) lActorExists(an string) bool {
 	d.RLock()
 	defer d.RUnlock()
 	return d.actorExists(an)
 }
 
-// InfractionExists accepts an ActorName and RuleName and returns a bool if the Infraction is found
-func (d *Director) InfractionExists(an string, rn string) bool {
+func (d *Director) lInfractionExists(an string, rn string) bool {
 	d.RLock()
 	defer d.RUnlock()
 	if !d.actorExists(an) {
@@ -126,8 +118,7 @@ func (d *Director) InfractionExists(an string, rn string) bool {
 	return d.infractionExists(an, rn)
 }
 
-// IsJailedFor accepts an ActorName and a RuleName and returns a bool if the Actor is Jailed for that particular Rule
-func (d *Director) IsJailedFor(an string, rn string) bool {
+func (d *Director) lIsJailedFor(an string, rn string) bool {
 	d.RLock()
 	defer d.RUnlock()
 
@@ -137,8 +128,7 @@ func (d *Director) IsJailedFor(an string, rn string) bool {
 	return d.isJailedFor(an, rn)
 }
 
-// IsJailed accepts an ActorName and returns a bool if the Actor is Jailed for ANY Rule
-func (d *Director) IsJailed(an string) bool {
+func (d *Director) lIsJailed(an string) bool {
 	d.RLock()
 	defer d.RUnlock()
 	if !d.actorExists(an) {
@@ -147,8 +137,7 @@ func (d *Director) IsJailed(an string) bool {
 	return d.isJailed(an)
 }
 
-// Strikes accepts an ActorName and a RuleName and returns the total strikes an Actor holds for a particular Rule
-func (d *Director) Strikes(an string, rn string) (int, error) {
+func (d *Director) lStrikes(an string, rn string) (int, error) {
 	d.RLock()
 	defer d.RUnlock()
 
@@ -163,8 +152,8 @@ func (d *Director) Strikes(an string, rn string) (int, error) {
 	return d.strikes(an, rn), nil
 }
 
-// MostCostlyInfraction accepts an ActorName and RuleName and then performs several validation operations that increate the cost but also the accuracy of creating an Infraction
-func (d *Director) MostCostlyInfraction(an string, rn string) (bool, error) {
+// costlyInfraction accepts an ActorName and RuleName and then performs several validation operations that increate the cost but also the accuracy of creating an Infraction
+func (d *Director) costlyInfraction(an string, rn string) (bool, error) {
 	d.Lock()
 	defer d.Unlock()
 
@@ -183,8 +172,7 @@ func (d *Director) MostCostlyInfraction(an string, rn string) (bool, error) {
 	return true, d.incrementInfraction(an, rn)
 }
 
-// AddRule accepts a Rule struct and adds it to the rules map if it doesn't exist
-func (d *Director) AddRule(r *Rule) error {
+func (d *Director) lAddRule(r *Rule) error {
 	d.Lock()
 	defer d.Unlock()
 

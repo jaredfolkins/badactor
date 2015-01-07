@@ -30,6 +30,7 @@ func NewStudio(md int32) *Studio {
 	return st
 }
 
+// AddRule accepts a Rule struct and adds it to the rules map if it doesn't exist
 func (st *Studio) AddRule(r *Rule) {
 	st.Lock()
 	st.addRule(r)
@@ -45,7 +46,7 @@ func (st *Studio) addRule(r *Rule) {
 func (st *Studio) ApplyRules() {
 	for _, r := range st.rules {
 		for _, d := range st.directors {
-			d.AddRule(r)
+			d.lAddRule(r)
 		}
 	}
 	return
@@ -64,9 +65,58 @@ func (st *Studio) CreateDirectors(ma int32) error {
 	return nil
 }
 
+// Infraction accepts an ActorName and RuleName and either creates, increments, or increments and jails the Actor
 func (st *Studio) Infraction(an string, rn string) error {
 	d := st.GetDirector(an)
-	return d.Infraction(an, rn)
+	return d.lInfraction(an, rn)
+}
+
+// Strikes accepts an ActorName and a RuleName and returns the total strikes an Actor holds for a particular Rule
+func (st *Studio) Strikes(an string, rn string) (int, error) {
+	d := st.GetDirector(an)
+	return d.lStrikes(an, rn)
+}
+
+// CreateInfraction takes and ActorName and RuleName and creates an Infraction
+func (st *Studio) CreateInfraction(an string, rn string) error {
+	d := st.GetDirector(an)
+	return d.lCreateInfraction(an, rn)
+}
+
+// CreateActor takes and ActorName and RuleName and creates an Actor
+func (st *Studio) CreateActor(an string, rn string) error {
+	d := st.GetDirector(an)
+	return d.lCreateInfraction(an, rn)
+}
+
+// KeepAlive accepts an ActorName and allows you to rebase the TTL for the Actor so that it isn't removed from the stack as scheduled
+func (st *Studio) KeepAlive(an string) error {
+	d := st.GetDirector(an)
+	return d.lKeepAlive(an)
+}
+
+// ActorExists accepts an ActorName and returns a bool if the Actor is found
+func (st *Studio) ActorExists(an string) bool {
+	d := st.GetDirector(an)
+	return d.lActorExists(an)
+}
+
+// InfractionExists accepts an ActorName and RuleName and returns a bool if the Infraction is found
+func (st *Studio) InfractionExists(an string, rn string) bool {
+	d := st.GetDirector(an)
+	return d.lInfractionExists(an, rn)
+}
+
+// IsJailedFor accepts an ActorName and a RuleName and returns a bool if the Actor is Jailed for that particular Rule
+func (st *Studio) IsJailedFor(an string, rn string) bool {
+	d := st.GetDirector(an)
+	return d.lIsJailedFor(an, rn)
+}
+
+// IsJailed accepts an ActorName and returns a bool if the Actor is Jailed for ANY Rule
+func (st *Studio) IsJailed(an string) bool {
+	d := st.GetDirector(an)
+	return d.lIsJailed(an)
 }
 
 func (st *Studio) Run() {

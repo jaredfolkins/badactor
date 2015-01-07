@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-func BenchmarkIsJailed(b *testing.B) {
+func BenchmarklIsJailed(b *testing.B) {
 	var err error
 	d := NewDirector(ia)
 	an := "an_" + strconv.FormatInt(time.Now().UnixNano(), 10)
@@ -21,21 +21,21 @@ func BenchmarkIsJailed(b *testing.B) {
 		Sentence:    time.Minute * 5,
 	}
 
-	err = d.AddRule(r)
+	err = d.lAddRule(r)
 	if err != nil {
-		b.Errorf("AddRule [%s] should not fail", rn)
+		b.Errorf("lAddRule [%s] should not fail", rn)
 	}
 
 	for i := 0; i < 4; i++ {
-		d.Infraction(an, rn)
+		d.lInfraction(an, rn)
 	}
 
 	for i := 0; i < b.N; i++ {
-		d.IsJailed(an)
+		d.lIsJailed(an)
 	}
 }
 
-func BenchmarkIsJailedFor(b *testing.B) {
+func BenchmarklIsJailedFor(b *testing.B) {
 	var err error
 	d := NewDirector(ia)
 	an := "an_" + strconv.FormatInt(time.Now().UnixNano(), 10)
@@ -49,21 +49,21 @@ func BenchmarkIsJailedFor(b *testing.B) {
 		Sentence:    time.Minute * 5,
 	}
 
-	err = d.AddRule(r)
+	err = d.lAddRule(r)
 	if err != nil {
-		b.Errorf("AddRule [%s] should not fail", rn)
+		b.Errorf("lAddRule [%s] should not fail", rn)
 	}
 
 	for i := 0; i < 4; i++ {
-		d.Infraction(an, rn)
+		d.lInfraction(an, rn)
 	}
 
 	for i := 0; i < b.N; i++ {
-		d.IsJailedFor(an, rn)
+		d.lIsJailedFor(an, rn)
 	}
 }
 
-func BenchmarkInfraction(b *testing.B) {
+func BenchmarklInfraction(b *testing.B) {
 	var err error
 	d := NewDirector(ia)
 	an := "an_" + strconv.FormatInt(time.Now().UnixNano(), 10)
@@ -77,18 +77,18 @@ func BenchmarkInfraction(b *testing.B) {
 		Sentence:    time.Minute * 5,
 	}
 
-	err = d.AddRule(r)
+	err = d.lAddRule(r)
 	if err != nil {
-		b.Errorf("AddRule for [%v] should not fail", rn)
+		b.Errorf("lAddRule for [%v] should not fail", rn)
 	}
 
 	for i := 0; i < b.N; i++ {
 		an = string(rand.Int63())
-		d.Infraction(an, rn)
+		d.lInfraction(an, rn)
 	}
 }
 
-func BenchmarkInfractionMostCostly(b *testing.B) {
+func BenchmarklInfractionMostCostly(b *testing.B) {
 	var an string
 	var err error
 	d := NewDirector(ia)
@@ -102,19 +102,19 @@ func BenchmarkInfractionMostCostly(b *testing.B) {
 		Sentence:    time.Minute * 5,
 	}
 
-	err = d.AddRule(r)
+	err = d.lAddRule(r)
 	if err != nil {
-		b.Errorf("AddRule for [%s] should not fail", rn)
+		b.Errorf("lAddRule for [%s] should not fail", rn)
 	}
 
 	// bench the Least Costly way
 	for i := 0; i < b.N; i++ {
 		an = strconv.FormatInt(rand.Int63(), 10)
-		d.MostCostlyInfraction(an, rn)
+		d.costlyInfraction(an, rn)
 	}
 }
 
-func BenchmarkInfractionIsJailed(b *testing.B) {
+func BenchmarklInfractionlIsJailed(b *testing.B) {
 	var an string
 	var err error
 	d := NewDirector(ia)
@@ -128,21 +128,21 @@ func BenchmarkInfractionIsJailed(b *testing.B) {
 		Sentence:    time.Minute * 5,
 	}
 
-	err = d.AddRule(r)
+	err = d.lAddRule(r)
 	if err != nil {
-		b.Errorf("AddRule [%s] should not fail", rn)
+		b.Errorf("lAddRule [%s] should not fail", rn)
 	}
 
 	for i := 0; i < b.N; i++ {
 		an = string(rand.Int63())
 		for i := 0; i < 3; i++ {
-			d.Infraction(an, rn)
+			d.lInfraction(an, rn)
 		}
-		d.IsJailed(an)
+		d.lIsJailed(an)
 	}
 }
 
-func BenchmarkInfractionIsJailedFor(b *testing.B) {
+func BenchmarklInfractionlIsJailedFor(b *testing.B) {
 	var an string
 	var err error
 	d := NewDirector(ia)
@@ -156,21 +156,21 @@ func BenchmarkInfractionIsJailedFor(b *testing.B) {
 		Sentence:    time.Minute * 5,
 	}
 
-	err = d.AddRule(r)
+	err = d.lAddRule(r)
 	if err != nil {
-		b.Errorf("AddRule [%s] should not fail", rn)
+		b.Errorf("lAddRule [%s] should not fail", rn)
 	}
 
 	for i := 0; i < b.N; i++ {
 		an = string(rand.Int63())
 		for i := 0; i < 3; i++ {
-			d.Infraction(an, rn)
+			d.lInfraction(an, rn)
 		}
-		d.IsJailedFor(an, rn)
+		d.lIsJailedFor(an, rn)
 	}
 }
 
-func Benchmark10000Actors1Infraction(b *testing.B) {
+func Benchmark10000Actors1lInfraction(b *testing.B) {
 	var an string
 	var err error
 	d := NewDirector(ia)
@@ -184,21 +184,21 @@ func Benchmark10000Actors1Infraction(b *testing.B) {
 		Sentence:    time.Minute * 5,
 	}
 
-	err = d.AddRule(r)
+	err = d.lAddRule(r)
 	if err != nil {
-		b.Errorf("AddRule for [%v] should not fail", rn)
+		b.Errorf("lAddRule for [%v] should not fail", rn)
 	}
 
 	aN := 10000
 	for i := 0; i < b.N; i++ {
 		for a := 0; a < aN; a++ {
 			an = string(rand.Int63())
-			d.Infraction(an, rn)
+			d.lInfraction(an, rn)
 		}
 	}
 }
 
-func Benchmark100000Actors1Infraction(b *testing.B) {
+func Benchmark100000Actors1lInfraction(b *testing.B) {
 	var an string
 	var err error
 	d := NewDirector(ia)
@@ -212,21 +212,21 @@ func Benchmark100000Actors1Infraction(b *testing.B) {
 		Sentence:    time.Minute * 5,
 	}
 
-	err = d.AddRule(r)
+	err = d.lAddRule(r)
 	if err != nil {
-		b.Errorf("AddRule for [%v] should not fail", rn)
+		b.Errorf("lAddRule for [%v] should not fail", rn)
 	}
 
 	aN := 100000
 	for i := 0; i < b.N; i++ {
 		for a := 0; a < aN; a++ {
 			an = string(rand.Int63())
-			d.Infraction(an, rn)
+			d.lInfraction(an, rn)
 		}
 	}
 }
 
-func Benchmark1000000Actors1Infraction(b *testing.B) {
+func Benchmark1000000Actors1lInfraction(b *testing.B) {
 	var an string
 	var err error
 
@@ -241,21 +241,21 @@ func Benchmark1000000Actors1Infraction(b *testing.B) {
 		Sentence:    time.Minute * 5,
 	}
 
-	err = d.AddRule(r)
+	err = d.lAddRule(r)
 	if err != nil {
-		b.Errorf("AddRule for [%v] should not fail", rn)
+		b.Errorf("lAddRule for [%v] should not fail", rn)
 	}
 
 	aN := 1000000
 	for i := 0; i < b.N; i++ {
 		for a := 0; a < aN; a++ {
 			an = string(rand.Int63())
-			d.Infraction(an, rn)
+			d.lInfraction(an, rn)
 		}
 	}
 }
 
-func Benchmark10000Actors4Infractions(b *testing.B) {
+func Benchmark10000Actors4lInfractions(b *testing.B) {
 	var an string
 	var err error
 	d := NewDirector(ia)
@@ -269,9 +269,9 @@ func Benchmark10000Actors4Infractions(b *testing.B) {
 		Sentence:    time.Minute * 5,
 	}
 
-	err = d.AddRule(r)
+	err = d.lAddRule(r)
 	if err != nil {
-		b.Errorf("AddRule for [%v] should not fail", rn)
+		b.Errorf("lAddRule for [%v] should not fail", rn)
 	}
 
 	aN := 10000
@@ -280,7 +280,7 @@ func Benchmark10000Actors4Infractions(b *testing.B) {
 		for a := 0; a < aN; a++ {
 			an = string(rand.Int63())
 			for inf := 0; inf < 4; inf++ {
-				d.Infraction(an, rn)
+				d.lInfraction(an, rn)
 			}
 		}
 	}
