@@ -15,7 +15,7 @@ func TestNewDirector(t *testing.T) {
 	}
 }
 
-func TestlActorExists(t *testing.T) {
+func TestActorExists(t *testing.T) {
 	var err error
 	d := NewDirector(ia)
 	an := "an_" + strconv.FormatInt(time.Now().UnixNano(), 10)
@@ -48,7 +48,7 @@ func TestlActorExists(t *testing.T) {
 	}
 }
 
-func TestlKeepAlive(t *testing.T) {
+func TestKeepAlive(t *testing.T) {
 	var err error
 	d := NewDirector(ia)
 	an := "an_" + strconv.FormatInt(time.Now().UnixNano(), 10)
@@ -83,7 +83,7 @@ func TestlKeepAlive(t *testing.T) {
 	}
 }
 
-func TestlStrikes(t *testing.T) {
+func TestStrikes(t *testing.T) {
 	var i int
 	var err error
 	d := NewDirector(ia)
@@ -105,7 +105,7 @@ func TestlStrikes(t *testing.T) {
 		t.Errorf("lAddRule for Actor [%s] should not fail", an)
 	}
 
-	// setup valid infraction
+	// setup valid lInfraction
 	err = d.lInfraction(an, rn)
 	if err != nil {
 		t.Errorf("Ifraction should not fail : %v ", err)
@@ -140,41 +140,7 @@ func TestlStrikes(t *testing.T) {
 
 }
 
-func TestcostlyInfraction(t *testing.T) {
-	var b bool
-	var err error
-	d := NewDirector(ia)
-	ban := "badname"
-	brn := "badrule"
-	an := "an_" + strconv.FormatInt(time.Now().UnixNano(), 10)
-	rn := "rn_" + strconv.FormatInt(time.Now().UnixNano(), 10)
-	rm := "rm_" + strconv.FormatInt(time.Now().UnixNano(), 10)
-	r := &Rule{
-		Name:        rn,
-		Message:     rm,
-		StrikeLimit: 3,
-		ExpireBase:  time.Minute * 10,
-		Sentence:    time.Minute * 10,
-	}
-
-	err = d.lAddRule(r)
-	if err != nil {
-		t.Errorf("lAddRule for Actor [%s] should not fail", an)
-	}
-
-	b, err = d.costlyInfraction(an, brn)
-	if err == nil {
-		t.Errorf("MostCostlyIfraction should not fail : %v %v", err, b)
-	}
-
-	b, err = d.costlyInfraction(ban, rn)
-	if err != nil {
-		t.Errorf("MostCostlyIfraction should fail : %v  %v", err, b)
-	}
-
-}
-
-func TestlInfraction(t *testing.T) {
+func TestInfraction(t *testing.T) {
 	var err error
 	d := NewDirector(ia)
 	ban := "badname"
@@ -221,7 +187,7 @@ func TestlInfraction(t *testing.T) {
 
 }
 
-func TestlInfractionIncrement(t *testing.T) {
+func TestInfractionIncrement(t *testing.T) {
 	var err error
 	d := NewDirector(ia)
 	an := "an_" + strconv.FormatInt(time.Now().UnixNano(), 10)
@@ -256,7 +222,7 @@ func TestlInfractionIncrement(t *testing.T) {
 
 }
 
-func TestlIsJailedFor(t *testing.T) {
+func TestIsJailedFor(t *testing.T) {
 	var b bool
 	var err error
 	expectFalse := false
@@ -297,7 +263,7 @@ func TestlIsJailedFor(t *testing.T) {
 
 }
 
-func TestlIsJailed(t *testing.T) {
+func TestIsJailed(t *testing.T) {
 	var b bool
 	var err error
 	expectFalse := false
@@ -338,7 +304,7 @@ func TestlIsJailed(t *testing.T) {
 
 }
 
-func TestlInfractionExists(t *testing.T) {
+func TestInfractionExists(t *testing.T) {
 	var b bool
 	var err error
 	expectFalse := false
@@ -372,7 +338,7 @@ func TestlInfractionExists(t *testing.T) {
 
 }
 
-func TestlCreateInfraction(t *testing.T) {
+func TestCreateInfraction(t *testing.T) {
 	var err error
 	d := NewDirector(ia)
 	an := "an_" + strconv.FormatInt(time.Now().UnixNano(), 10)
@@ -415,7 +381,7 @@ func TestlCreateInfraction(t *testing.T) {
 
 }
 
-func TestlAddRule(t *testing.T) {
+func TestAddRule(t *testing.T) {
 	var err error
 	d := NewDirector(ia)
 
@@ -470,7 +436,7 @@ func TestDirectorlIsJailedFor(t *testing.T) {
 	// sleep to make sure actor is jailed
 	time.Sleep(time.Second * 3)
 
-	d.Maintenance()
+	d.maintenance()
 
 	b = d.lIsJailed(an)
 	if b == true {
@@ -484,7 +450,7 @@ func TestDirectorlIsJailedFor(t *testing.T) {
 
 }
 
-func TestlCreateActor(t *testing.T) {
+func TestCreateActor(t *testing.T) {
 	var err error
 	d := NewDirector(ia)
 	an := "an_" + strconv.FormatInt(time.Now().UnixNano(), 10)

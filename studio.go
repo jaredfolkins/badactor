@@ -126,7 +126,7 @@ func (st *Studio) Run() {
 		// 1.4 means i refractor this
 		for _ = range ticker.C {
 			for _, d := range st.directors {
-				d.Maintenance()
+				d.maintenance()
 			}
 		}
 	}()

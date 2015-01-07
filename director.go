@@ -27,7 +27,46 @@ func NewDirector(ma int32) *Director {
 	return d
 }
 
-func (d *Director) ReadMaintenance() {
+func (d *Director) maintenance() {
+	d.lReadMaintenance()
+	d.lWriteMaintenance()
+}
+
+func (d *Director) lInfraction(an string, rn string) error {
+	d.Lock()
+	defer d.Unlock()
+
+	if !d.actorExists(an) {
+		err := d.createActor(an, rn)
+		if err != nil {
+			return err
+		}
+	}
+
+	if d.isJailedFor(an, rn) {
+		return fmt.Errorf("Actor [%v] is already jailed for [%v]", an, rn)
+	}
+
+	// create infraction if needed
+	if !d.infractionExists(an, rn) {
+		d.createInfraction(an, rn)
+	}
+
+	return d.incrementInfraction(an, rn)
+}
+
+func (d *Director) lWriteMaintenance() {
+	d.Lock()
+	defer d.Unlock()
+
+	for _, a := range d.actors {
+		if a.lShouldDelete() {
+			delete(d.actors, a.name)
+		}
+	}
+}
+
+func (d *Director) lReadMaintenance() {
 	d.RLock()
 	defer d.RUnlock()
 
@@ -45,32 +84,6 @@ func (d *Director) ReadMaintenance() {
 		a.Unlock()
 	}
 
-}
-
-func (d *Director) WriteMaintenance() {
-	d.Lock()
-	defer d.Unlock()
-
-	for _, a := range d.actors {
-		if a.lShouldDelete() {
-			delete(d.actors, a.name)
-		}
-	}
-}
-
-func (d *Director) Maintenance() {
-	d.ReadMaintenance()
-	d.WriteMaintenance()
-}
-
-func (d *Director) lInfraction(an string, rn string) error {
-
-	if d.lIsJailedFor(an, rn) {
-		return fmt.Errorf("Actor [%v] is already jailed for [%v]", an, rn)
-	}
-
-	_, err := d.costlyInfraction(an, rn)
-	return err
 }
 
 func (d *Director) lCreateInfraction(an string, rn string) error {
@@ -150,26 +163,6 @@ func (d *Director) lStrikes(an string, rn string) (int, error) {
 	}
 
 	return d.strikes(an, rn), nil
-}
-
-// costlyInfraction accepts an ActorName and RuleName and then performs several validation operations that increate the cost but also the accuracy of creating an Infraction
-func (d *Director) costlyInfraction(an string, rn string) (bool, error) {
-	d.Lock()
-	defer d.Unlock()
-
-	if !d.actorExists(an) {
-		err := d.createActor(an, rn)
-		if err != nil {
-			return false, err
-		}
-	}
-
-	// create infraction if needed
-	if !d.infractionExists(an, rn) {
-		d.createInfraction(an, rn)
-	}
-
-	return true, d.incrementInfraction(an, rn)
 }
 
 func (d *Director) lAddRule(r *Rule) error {
