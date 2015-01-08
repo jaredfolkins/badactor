@@ -479,3 +479,176 @@ func TestCreateActor(t *testing.T) {
 		t.Errorf("director.lCreateActor() for [%s] should fail", an)
 	}
 }
+
+func TestIsFull(t *testing.T) {
+	var b bool
+	var err error
+	d := NewDirector(ia)
+	rn := "rn_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	rm := "rm_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	r := &Rule{
+		Name:        rn,
+		Message:     rm,
+		StrikeLimit: 3,
+		ExpireBase:  time.Minute * 10,
+		Sentence:    time.Minute * 10,
+	}
+
+	err = d.lAddRule(r)
+	if err != nil {
+		t.Errorf("lAddRule [%s] should not fail", rn)
+	}
+
+	b = d.isFull()
+	if b == true {
+		t.Errorf("isFull() should be false")
+	}
+
+	var i int64
+	for i = 0; i < ia; i++ {
+		an := strconv.FormatInt(i, 10)
+		d.lInfraction(an, rn)
+	}
+
+	b = d.isFull()
+	if b == false {
+		t.Errorf("isFull() should be true")
+	}
+
+}
+
+/*
+func TestDeleteOldest(t *testing.T) {
+	var b bool
+	var err error
+	d := NewDirector(ia)
+	rn := "rn_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	rm := "rm_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	r := &Rule{
+		Name:        rn,
+		Message:     rm,
+		StrikeLimit: 3,
+		ExpireBase:  time.Minute * 10,
+		Sentence:    time.Minute * 10,
+	}
+
+	err = d.lAddRule(r)
+	if err != nil {
+		t.Errorf("lAddRule [%s] should not fail", rn)
+	}
+
+	for ik := 0; ik < 3; ik++ {
+		b = d.isFull()
+		if b == true {
+			t.Errorf("isFull() should be false")
+		}
+
+		var i int64
+		for i = 0; i < ia; i++ {
+			an := strconv.FormatInt(i, 10)
+			d.lInfraction(an, rn)
+		}
+
+		b = d.isFull()
+		if b == false {
+			t.Errorf("isFull() should be true")
+		}
+
+		d.deleteOldest()
+
+		b = d.isFull()
+		if b == true {
+			t.Errorf("isFull() should be true")
+		}
+	}
+
+}
+
+func TestIndexExists(t *testing.T) {
+	var err error
+	var an string
+	d := NewDirector(10)
+	rn := "rn_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	rm := "rm_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	r := &Rule{
+		Name:        rn,
+		Message:     rm,
+		StrikeLimit: 3,
+		ExpireBase:  time.Minute * 10,
+		Sentence:    time.Minute * 10,
+	}
+
+	err = d.lAddRule(r)
+	if err != nil {
+		t.Errorf("lAddRule [%s] should not fail", rn)
+	}
+
+	for i := 0; i < 10; i++ {
+		an = strconv.FormatInt(int64(i), 10)
+		d.lInfraction(an, rn)
+	}
+
+	an = "11"
+	i, ok := d.indexExists(an)
+
+	if i != 0 {
+		t.Errorf("i for index [%v] should be 0", an)
+	}
+
+	if ok == true {
+		t.Errorf("ok for index [%v] should be false", an)
+	}
+
+	an = "5"
+	i, ok = d.indexExists(an)
+	if i != 4 {
+		t.Errorf("i for index [%v] should be 0", an)
+	}
+
+	if ok == false {
+		t.Errorf("ok for index [%v] should be true", an)
+	}
+
+}
+
+func TestReindex(t *testing.T) {
+	var err error
+	var an string
+	d := NewDirector(10)
+	rn := "rn_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	rm := "rm_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	r := &Rule{
+		Name:        rn,
+		Message:     rm,
+		StrikeLimit: 3,
+		ExpireBase:  time.Minute * 10,
+		Sentence:    time.Minute * 10,
+	}
+
+	err = d.lAddRule(r)
+	if err != nil {
+		t.Errorf("lAddRule [%s] should not fail", rn)
+	}
+
+	for i := 0; i < 10; i++ {
+		an = strconv.FormatInt(int64(i), 10)
+		d.lInfraction(an, rn)
+	}
+
+	an = "5"
+	i, ok := d.indexExists(an)
+	if i != 4 {
+		t.Errorf("i for index [%v] should be 4", an)
+	}
+
+	if ok == false {
+		t.Errorf("ok for index [%v] should be true", an)
+	}
+
+	d.reindex(an)
+	if d.index[0] != an {
+		t.Errorf("ActorName for index 0 should be [%v]", an)
+	}
+
+}
+*/

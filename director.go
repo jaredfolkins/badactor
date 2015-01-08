@@ -11,18 +11,26 @@ import (
 // it is engine of BadActor and exposes the primary set of Public Functions
 type Director struct {
 	sync.RWMutex
-	maxActors int32
-	actors    map[string]*actor
-	rules     map[string]*Rule
+	index []string
+
+	//list *list.List
+	//table
+
+	actors map[string]*actor
+	rules  map[string]*Rule
+
+	capacity int32
+	size     int32
 }
 
 // NewDirector instantiates a Director Struct
 func NewDirector(ma int32) *Director {
 	rand.Seed(time.Now().Unix())
 	d := &Director{
-		maxActors: ma,
-		actors:    make(map[string]*actor),
-		rules:     make(map[string]*Rule),
+		capacity: ma,
+		index:    make([]string, ma),
+		actors:   make(map[string]*actor, ma),
+		rules:    make(map[string]*Rule),
 	}
 	return d
 }
@@ -188,9 +196,51 @@ func (d *Director) createActor(an string, rn string) error {
 	if _, ok := d.rules[rn]; !ok {
 		return fmt.Errorf("createActor failed for Actor [%s], Rule [%s] does not exist", an, rn)
 	}
+
+	//d.reindex(an)
+
 	a := newActor(an, d)
 	d.actors[an] = a
 	return nil
+}
+
+func (d *Director) indexExists(an string) (int32, bool) {
+	var i int32
+
+	for i = 0; i < int32(len(d.index)); i++ {
+		if d.index[i] == an {
+			return i, true
+		}
+	}
+	return 0, false
+}
+
+func (d *Director) reindexExisting(an string) {
+	i, ok := d.indexExists(an)
+	if ok {
+		d.index = append(d.index[:i], d.index[i:]...)
+	}
+	d.reindex(an)
+}
+
+func (d *Director) reindex(an string) {
+	ns := []string{an}
+	d.index = append(ns, d.index...)
+}
+
+func (d *Director) isFull() bool {
+	if int32(len(d.actors)) == d.capacity {
+		return true
+	}
+	return false
+}
+
+func (d *Director) deleteOldest() {
+	a := d.actors[d.index[d.capacity-1]]
+	if d.isFull() {
+		delete(d.actors, a.name)
+		d.index = append(d.index[:d.capacity], d.index[d.capacity+1:]...)
+	}
 }
 
 func (d *Director) ruleExists(rn string) bool {
