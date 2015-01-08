@@ -27,19 +27,19 @@ func TestActorIsJailedFor(t *testing.T) {
 
 	//test
 	for i := 0; i < 3; i++ {
-		a.lInfraction(rn)
+		a.infraction(rn)
 	}
 
-	b = a.lIsJailedFor(an)
+	b = a.isJailedFor(an)
 	if b {
 		t.Errorf("isJailedFor should be false instead [%v]", b)
 	}
 
 	for i := 0; i < 3; i++ {
-		a.lInfraction(rn)
+		a.infraction(rn)
 	}
 
-	b = a.lIsJailedFor(rn)
+	b = a.isJailedFor(rn)
 	if !b {
 		t.Errorf("isJailedFor should be false instead [%v]", b)
 	}
@@ -65,10 +65,10 @@ func TestActorLockup(t *testing.T) {
 
 	// test
 	for i := 0; i < 3; i++ {
-		a.lInfraction(rn)
+		a.infraction(rn)
 	}
 
-	b = a.lIsJailedFor(rn)
+	b = a.isJailedFor(rn)
 	if b == false {
 		t.Errorf("isJailedFor should be true instead [%v]", b)
 	}
@@ -94,14 +94,14 @@ func TestActorTimeServed(t *testing.T) {
 	}
 	a := newClassicActor(an, r, d)
 
-	b = a.lIsJailedFor(rn)
+	b = a.isJailedFor(rn)
 	if b == true {
 		t.Errorf("isJailedFor should be false instead [%v]", b)
 	}
 
 	// test
 	for i := 0; i < 3; i++ {
-		err = a.lInfraction(rn)
+		err = a.infraction(rn)
 		if err != nil {
 			t.Errorf("Infraction should not error instead [%v]", err)
 		}
@@ -109,7 +109,7 @@ func TestActorTimeServed(t *testing.T) {
 
 	// .lockup should happen in the goroutine background
 	time.Sleep(dur)
-	b = a.lIsJailedFor(rn)
+	b = a.isJailedFor(rn)
 	if b == false {
 		t.Errorf("isJailedFor should be true instead [%v]", b)
 	}
@@ -118,14 +118,14 @@ func TestActorTimeServed(t *testing.T) {
 	for _, s := range a.jails {
 		a.timeServed(s)
 	}
-	b = a.lIsJailedFor(rn)
+	b = a.isJailedFor(rn)
 	if b == true {
 		t.Errorf("isJailedFor should be false instead [%v]", b)
 	}
 
 }
 
-func TestActorlExpire(t *testing.T) {
+func TestActorexpire(t *testing.T) {
 
 	var err error
 	br := "badrule"
@@ -144,36 +144,36 @@ func TestActorlExpire(t *testing.T) {
 
 	a := newClassicActor(an, r, d)
 
-	err = a.lExpire(br)
+	err = a.expire(br)
 	if err == nil {
 		t.Errorf("Expire should error for [%v]", err)
 	}
 
-	a.lInfraction(rn)
+	a.infraction(rn)
 
-	err = a.lExpire(rn)
+	err = a.expire(rn)
 	if err != nil {
 		t.Errorf("Expire should not fail: %v", err)
 	}
 
 	time.Sleep(dur)
 
-	err = a.lExpire(rn)
+	err = a.expire(rn)
 	if err != nil {
 		t.Errorf("Expire should not delete [%v:%v]", an, rn)
 	}
 
-	if !a.lHasInfractions() {
+	if !a.hasInfractions() {
 		t.Errorf("Infractions should exist [%v:%v]", an, rn)
 	}
 
 	time.Sleep(dur)
-	err = a.lExpire(rn)
+	err = a.expire(rn)
 	if err != nil {
 		t.Errorf("Expire should delete [%v:%v]", an, rn)
 	}
 
-	if !a.lHasInfractions() {
+	if !a.hasInfractions() {
 		t.Errorf("Infractions should not exist [%v:%v]", an, rn)
 	}
 
@@ -198,24 +198,24 @@ func TestActorInfraction(t *testing.T) {
 	a := newClassicActor(an, r, d)
 
 	rde := "ruledoesntexist"
-	err = a.lInfraction(rde)
+	err = a.infraction(rde)
 	if err == nil {
 		t.Errorf("Infraction should error [%v:%v:%v]", err, an, rde)
 	}
 
 	for i := 0; i < 3; i++ {
-		err = a.lInfraction(rn)
+		err = a.infraction(rn)
 		if err != nil {
 			t.Errorf("Infraction should not error [%v:%v]", an, rn)
 		}
 	}
 
-	err = a.lLockup(rn)
+	err = a.lockup(rn)
 	if err == nil {
 		t.Errorf("Lockup err should not be nil instead [%v]", err)
 	}
 
-	err = a.lInfraction(rn)
+	err = a.infraction(rn)
 	if err == nil {
 		t.Errorf("Infraction should error [%v:%v]", an, rn)
 	}
@@ -241,7 +241,7 @@ func TestActorCreateInfraction(t *testing.T) {
 
 	inf := newInfraction(r)
 
-	err = a.lCreateInfraction(inf)
+	err = a.createInfraction(inf)
 	if err == nil {
 		t.Errorf("CreateInfraction [%v:%v] should error %v", an, rn, err)
 	}
@@ -271,7 +271,7 @@ func TestActorRebaseAll(t *testing.T) {
 
 	inf := newInfraction(r)
 
-	err = a.lCreateInfraction(inf)
+	err = a.createInfraction(inf)
 	if err == nil {
 		t.Errorf("CreateInfraction [%v:%v] should error %v", an, rn, err)
 	}
@@ -345,24 +345,24 @@ func TestActorShouldReturn(t *testing.T) {
 
 	// test
 	// assert all falsey
-	b = a.lShouldDelete()
+	b = a.shouldDelete()
 	if b {
 		t.Errorf("shouldDelete should be false instead [%v]", b)
 	}
 
-	b = a.lIsJailedFor(rn)
+	b = a.isJailedFor(rn)
 	if b == true {
 		t.Errorf("isJailedFor should be false instead [%v]", b)
 	}
 
-	b = a.lHasJails()
+	b = a.hasJails()
 	if b == true {
 		t.Errorf("hasJails should be false instead [%v]", b)
 	}
 
 	// assert all truthy
 	for i := 0; i < 3; i++ {
-		err = a.lInfraction(rn)
+		err = a.infraction(rn)
 		if err != nil {
 			t.Errorf("Infraction [%v] should not error %v", rn, err)
 		}
@@ -370,12 +370,12 @@ func TestActorShouldReturn(t *testing.T) {
 
 	a.lockup(rn)
 
-	b = a.lIsJailedFor(rn)
+	b = a.isJailedFor(rn)
 	if b == false {
 		t.Errorf("isJailedFor should be true instead [%v]", b)
 	}
 
-	b = a.lHasJails()
+	b = a.hasJails()
 	if b == false {
 		t.Errorf("hasJails should be true instead [%v]", b)
 	}
@@ -387,12 +387,12 @@ func TestActorShouldReturn(t *testing.T) {
 		a.timeServed(s)
 	}
 
-	b = a.lIsJailedFor(rn)
+	b = a.isJailedFor(rn)
 	if b == true {
 		t.Errorf("isJailedFor should be false instead [%v]", b)
 	}
 
-	b = a.lHasJails()
+	b = a.hasJails()
 	if b == true {
 		t.Errorf("hasJails should be false instead [%v]", b)
 	}

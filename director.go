@@ -3,7 +3,6 @@ package badactor
 import (
 	"container/list"
 	"fmt"
-	"math/rand"
 	"sync"
 	"time"
 )
@@ -11,7 +10,7 @@ import (
 // Director is a singleton, only one should be running
 // it is engine of BadActor and exposes the primary set of Public Functions
 type Director struct {
-	sync.RWMutex
+	sync.Mutex
 
 	index  *list.List
 	actors map[string]*list.Element
@@ -23,7 +22,6 @@ type Director struct {
 
 // NewDirector instantiates a Director Struct
 func NewDirector(ma int32) *Director {
-	rand.Seed(time.Now().Unix())
 	d := &Director{
 		capacity: ma,
 		index:    list.New(),
@@ -33,9 +31,23 @@ func NewDirector(ma int32) *Director {
 	return d
 }
 
-func (d *Director) maintenance() {
-	d.lReadMaintenance()
-	d.lWriteMaintenance()
+func (d *Director) lMaintenance() {
+	d.Lock()
+	defer d.Unlock()
+	for e := d.index.Front(); e != nil; e = e.Next() {
+		a := e.Value.(*actor)
+		for _, s := range a.jails {
+			a.timeServed(s)
+		}
+		for _, inf := range a.infractions {
+			a.lockup(inf.rule.Name)
+			a.expire(inf.rule.Name)
+		}
+		if a.shouldDelete() {
+			delete(d.actors, a.name)
+			d.size -= 1
+		}
+	}
 }
 
 func (d *Director) lInfraction(an string, rn string) error {
@@ -64,46 +76,6 @@ func (d *Director) lInfraction(an string, rn string) error {
 	return d.incrementInfraction(an, rn)
 }
 
-func (d *Director) up(an string) {
-	if a := d.actors[an]; a != nil {
-		a.Value.(*actor).accessedAt = time.Now()
-		d.index.MoveToFront(a)
-		d.deleteOldest()
-	}
-}
-
-func (d *Director) lWriteMaintenance() {
-	d.Lock()
-	defer d.Unlock()
-
-	for e := d.index.Front(); e != nil; e = e.Next() {
-		a := e.Value.(*actor)
-		if a.lShouldDelete() {
-			delete(d.actors, a.name)
-			d.size -= 1
-		}
-	}
-}
-
-func (d *Director) lReadMaintenance() {
-	d.RLock()
-	defer d.RUnlock()
-
-	for e := d.index.Front(); e != nil; e = e.Next() {
-		a := e.Value.(*actor)
-		a.Lock()
-		for _, s := range a.jails {
-			a.timeServed(s)
-		}
-		for _, inf := range a.infractions {
-			a.lockup(inf.rule.Name)
-			a.expire(inf.rule.Name)
-		}
-		a.Unlock()
-	}
-
-}
-
 func (d *Director) lCreateInfraction(an string, rn string) error {
 	d.Lock()
 	defer d.Unlock()
@@ -125,8 +97,8 @@ func (d *Director) lCreateActor(an string, rn string) error {
 }
 
 func (d *Director) lKeepAlive(an string) error {
-	d.RLock()
-	defer d.RUnlock()
+	d.Lock()
+	defer d.Unlock()
 	if !d.actorExists(an) {
 		return fmt.Errorf("director.KeepAlive() failed, Actor does not exists")
 	}
@@ -135,14 +107,14 @@ func (d *Director) lKeepAlive(an string) error {
 }
 
 func (d *Director) lActorExists(an string) bool {
-	d.RLock()
-	defer d.RUnlock()
+	d.Lock()
+	defer d.Unlock()
 	return d.actorExists(an)
 }
 
 func (d *Director) lInfractionExists(an string, rn string) bool {
-	d.RLock()
-	defer d.RUnlock()
+	d.Lock()
+	defer d.Unlock()
 
 	if !d.actorExists(an) {
 		return false
@@ -151,8 +123,8 @@ func (d *Director) lInfractionExists(an string, rn string) bool {
 }
 
 func (d *Director) lIsJailedFor(an string, rn string) bool {
-	d.RLock()
-	defer d.RUnlock()
+	d.Lock()
+	defer d.Unlock()
 
 	if !d.actorExists(an) {
 		return false
@@ -161,8 +133,8 @@ func (d *Director) lIsJailedFor(an string, rn string) bool {
 }
 
 func (d *Director) lIsJailed(an string) bool {
-	d.RLock()
-	defer d.RUnlock()
+	d.Lock()
+	defer d.Unlock()
 	if !d.actorExists(an) {
 		return false
 	}
@@ -170,8 +142,8 @@ func (d *Director) lIsJailed(an string) bool {
 }
 
 func (d *Director) lStrikes(an string, rn string) (int, error) {
-	d.RLock()
-	defer d.RUnlock()
+	d.Lock()
+	defer d.Unlock()
 
 	if !d.actorExists(an) {
 		return 0, fmt.Errorf("director.Strikes() failed, Actor does not exists")
@@ -245,30 +217,38 @@ func (d *Director) actorExists(an string) bool {
 }
 
 func (d *Director) incrementInfraction(an string, rn string) error {
-	return d.actors[an].Value.(*actor).lInfraction(rn)
+	return d.actors[an].Value.(*actor).infraction(rn)
 }
 
 func (d *Director) createInfraction(an string, rn string) error {
 	inf := newInfraction(d.rules[rn])
-	return d.actors[an].Value.(*actor).lCreateInfraction(inf)
+	return d.actors[an].Value.(*actor).createInfraction(inf)
 }
 
 func (d *Director) infractionExists(an string, rn string) bool {
-	return d.actors[an].Value.(*actor).lInfractionExists(rn)
+	return d.actors[an].Value.(*actor).infractionExists(rn)
 }
 
 func (d *Director) isJailed(an string) bool {
-	return d.actors[an].Value.(*actor).lIsJailed()
+	return d.actors[an].Value.(*actor).isJailed()
 }
 
 func (d *Director) isJailedFor(an string, rn string) bool {
-	return d.actors[an].Value.(*actor).lIsJailedFor(rn)
+	return d.actors[an].Value.(*actor).isJailedFor(rn)
 }
 
 func (d *Director) strikes(an string, rn string) int {
-	return d.actors[an].Value.(*actor).lStrikes(rn)
+	return d.actors[an].Value.(*actor).strikes(rn)
 }
 
 func (d *Director) keepAlive(an string) {
-	d.actors[an].Value.(*actor).lRebaseAll()
+	d.actors[an].Value.(*actor).rebaseAll()
+}
+
+func (d *Director) up(an string) {
+	if a := d.actors[an]; a != nil {
+		a.Value.(*actor).accessedAt = time.Now()
+		d.index.MoveToFront(a)
+		d.deleteOldest()
+	}
 }

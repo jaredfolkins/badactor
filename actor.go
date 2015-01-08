@@ -2,7 +2,6 @@ package badactor
 
 import (
 	"fmt"
-	"sync"
 	"time"
 )
 
@@ -10,7 +9,6 @@ import (
 const ttl = 100
 
 type actor struct {
-	sync.RWMutex
 	name        string
 	infractions map[string]*infraction
 	jails       map[string]*sentence
@@ -41,95 +39,8 @@ func newClassicActor(n string, r *Rule, d *Director) *actor {
 		accessedAt:  time.Now(),
 	}
 
-	a.Lock()
 	a.infractions[r.Name] = newInfraction(r)
-	a.Unlock()
 	return a
-}
-
-func (a *actor) lHasJails() bool {
-	a.RLock()
-	res := a.hasJails()
-	a.RUnlock()
-	return res
-}
-
-func (a *actor) lShouldDelete() bool {
-	a.Lock()
-	res := a.shouldDelete()
-	a.Unlock()
-	return res
-}
-
-func (a *actor) lInfractionExists(rn string) bool {
-	a.RLock()
-	res := a.infractionExists(rn)
-	a.RUnlock()
-	return res
-}
-
-// Lockup the actor if the Limit has been reached
-func (a *actor) lLockup(rn string) error {
-	a.Lock()
-	err := a.lockup(rn)
-	a.Unlock()
-	return err
-}
-
-func (a *actor) lHasInfractions() bool {
-	a.RLock()
-	res := a.hasInfractions()
-	a.RUnlock()
-	return res
-}
-
-func (a *actor) lExpire(rn string) error {
-	a.Lock()
-	err := a.expire(rn)
-	a.Unlock()
-	return err
-}
-
-func (a *actor) lInfraction(rn string) error {
-	a.Lock()
-	err := a.infraction(rn)
-	a.Unlock()
-	return err
-}
-
-func (a *actor) lCreateInfraction(inf *infraction) error {
-	a.Lock()
-	err := a.createInfraction(inf)
-	a.Unlock()
-	return err
-}
-
-func (a *actor) lIsJailed() bool {
-	a.RLock()
-	res := a.isJailed()
-	a.RUnlock()
-	return res
-}
-
-func (a *actor) lIsJailedFor(rn string) bool {
-	a.RLock()
-	res := a.isJailedFor(rn)
-	a.RUnlock()
-	return res
-}
-
-func (a *actor) lStrikes(rn string) int {
-	a.RLock()
-	res := a.strikes(rn)
-	a.RUnlock()
-	return res
-}
-
-func (a *actor) lRebaseAll() error {
-	a.Lock()
-	res := a.rebaseAll()
-	a.Unlock()
-	return res
 }
 
 //

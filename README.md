@@ -37,6 +37,24 @@ BadActor can be included in your go application and ran concurrently. It can als
 | **L3 Cache** | 6 MB | 
 | **Memory** | 16 GB |
 
+###### 1.8.2015
+
+➜  badactor git:(master) ✗ go test -bench=. -cpu=4 -benchmem -benchtime=5s | column -t
+PASS
+BenchmarkIsJailed-4                50000000                          121       ns/op  0    B/op  0  allocs/op
+BenchmarkIsJailedFor-4             50000000                          134       ns/op  0    B/op  0  allocs/op
+BenchmarkInfraction-4              5000000                           1390      ns/op  528  B/op  7  allocs/op
+BenchmarkInfractionlIsJailed-4     3000000                           2755      ns/op  800  B/op  9  allocs/op
+BenchmarkInfractionlIsJailedFor-4  3000000                           2733      ns/op  800  B/op  9  allocs/op
+BenchmarkStudioInfraction512-4     3000000                           2215      ns/op  591  B/op  9  allocs/op
+BenchmarkStudioInfraction1024-4    3000000                           2357      ns/op  612  B/op  9  allocs/op
+BenchmarkStudioInfraction2048-4    5000000                           2617      ns/op  621  B/op  9  allocs/op
+BenchmarkStudioInfraction4096-4    5000000                           2566      ns/op  671  B/op  9  allocs/op
+BenchmarkStudioInfraction65536-4   3000000                           3309      ns/op  667  B/op  9  allocs/op
+BenchmarkStudioInfraction262144-4  2000000                           3644      ns/op  674  B/op  9  allocs/op
+ok                                 github.com/jaredfolkins/badactor  178.239s
+➜  badactor git:(master) ✗
+
 ###### 12.30.2014
 
 ```bash

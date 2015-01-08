@@ -2,45 +2,34 @@ package badactor
 
 import (
 	"hash/fnv"
-	"math/rand"
 	"sync"
 	"time"
 )
 
-// maxNs is used as the max value in the range for the Ticker
-// minNs is used as the min value in the range for the Ticker
 const (
-	maxNs = 3000000000
-	minNs = 1000000000
+	minutes = 60
 )
 
 type Studio struct {
 	sync.Mutex
-	maxDirectors int32
-	directors    map[int32]*Director
-	rules        map[string]*Rule
+	capacity  int32
+	directors map[int32]*Director
+	rules     map[string]*Rule
 }
 
 func NewStudio(md int32) *Studio {
-	st := &Studio{
-		maxDirectors: md,
-		directors:    make(map[int32]*Director, md),
-		rules:        make(map[string]*Rule),
+	return &Studio{
+		capacity:  md,
+		directors: make(map[int32]*Director, md),
+		rules:     make(map[string]*Rule),
 	}
-
-	return st
 }
 
 // AddRule accepts a Rule struct and adds it to the rules map if it doesn't exist
 func (st *Studio) AddRule(r *Rule) {
 	st.Lock()
-	st.addRule(r)
-	st.Unlock()
-	return
-}
-
-func (st *Studio) addRule(r *Rule) {
 	st.rules[r.Name] = r
+	st.Unlock()
 	return
 }
 
@@ -53,10 +42,11 @@ func (st *Studio) ApplyRules() {
 	return
 }
 
+// CreateDirectors creates and adds the Directors to the director map
 func (st *Studio) CreateDirectors(ma int32) error {
 	var dk int32
 
-	for dk = 0; dk < st.maxDirectors; dk++ {
+	for dk = 0; dk < st.capacity; dk++ {
 		d := NewDirector(ma)
 		st.directors[dk] = d
 	}
@@ -120,16 +110,22 @@ func (st *Studio) IsJailed(an string) bool {
 	return d.lIsJailed(an)
 }
 
+// Run starts the reaping functionality
 func (st *Studio) Run() {
-	r := time.Duration(rand.Intn(maxNs-minNs) + 1)
-	ticker := time.NewTicker(time.Nanosecond * r)
+	ticker := time.NewTicker(time.Minute * time.Duration(minutes))
 	go func() {
 		for _ = range ticker.C {
 			for _, d := range st.directors {
-				d.maintenance()
+				d.lMaintenance()
 			}
 		}
 	}()
+}
+
+// GetDirector takes the name of an Actor as a string, serializes it, uses the jumpHash aglo to determine the Director that the Actor belongs to
+func (st Studio) GetDirector(an string) *Director {
+	dk := st.jumpHash(st.serializeId(an), st.capacity)
+	return st.directors[dk]
 }
 
 // serialize a string to an uint64
@@ -139,12 +135,7 @@ func (st Studio) serializeId(s string) uint64 {
 	return h.Sum64()
 }
 
-func (st Studio) GetDirector(an string) *Director {
-	dk := st.jHash(st.serializeId(an), st.maxDirectors)
-	return st.directors[dk]
-}
-
-func (st Studio) jHash(key uint64, numBuckets int32) int32 {
+func (st Studio) jumpHash(key uint64, numBuckets int32) int32 {
 
 	var b int64 = -1
 	var j int64
