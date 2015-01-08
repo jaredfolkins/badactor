@@ -27,6 +27,7 @@ func NewStudio(md int32) *Studio {
 		directors:    make(map[int32]*Director, md),
 		rules:        make(map[string]*Rule),
 	}
+
 	return st
 }
 
@@ -123,7 +124,6 @@ func (st *Studio) Run() {
 	r := time.Duration(rand.Intn(maxNs-minNs) + 1)
 	ticker := time.NewTicker(time.Nanosecond * r)
 	go func() {
-		// 1.4 means i refractor this
 		for _ = range ticker.C {
 			for _, d := range st.directors {
 				d.maintenance()

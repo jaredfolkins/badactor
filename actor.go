@@ -16,6 +16,7 @@ type actor struct {
 	jails       map[string]*sentence
 	director    *Director
 	ttl         time.Time
+	accessedAt  time.Time
 }
 
 func newActor(n string, d *Director) *actor {
@@ -25,6 +26,7 @@ func newActor(n string, d *Director) *actor {
 		name:        n,
 		infractions: make(map[string]*infraction),
 		jails:       make(map[string]*sentence),
+		accessedAt:  time.Now(),
 	}
 	return a
 }
@@ -36,6 +38,7 @@ func newClassicActor(n string, r *Rule, d *Director) *actor {
 		name:        n,
 		infractions: make(map[string]*infraction),
 		jails:       make(map[string]*sentence),
+		accessedAt:  time.Now(),
 	}
 
 	a.Lock()
