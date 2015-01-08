@@ -12,11 +12,9 @@ Egor Homakov's [otp calculator](http://sakurity.com/otp) provides a good descrip
 
 # Design
 
-- observer pattern
 - speed (subsecond response underload and submillisecond with standard operations)
 - no external dependencies 
-- concurrent, non blocking, self governed workers
-- 100% code coverage and thorough tests
+- solid code coverage and thorough tests
 - accessable to multiple systems across the internet using an HTTP API (TODO)
 
 # Does It Scale? 
@@ -39,6 +37,7 @@ BadActor can be included in your go application and ran concurrently. It can als
 
 ###### 1.8.2015
 
+```bash
 ➜  badactor git:(master) ✗ go test -bench=. -cpu=4 -benchmem -benchtime=5s | column -t
 PASS
 BenchmarkIsJailed-4                50000000                          121       ns/op  0    B/op  0  allocs/op
@@ -54,6 +53,7 @@ BenchmarkStudioInfraction65536-4   3000000                           3309      n
 BenchmarkStudioInfraction262144-4  2000000                           3644      ns/op  674  B/op  9  allocs/op
 ok                                 github.com/jaredfolkins/badactor  178.239s
 ➜  badactor git:(master) ✗
+```
 
 ###### 12.30.2014
 
