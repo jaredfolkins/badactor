@@ -45,7 +45,7 @@ func (d *Director) lMaintenance() {
 		}
 		if a.shouldDelete() {
 			delete(d.actors, a.name)
-			d.size -= 1
+			d.size--
 		}
 	}
 }
@@ -184,7 +184,7 @@ func (d *Director) createActor(an string, rn string) error {
 	a := newActor(an, d)
 	e := d.index.PushFront(a)
 	d.actors[an] = e
-	d.size += 1
+	d.size++
 
 	return nil
 }
@@ -195,7 +195,7 @@ func (d *Director) deleteOldest() {
 		a := e.Value.(*actor)
 		d.index.Remove(e)
 		delete(d.actors, a.name)
-		d.size -= 1
+		d.size--
 	}
 }
 

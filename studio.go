@@ -10,6 +10,7 @@ const (
 	minutes = 60
 )
 
+// Studio is the singleton instance, it contains the Directors(buckets) who have many Actors(points)
 type Studio struct {
 	sync.Mutex
 	capacity  int32
@@ -17,6 +18,7 @@ type Studio struct {
 	rules     map[string]*Rule
 }
 
+// NewStudio returns a init'd Studio struct, you pass it an int32 value which is the capacity and informs the Studio how many Directors will be created, it is also the value that jumpHash uses to mod
 func NewStudio(md int32) *Studio {
 	return &Studio{
 		capacity:  md,
@@ -33,6 +35,7 @@ func (st *Studio) AddRule(r *Rule) {
 	return
 }
 
+// ApplyRules takes the currently stored rules map and applies it to all Directors
 func (st *Studio) ApplyRules() {
 	for _, r := range st.rules {
 		for _, d := range st.directors {
@@ -110,8 +113,8 @@ func (st *Studio) IsJailed(an string) bool {
 	return d.lIsJailed(an)
 }
 
-// Run starts the reaping functionality
-func (st *Studio) Run() {
+// StartReaper starts the reaping goroutine
+func (st *Studio) StartReaper() {
 	ticker := time.NewTicker(time.Minute * time.Duration(minutes))
 	go func() {
 		for _ = range ticker.C {
@@ -124,12 +127,12 @@ func (st *Studio) Run() {
 
 // GetDirector takes the name of an Actor as a string, serializes it, uses the jumpHash aglo to determine the Director that the Actor belongs to
 func (st Studio) GetDirector(an string) *Director {
-	dk := st.jumpHash(st.serializeId(an), st.capacity)
+	dk := st.jumpHash(st.serialize(an), st.capacity)
 	return st.directors[dk]
 }
 
 // serialize a string to an uint64
-func (st Studio) serializeId(s string) uint64 {
+func (st Studio) serialize(s string) uint64 {
 	h := fnv.New64a()
 	h.Write([]byte(s))
 	return h.Sum64()
