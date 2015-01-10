@@ -46,7 +46,7 @@ func TestActorIsJailedFor(t *testing.T) {
 
 }
 
-func TestActorLockup(t *testing.T) {
+func TestActorJail(t *testing.T) {
 	// setup
 	var b bool
 	an := "an_" + strconv.FormatInt(time.Now().UnixNano(), 10)
@@ -210,9 +210,9 @@ func TestActorInfraction(t *testing.T) {
 		}
 	}
 
-	err = a.lockup(rn)
+	err = a.jail(rn)
 	if err == nil {
-		t.Errorf("Lockup err should not be nil instead [%v]", err)
+		t.Errorf("Jail() err should not be nil instead [%v]", err)
 	}
 
 	err = a.infraction(rn)
@@ -368,7 +368,7 @@ func TestActorShouldReturn(t *testing.T) {
 		}
 	}
 
-	a.lockup(rn)
+	a.jail(rn)
 
 	b = a.isJailedFor(rn)
 	if b == false {

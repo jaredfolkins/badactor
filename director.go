@@ -36,11 +36,11 @@ func (d *Director) lMaintenance() {
 	defer d.Unlock()
 	for e := d.index.Front(); e != nil; e = e.Next() {
 		a := e.Value.(*actor)
-		for _, s := range a.jails {
-			a.timeServed(s)
+		for _, j := range a.jails {
+			a.timeServed(j)
 		}
 		for _, inf := range a.infractions {
-			a.lockup(inf.rule.Name)
+			a.jail(inf.rule.Name)
 			a.expire(inf.rule.Name)
 		}
 		if a.shouldDelete() {
@@ -60,8 +60,6 @@ func (d *Director) lInfraction(an string, rn string) error {
 			return err
 		}
 		d.deleteOldest()
-	} else {
-		d.up(an)
 	}
 
 	if d.isJailedFor(an, rn) {
@@ -69,7 +67,9 @@ func (d *Director) lInfraction(an string, rn string) error {
 	}
 
 	// create infraction if needed
-	if !d.infractionExists(an, rn) {
+	if d.infractionExists(an, rn) {
+		d.up(an)
+	} else {
 		d.createInfraction(an, rn)
 	}
 
@@ -175,6 +175,22 @@ func (d *Director) lAddRule(r *Rule) error {
 //
 // below this point are helper functions that are dependant on the calling functions to preform the appropriate locking
 
+func (d *Director) maintenance(an string) {
+	if a := d.actors[an].Value.(*actor); a != nil {
+		for _, j := range a.jails {
+			a.timeServed(j)
+		}
+		for _, inf := range a.infractions {
+			a.jail(inf.rule.Name)
+			a.expire(inf.rule.Name)
+		}
+		if a.shouldDelete() {
+			delete(d.actors, a.name)
+			d.size--
+		}
+	}
+}
+
 func (d *Director) createActor(an string, rn string) error {
 
 	if !d.ruleExists(rn) {
@@ -212,8 +228,19 @@ func (d *Director) ruleExists(rn string) bool {
 }
 
 func (d *Director) actorExists(an string) bool {
+	if _, ok := d.actors[an]; ok {
+		d.maintenance(an)
+	}
 	_, ok := d.actors[an]
 	return ok
+}
+
+func (d *Director) up(an string) {
+	if a := d.actors[an]; a != nil {
+		a.Value.(*actor).accessedAt = time.Now()
+		d.index.MoveToFront(a)
+		d.deleteOldest()
+	}
 }
 
 func (d *Director) incrementInfraction(an string, rn string) error {
@@ -243,12 +270,4 @@ func (d *Director) strikes(an string, rn string) int {
 
 func (d *Director) keepAlive(an string) {
 	d.actors[an].Value.(*actor).rebaseAll()
-}
-
-func (d *Director) up(an string) {
-	if a := d.actors[an]; a != nil {
-		a.Value.(*actor).accessedAt = time.Now()
-		d.index.MoveToFront(a)
-		d.deleteOldest()
-	}
 }

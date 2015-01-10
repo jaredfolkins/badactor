@@ -1,3 +1,0 @@
-package badactor
-
-//placeholder

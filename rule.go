@@ -9,6 +9,7 @@ type Rule struct {
 	StrikeLimit int
 	ExpireBase  time.Duration
 	Sentence    time.Duration
+	Action      Action
 }
 
 // NewClassicRule returns a Rule with basic default values

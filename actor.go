@@ -11,7 +11,7 @@ const ttl = 100
 type actor struct {
 	name        string
 	infractions map[string]*infraction
-	jails       map[string]*sentence
+	jails       map[string]*jail
 	director    *Director
 	ttl         time.Time
 	accessedAt  time.Time
@@ -23,7 +23,7 @@ func newActor(n string, d *Director) *actor {
 		ttl:         time.Now().Add(time.Millisecond * ttl),
 		name:        n,
 		infractions: make(map[string]*infraction),
-		jails:       make(map[string]*sentence),
+		jails:       make(map[string]*jail),
 		accessedAt:  time.Now(),
 	}
 	return a
@@ -35,7 +35,7 @@ func newClassicActor(n string, r *Rule, d *Director) *actor {
 		ttl:         time.Now().Add(time.Millisecond * ttl),
 		name:        n,
 		infractions: make(map[string]*infraction),
-		jails:       make(map[string]*sentence),
+		jails:       make(map[string]*jail),
 		accessedAt:  time.Now(),
 	}
 
@@ -69,7 +69,7 @@ func (a *actor) infraction(rn string) error {
 		inf := a.infractions[rn]
 		inf.strikes++
 		inf.rebase()
-		return a.lockup(rn)
+		return a.jail(rn)
 	}
 
 	return fmt.Errorf("Infraction against actor [%v]", a.name)
@@ -104,9 +104,13 @@ func (a *actor) shouldDelete() bool {
 	return false
 }
 
-func (a *actor) timeServed(s *sentence) bool {
-	if time.Now().After(s.releaseBy) && s != nil {
-		delete(a.jails, s.rule.Name)
+func (a *actor) timeServed(j *jail) bool {
+	if time.Now().After(j.releaseBy) && j != nil {
+		s := NewStats(a, j.rule)
+		if j.rule.Action != nil {
+			j.rule.Action.WhenTimeServed(s)
+		}
+		delete(a.jails, j.rule.Name)
 		a.rebaseAll()
 		return true
 	}
@@ -128,19 +132,23 @@ func (a *actor) expire(rn string) error {
 	return nil
 }
 
-// Lockup the actor if the Limit has been reached
-func (a *actor) lockup(rn string) error {
+// jail the actor if the Limit has been reached
+func (a *actor) jail(rn string) error {
 
 	if !a.infractionExists(rn) {
-		return fmt.Errorf("Lockup failed, infraction [%v] does not exist", rn)
+		return fmt.Errorf("jail failed, infraction [%v] does not exist", rn)
 	}
 
 	inf := a.infractions[rn]
 
 	if inf.strikes >= inf.rule.StrikeLimit {
-		sen := newSentence(inf.rule, inf.rule.Sentence)
-		a.jails[inf.rule.Name] = sen
+		j := newJail(inf.rule, inf.rule.Sentence)
+		a.jails[inf.rule.Name] = j
 		delete(a.infractions, inf.rule.Name)
+		if inf.rule.Action != nil {
+			s := NewStats(a, inf.rule)
+			inf.rule.Action.WhenJailed(s)
+		}
 		a.rebaseAll()
 	}
 
