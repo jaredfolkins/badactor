@@ -118,111 +118,127 @@ ok                                    github.com/jaredfolkins/badactor  109.879s
 package main
 
 import (
-  "log"
-  "net"
-  "net/http"
-  "time"
+	"log"
+	"net"
+	"net/http"
+	"time"
 
-  "github.com/codegangsta/negroni"
-  "github.com/jaredfolkins/badactor"
-  "github.com/julienschmidt/httprouter"
-
+	"github.com/codegangsta/negroni"
+	"github.com/jaredfolkins/badactor"
+	"github.com/julienschmidt/httprouter"
 )
 
-var d *badactor.Director
+var st *badactor.Studio
 
 func main() {
 
-  // create new director
-  d = badactor.NewDirector()
-  // create and add rule
-    ru := &badactor.Rule{
-    Name:        "Login",
-    Message:     "You have failed to login too many times",
-    StrikeLimit: 10,
-    ExpireBase:  time.Minute * 10, // if no activity is detected the infraction will expire after 10 minutes 
-    Sentence:    time.Minute * 5, // the sentence for breaking the rule is to be jailed for 5 minutes
-  }
+	//runtime.GOMAXPROCS(4)
 
-  // add the rule to the stack
-  err := d.AddRule(ru)
-  if err != nil {
-    panic(err)
-  }
-  // run the director
-  d.Run()
+	// studio capacity
+	var sc int32
+	// director capacity
+	var dc int32
 
-  // router
-  router := httprouter.New()
-  router.POST("/login", LoginHandler)
+	sc = 1024
+	dc = 1024
 
-  // middleware
-  n := negroni.Classic()
-  n.Use(NewBadActorMiddleware())
-  n.UseHandler(router)
-  n.Run(":9999")
+	// init new Studio
+	st = badactor.NewStudio(sc)
 
+	// define and add the rule to the stack
+	ru := &badactor.Rule{
+		Name:        "Login",
+		Message:     "You have failed to login too many times",
+		StrikeLimit: 10,
+		ExpireBase:  time.Second * 1,
+		Sentence:    time.Second * 10,
+	}
+	st.AddRule(ru)
+
+	err := st.CreateDirectors(dc)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Start the reaper
+	st.StartReaper()
+
+	// router
+	router := httprouter.New()
+	router.POST("/login", LoginHandler)
+
+	// middleware
+	n := negroni.Classic()
+	n.Use(NewBadActorMiddleware())
+	n.UseHandler(router)
+	n.Run(":9999")
+
+}
+
+//
+// HANDLER
+//
+
+// this is a niave login function for example purposes
+func LoginHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+
+	var err error
+
+	un := r.FormValue("username")
+	pw := r.FormValue("password")
+
+	// snag the IP for use as the actor's name
+	an, _, err := net.SplitHostPort(r.RemoteAddr)
+	if err != nil {
+		panic(err)
+	}
+
+	// mock authentication
+	if un == "example_user" && pw == "example_pass" {
+		http.Redirect(w, r, "", http.StatusOK)
+		return
+	}
+
+	// auth fails, increment infraction
+	err = st.Infraction(an, "Login")
+	if err != nil {
+		log.Printf("[%v] has err %v", an, err)
+	}
+
+	// auth fails, increment infraction
+	i, err := st.Strikes(an, "Login")
+	log.Printf("[%v] has %v Strikes %v", an, i, err)
+
+	http.Redirect(w, r, "", http.StatusUnauthorized)
+	return
 }
 
 //
 // MIDDLEWARE
 //
 type BadActorMiddleware struct {
-  negroni.Handler
+	negroni.Handler
 }
 
 func NewBadActorMiddleware() *BadActorMiddleware {
-  return &BadActorMiddleware{}
+	return &BadActorMiddleware{}
 }
 
 func (bam *BadActorMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
 
-  // snag the IP as the actor's name
-  an, _, err := net.SplitHostPort(r.RemoteAddr)
-  if err != nil {
-    panic(err)
-  }
+	// snag the IP for use as the actor's name
+	an, _, err := net.SplitHostPort(r.RemoteAddr)
+	if err != nil {
+		panic(err)
+	}
 
-  if d.IsJailed(an) {
-    http.Redirect(w, r, "", http.StatusTeapot)
-    return
-  }
+	// if the Actor is jailed, send them StatusUnauthorized
+	if st.IsJailed(an) {
+		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+		return
+	}
 
-  // call the next middleware in the chain
-  next(w, r)
-}
-
-//
-// HANDLER
-//
-func LoginHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-
-  // this is a niave login function for example purposes
-  var err error
-  un := r.FormValue("username")
-  pw := r.FormValue("password")
-  rn := "Login"
-
-  // snag the IP for use as the actor's name
-  an, _, err := net.SplitHostPort(r.RemoteAddr)
-  if err != nil {
-    panic(err)
-  }
-
-  // mock authentication
-  if un == "example_user" && pw == "example_pass" {
-    http.Redirect(w, r, "", http.StatusOK)
-    return
-  }
-
-  // auth fails, increment infraction
-  err = d.Infraction(an, rn)
-  if err != nil {
-    log.Printf("[%v] has err %v", an, err)
-  }
-
-  // unauthorized
-  http.Redirect(w, r, "", http.StatusUnauthorized)
-  return
+	// call the next middleware in the chain
+	next(w, r)
 }
 ```
