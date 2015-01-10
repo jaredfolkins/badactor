@@ -8,8 +8,6 @@ BadActor is an in-memory, application driven jailer built in the spirit of fail2
 
 A common use case for BadActor is jailing an offender who fails to login to your website (N) times as this can signal a bruteforce attempt.
 
-Egor Homakov's [otp calculator](http://sakurity.com/otp) provides a good description.
-
 # Design
 
 - speed (subsecond response underload and submillisecond with standard operations)
