@@ -126,7 +126,6 @@ func (a *actor) expire(rn string) error {
 
 	if time.Now().After(a.infractions[rn].expireBy) {
 		delete(a.infractions, rn)
-		return nil
 	}
 
 	return nil

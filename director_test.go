@@ -1,19 +1,10 @@
 package badactor
 
 import (
-	"reflect"
 	"strconv"
 	"testing"
 	"time"
 )
-
-func TestNewDirector(t *testing.T) {
-	d := NewDirector(ia)
-	typ := reflect.TypeOf(d)
-	if typ.Kind() == reflect.Ptr {
-		typ = typ.Elem()
-	}
-}
 
 func TestActorExists(t *testing.T) {
 	var err error

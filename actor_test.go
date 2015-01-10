@@ -125,7 +125,7 @@ func TestActorTimeServed(t *testing.T) {
 
 }
 
-func TestActorexpire(t *testing.T) {
+func TestActorExpire(t *testing.T) {
 
 	var err error
 	br := "badrule"
@@ -168,6 +168,7 @@ func TestActorexpire(t *testing.T) {
 	}
 
 	time.Sleep(dur)
+
 	err = a.expire(rn)
 	if err != nil {
 		t.Errorf("Expire should delete [%v:%v]", an, rn)
