@@ -8,7 +8,7 @@ import (
 // ttl is the time to live value for newly created actors
 const ttl = 100
 
-type actor struct {
+type Actor struct {
 	name        string
 	infractions map[string]*infraction
 	jails       map[string]*jail
@@ -17,8 +17,8 @@ type actor struct {
 	accessedAt  time.Time
 }
 
-func newActor(n string, d *Director) *actor {
-	a := &actor{
+func newActor(n string, d *Director) *Actor {
+	a := &Actor{
 		director:    d,
 		ttl:         time.Now().Add(time.Millisecond * ttl),
 		name:        n,
@@ -29,8 +29,8 @@ func newActor(n string, d *Director) *actor {
 	return a
 }
 
-func newClassicActor(n string, r *Rule, d *Director) *actor {
-	a := &actor{
+func newClassicActor(n string, r *Rule, d *Director) *Actor {
+	a := &Actor{
 		director:    d,
 		ttl:         time.Now().Add(time.Millisecond * ttl),
 		name:        n,
@@ -48,7 +48,7 @@ func newClassicActor(n string, r *Rule, d *Director) *actor {
 //
 // below this point are helper functions that are dependant on the calling functions to preform the appropriate locking
 
-func (a *actor) rebaseAll() error {
+func (a *Actor) rebaseAll() error {
 
 	for _, inf := range a.infractions {
 		inf.rebase()
@@ -59,7 +59,7 @@ func (a *actor) rebaseAll() error {
 	return nil
 }
 
-func (a *actor) infraction(rn string) error {
+func (a *Actor) infraction(rn string) error {
 
 	if a.isJailed() {
 		return fmt.Errorf("actor [%v] is already Jailed for [%v]", a.name, rn)
@@ -75,19 +75,19 @@ func (a *actor) infraction(rn string) error {
 	return fmt.Errorf("Infraction against actor [%v]", a.name)
 }
 
-func (a *actor) strikes(rn string) int {
+func (a *Actor) strikes(rn string) int {
 	if _, ok := a.infractions[rn]; ok {
 		return a.infractions[rn].strikes
 	}
 	return 0
 }
 
-func (a *actor) isJailedFor(rn string) bool {
+func (a *Actor) isJailedFor(rn string) bool {
 	_, ok := a.jails[rn]
 	return ok
 }
 
-func (a *actor) isJailed() bool {
+func (a *Actor) isJailed() bool {
 	if len(a.jails) > 0 {
 		return true
 	}
@@ -95,7 +95,7 @@ func (a *actor) isJailed() bool {
 }
 
 // shouldDelete returns a bool if the Infractions and Jails maps are empty and the ttl is expired
-func (a *actor) shouldDelete() bool {
+func (a *Actor) shouldDelete() bool {
 	if !a.hasInfractions() && !a.hasJails() {
 		if time.Now().After(a.ttl) {
 			return true
@@ -104,7 +104,7 @@ func (a *actor) shouldDelete() bool {
 	return false
 }
 
-func (a *actor) timeServed(j *jail) bool {
+func (a *Actor) timeServed(j *jail) bool {
 	if time.Now().After(j.releaseBy) && j != nil {
 		if j.rule.Action != nil {
 			ca := a      // copy actor
@@ -118,7 +118,7 @@ func (a *actor) timeServed(j *jail) bool {
 	return false
 }
 
-func (a *actor) expire(rn string) error {
+func (a *Actor) expire(rn string) error {
 
 	// validate key exists
 	if _, ok := a.infractions[rn]; !ok {
@@ -133,7 +133,7 @@ func (a *actor) expire(rn string) error {
 }
 
 // jail the actor if the Limit has been reached
-func (a *actor) jail(rn string) error {
+func (a *Actor) jail(rn string) error {
 
 	if !a.infractionExists(rn) {
 		return fmt.Errorf("jail failed, infraction [%v] does not exist", rn)
@@ -156,7 +156,7 @@ func (a *actor) jail(rn string) error {
 	return nil
 }
 
-func (a *actor) createInfraction(inf *infraction) error {
+func (a *Actor) createInfraction(inf *infraction) error {
 	if _, exists := a.infractions[inf.rule.Name]; !exists {
 		a.infractions[inf.rule.Name] = inf
 		return nil
@@ -164,25 +164,25 @@ func (a *actor) createInfraction(inf *infraction) error {
 	return fmt.Errorf("Unable to create infraction [%v]", inf.rule.Name)
 }
 
-func (a *actor) hasInfractions() bool {
+func (a *Actor) hasInfractions() bool {
 	if len(a.infractions) > 0 {
 		return true
 	}
 	return false
 }
 
-func (a *actor) infractionExists(rn string) bool {
+func (a *Actor) infractionExists(rn string) bool {
 	_, ok := a.infractions[rn]
 	return ok
 }
 
-func (a *actor) hasJails() bool {
+func (a *Actor) hasJails() bool {
 	if len(a.jails) > 0 {
 		return true
 	}
 	return false
 }
 
-func (a *actor) totalJails() int {
+func (a *Actor) totalJails() int {
 	return len(a.jails)
 }

@@ -35,7 +35,7 @@ func (d *Director) lMaintenance() {
 	d.Lock()
 	defer d.Unlock()
 	for e := d.index.Front(); e != nil; e = e.Next() {
-		a := e.Value.(*actor)
+		a := e.Value.(*Actor)
 		for _, j := range a.jails {
 			a.timeServed(j)
 		}
@@ -176,7 +176,7 @@ func (d *Director) lAddRule(r *Rule) error {
 // below this point are helper functions that are dependant on the calling functions to preform the appropriate locking
 
 func (d *Director) maintenance(an string) {
-	if a := d.actors[an].Value.(*actor); a != nil {
+	if a := d.actors[an].Value.(*Actor); a != nil {
 		for _, j := range a.jails {
 			a.timeServed(j)
 		}
@@ -208,7 +208,7 @@ func (d *Director) createActor(an string, rn string) error {
 func (d *Director) deleteOldest() {
 	for d.isFull() {
 		e := d.index.Back()
-		a := e.Value.(*actor)
+		a := e.Value.(*Actor)
 		d.index.Remove(e)
 		delete(d.actors, a.name)
 		d.size--
@@ -237,37 +237,37 @@ func (d *Director) actorExists(an string) bool {
 
 func (d *Director) up(an string) {
 	if a := d.actors[an]; a != nil {
-		a.Value.(*actor).accessedAt = time.Now()
+		a.Value.(*Actor).accessedAt = time.Now()
 		d.index.MoveToFront(a)
 		d.deleteOldest()
 	}
 }
 
 func (d *Director) incrementInfraction(an string, rn string) error {
-	return d.actors[an].Value.(*actor).infraction(rn)
+	return d.actors[an].Value.(*Actor).infraction(rn)
 }
 
 func (d *Director) createInfraction(an string, rn string) error {
 	inf := newInfraction(d.rules[rn])
-	return d.actors[an].Value.(*actor).createInfraction(inf)
+	return d.actors[an].Value.(*Actor).createInfraction(inf)
 }
 
 func (d *Director) infractionExists(an string, rn string) bool {
-	return d.actors[an].Value.(*actor).infractionExists(rn)
+	return d.actors[an].Value.(*Actor).infractionExists(rn)
 }
 
 func (d *Director) isJailed(an string) bool {
-	return d.actors[an].Value.(*actor).isJailed()
+	return d.actors[an].Value.(*Actor).isJailed()
 }
 
 func (d *Director) isJailedFor(an string, rn string) bool {
-	return d.actors[an].Value.(*actor).isJailedFor(rn)
+	return d.actors[an].Value.(*Actor).isJailedFor(rn)
 }
 
 func (d *Director) strikes(an string, rn string) int {
-	return d.actors[an].Value.(*actor).strikes(rn)
+	return d.actors[an].Value.(*Actor).strikes(rn)
 }
 
 func (d *Director) keepAlive(an string) {
-	d.actors[an].Value.(*actor).rebaseAll()
+	d.actors[an].Value.(*Actor).rebaseAll()
 }

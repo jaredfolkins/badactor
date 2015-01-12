@@ -11,15 +11,15 @@ var whenTimeServedCounter = 0
 
 type MockAction struct{}
 
-func (ma *MockAction) Log(a *actor, r *Rule) {}
+func (ma *MockAction) Log(a *Actor, r *Rule) {}
 
-func (ma *MockAction) WhenJailed(a *actor, r *Rule) error {
+func (ma *MockAction) WhenJailed(a *Actor, r *Rule) error {
 	whenJailedCounter++
 	ma.Log(a, r)
 	return nil
 }
 
-func (ma *MockAction) WhenTimeServed(a *actor, r *Rule) error {
+func (ma *MockAction) WhenTimeServed(a *Actor, r *Rule) error {
 	whenTimeServedCounter++
 	ma.Log(a, r)
 	return nil

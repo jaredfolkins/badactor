@@ -10,10 +10,10 @@ const ia = 1024
 
 type ActorMockAction struct{}
 
-func (ama *ActorMockAction) WhenJailed(a *actor, r *Rule) error {
+func (ama *ActorMockAction) WhenJailed(a *Actor, r *Rule) error {
 	return nil
 }
-func (ama *ActorMockAction) WhenTimeServed(a *actor, r *Rule) error {
+func (ama *ActorMockAction) WhenTimeServed(a *Actor, r *Rule) error {
 	return nil
 }
 
