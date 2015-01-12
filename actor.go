@@ -54,7 +54,7 @@ func (a *actor) rebaseAll() error {
 		inf.rebase()
 	}
 
-	a.ttl = time.Now().Add(time.Second * ttl)
+	a.ttl = time.Now().Add(time.Millisecond * ttl)
 
 	return nil
 }
@@ -106,9 +106,10 @@ func (a *actor) shouldDelete() bool {
 
 func (a *actor) timeServed(j *jail) bool {
 	if time.Now().After(j.releaseBy) && j != nil {
-		s := NewStats(a, j.rule)
 		if j.rule.Action != nil {
-			j.rule.Action.WhenTimeServed(s)
+			ca := a      // copy actor
+			cr := j.rule // copy rule
+			j.rule.Action.WhenTimeServed(ca, cr)
 		}
 		delete(a.jails, j.rule.Name)
 		a.rebaseAll()
@@ -145,8 +146,9 @@ func (a *actor) jail(rn string) error {
 		a.jails[inf.rule.Name] = j
 		delete(a.infractions, inf.rule.Name)
 		if inf.rule.Action != nil {
-			s := NewStats(a, inf.rule)
-			inf.rule.Action.WhenJailed(s)
+			ca := a        // copy actor
+			cr := inf.rule // copy rule
+			inf.rule.Action.WhenJailed(ca, cr)
 		}
 		a.rebaseAll()
 	}

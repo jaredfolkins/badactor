@@ -8,6 +8,15 @@ import (
 
 const ia = 1024
 
+type ActorMockAction struct{}
+
+func (ama *ActorMockAction) WhenJailed(a *actor, r *Rule) error {
+	return nil
+}
+func (ama *ActorMockAction) WhenTimeServed(a *actor, r *Rule) error {
+	return nil
+}
+
 func TestActorIsJailedFor(t *testing.T) {
 	//setup
 	var b bool
@@ -22,6 +31,7 @@ func TestActorIsJailedFor(t *testing.T) {
 		StrikeLimit: sl,
 		ExpireBase:  time.Second * 60,
 		Sentence:    time.Second * 60,
+		Action:      &ActorMockAction{},
 	}
 	a := newClassicActor(an, r, d)
 
@@ -60,6 +70,7 @@ func TestActorJail(t *testing.T) {
 		StrikeLimit: sl,
 		ExpireBase:  time.Second * 60,
 		Sentence:    time.Millisecond * 3,
+		Action:      &ActorMockAction{},
 	}
 	a := newClassicActor(an, r, d)
 
@@ -91,6 +102,7 @@ func TestActorTimeServed(t *testing.T) {
 		StrikeLimit: sl,
 		ExpireBase:  time.Second * 60,
 		Sentence:    time.Millisecond * 50,
+		Action:      &ActorMockAction{},
 	}
 	a := newClassicActor(an, r, d)
 
@@ -140,6 +152,7 @@ func TestActorExpire(t *testing.T) {
 		StrikeLimit: 3,
 		ExpireBase:  time.Second * 1,
 		Sentence:    time.Millisecond * 50,
+		Action:      &ActorMockAction{},
 	}
 
 	a := newClassicActor(an, r, d)
@@ -194,6 +207,7 @@ func TestActorInfraction(t *testing.T) {
 		StrikeLimit: sl,
 		ExpireBase:  time.Second * 60,
 		Sentence:    time.Millisecond * 10,
+		Action:      &ActorMockAction{},
 	}
 
 	a := newClassicActor(an, r, d)
@@ -236,6 +250,7 @@ func TestActorCreateInfraction(t *testing.T) {
 		StrikeLimit: 3,
 		ExpireBase:  time.Millisecond * 10,
 		Sentence:    time.Millisecond * 10,
+		Action:      &ActorMockAction{},
 	}
 
 	a := newClassicActor(an, r, d)
@@ -267,6 +282,7 @@ func TestActorRebaseAll(t *testing.T) {
 		StrikeLimit: 3,
 		ExpireBase:  time.Millisecond * 10,
 		Sentence:    time.Millisecond * 10,
+		Action:      &ActorMockAction{},
 	}
 	a := newClassicActor(an, r, d)
 
@@ -301,6 +317,7 @@ func TestActorStrikes(t *testing.T) {
 		StrikeLimit: 3,
 		ExpireBase:  time.Millisecond * 10,
 		Sentence:    time.Millisecond * 10,
+		Action:      &ActorMockAction{},
 	}
 	a := newClassicActor(an, r, d)
 
@@ -326,7 +343,7 @@ func TestActorStrikes(t *testing.T) {
 
 }
 
-func TestActorShouldReturn(t *testing.T) {
+func TestActorShouldDelete(t *testing.T) {
 	// setup
 	var err error
 	var b bool
@@ -339,15 +356,16 @@ func TestActorShouldReturn(t *testing.T) {
 		Name:        rn,
 		Message:     rm,
 		StrikeLimit: 3,
-		ExpireBase:  time.Second * 1,
-		Sentence:    time.Millisecond * 50,
+		ExpireBase:  time.Millisecond * 1,
+		Sentence:    time.Millisecond * 2,
+		Action:      &ActorMockAction{},
 	}
 	a := newClassicActor(an, r, d)
 
 	// test
 	// assert all falsey
 	b = a.shouldDelete()
-	if b {
+	if b == true {
 		t.Errorf("shouldDelete should be false instead [%v]", b)
 	}
 
@@ -368,8 +386,6 @@ func TestActorShouldReturn(t *testing.T) {
 			t.Errorf("Infraction [%v] should not error %v", rn, err)
 		}
 	}
-
-	a.jail(rn)
 
 	b = a.isJailedFor(rn)
 	if b == false {
@@ -398,6 +414,18 @@ func TestActorShouldReturn(t *testing.T) {
 		t.Errorf("hasJails should be false instead [%v]", b)
 	}
 
+	b = a.hasInfractions()
+	if b == true {
+		t.Errorf("hasInfractions should be false instead [%v]", b)
+	}
+
+	time.Sleep(dur)
+
+	b = a.shouldDelete()
+	if b == false {
+		t.Errorf("shouldDelete should be true instead [%v]", b)
+	}
+
 }
 
 func TestActorInfractionExists(t *testing.T) {
@@ -414,6 +442,7 @@ func TestActorInfractionExists(t *testing.T) {
 		StrikeLimit: 3,
 		ExpireBase:  time.Second * 1,
 		Sentence:    time.Millisecond * 50,
+		Action:      &ActorMockAction{},
 	}
 	a := newActor(an, d)
 
@@ -446,6 +475,7 @@ func TestActorTotalJails(t *testing.T) {
 		StrikeLimit: 3,
 		ExpireBase:  time.Second * 1,
 		Sentence:    time.Millisecond * 50,
+		Action:      &ActorMockAction{},
 	}
 	a := newClassicActor(an, r, d)
 
