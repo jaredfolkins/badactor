@@ -36,27 +36,23 @@ func (st *Studio) AddRule(r *Rule) {
 }
 
 // ApplyRules takes the currently stored rules map and applies it to all Directors
-func (st *Studio) ApplyRules() {
+func (st *Studio) ApplyRules() error {
 	for _, r := range st.rules {
 		for _, d := range st.directors {
-			d.lAddRule(r)
+			return d.lAddRule(r)
 		}
 	}
-	return
+	return nil
 }
 
 // CreateDirectors creates and adds the Directors to the director map
 func (st *Studio) CreateDirectors(ma int32) error {
 	var dk int32
-
 	for dk = 0; dk < st.capacity; dk++ {
 		d := NewDirector(ma)
 		st.directors[dk] = d
 	}
-
-	st.ApplyRules()
-
-	return nil
+	return st.ApplyRules()
 }
 
 // Infraction accepts an ActorName and RuleName and either creates, increments, or increments and jails the Actor
@@ -71,13 +67,13 @@ func (st *Studio) Strikes(an string, rn string) (int, error) {
 	return d.lStrikes(an, rn)
 }
 
-// CreateInfraction takes and ActorName and RuleName and creates an Infraction
+// CreateInfraction takes an ActorName and RuleName and creates an Infraction
 func (st *Studio) CreateInfraction(an string, rn string) error {
 	d := st.Director(an)
 	return d.lCreateInfraction(an, rn)
 }
 
-// CreateActor takes and ActorName and RuleName and creates an Actor
+// CreateActor takes an ActorName and RuleName and creates an Actor
 func (st *Studio) CreateActor(an string, rn string) error {
 	d := st.Director(an)
 	return d.lCreateInfraction(an, rn)
