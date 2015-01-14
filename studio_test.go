@@ -6,6 +6,59 @@ import (
 	"time"
 )
 
+func TestStudioStrikes(t *testing.T) {
+	var si int
+	var err error
+
+	st := NewStudio(256)
+	an := "actorname"
+	rn := "rulename"
+	rm := "rulemessage"
+	r := &Rule{
+		Name:        rn,
+		Message:     rm,
+		StrikeLimit: 3,
+		ExpireBase:  time.Second * 10,
+		Sentence:    time.Minute * 10,
+	}
+
+	// add rule
+	st.AddRule(r)
+
+	// creat directors
+	err = st.CreateDirectors(1024)
+	if err != nil {
+		t.Errorf("CreateDirectors failed %v", an, rn)
+	}
+
+	si, err = st.Strikes(an, rn)
+	if si != 0 {
+		t.Errorf("Strikes for Actor [%v] and Rule [%v] should not be %v, %v", an, rn, si, err)
+	}
+
+	err = st.Infraction(an, rn)
+	if err != nil {
+		t.Errorf("Infraction failed for Actor [%v] and Rule [%v] should not be %v", an, rn, err)
+	}
+
+	si, err = st.Strikes(an, rn)
+	if si != 1 {
+		t.Errorf("Strikes for Actor [%v] and Rule [%v] should not be %v", an, rn, si, err)
+	}
+
+	st.Infraction(an, rn)
+	si, err = st.Strikes(an, rn)
+	if si != 2 {
+		t.Errorf("Strikes for Actor [%v] and Rule [%v] should not be %v", an, rn, si, err)
+	}
+
+	st.Infraction(an, rn)
+	si, err = st.Strikes(an, rn)
+	if si != 0 {
+		t.Errorf("Strikes for Actor [%v] and Rule [%v] should not be %v", an, rn, si, err)
+	}
+}
+
 func TestStudioAddRule(t *testing.T) {
 	st := NewStudio(256)
 	an := "an_" + strconv.FormatInt(time.Now().UnixNano(), 10)
@@ -30,30 +83,40 @@ func TestStudioAddRule(t *testing.T) {
 }
 
 func TestStudioAddRules(t *testing.T) {
-	st := NewStudio(256)
-	rn := "rn_" + strconv.FormatInt(time.Now().UnixNano(), 10)
-	rm := "rm_" + strconv.FormatInt(time.Now().UnixNano(), 10)
-	r := &Rule{
-		Name:        rn,
-		Message:     rm,
+	st := NewStudio(2)
+	r1 := &Rule{
+		Name:        "rule1",
+		Message:     "message1",
+		StrikeLimit: 3,
+		ExpireBase:  time.Millisecond * 10,
+		Sentence:    time.Millisecond * 10,
+	}
+
+	r2 := &Rule{
+		Name:        "rule2",
+		Message:     "message2",
 		StrikeLimit: 3,
 		ExpireBase:  time.Millisecond * 10,
 		Sentence:    time.Millisecond * 10,
 	}
 
 	// add rule safety is of no concern
-	st.rules[r.Name] = r
+	st.AddRule(r1)
+	st.AddRule(r2)
 
 	// apply rules
-	st.ApplyRules()
+	err := st.CreateDirectors(1024)
+	if err != nil {
+		t.Errorf("CreateDirectors failed %v", err)
+	}
 
 	// range of rules and directors and make sure the rule exists for each
-	for _, r := range st.rules {
-		for i, d := range st.directors {
-			_, ok := d.rules[r.Name]
-			if !ok {
-				t.Errorf("ApplyRules for director [%v] should not be %v", i, ok)
-			}
+	for di, d := range st.directors {
+		if !d.ruleExists(r1.Name) {
+			t.Errorf("ApplyRules for director [%v] is missing rule %v", di, r1.Name)
+		}
+		if !d.ruleExists(r2.Name) {
+			t.Errorf("ApplyRules for director [%v] is missing rule %v", di, r2.Name)
 		}
 	}
 

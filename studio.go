@@ -37,9 +37,12 @@ func (st *Studio) AddRule(r *Rule) {
 
 // ApplyRules takes the currently stored rules map and applies it to all Directors
 func (st *Studio) ApplyRules() error {
-	for _, r := range st.rules {
-		for _, d := range st.directors {
-			return d.lAddRule(r)
+	for _, d := range st.directors {
+		for _, r := range st.rules {
+			err := d.lAddRule(r)
+			if err != nil {
+				return err
+			}
 		}
 	}
 	return nil

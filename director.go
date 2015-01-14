@@ -70,7 +70,10 @@ func (d *Director) lInfraction(an string, rn string) error {
 	if d.infractionExists(an, rn) {
 		d.up(an)
 	} else {
-		d.createInfraction(an, rn)
+		err := d.createInfraction(an, rn)
+		if err != nil {
+			return err
+		}
 	}
 
 	return d.incrementInfraction(an, rn)
