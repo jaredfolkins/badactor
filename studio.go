@@ -79,7 +79,7 @@ func (st *Studio) CreateInfraction(an string, rn string) error {
 // CreateActor takes an ActorName and RuleName and creates an Actor
 func (st *Studio) CreateActor(an string, rn string) error {
 	d := st.Director(an)
-	return d.lCreateInfraction(an, rn)
+	return d.lCreateActor(an, rn)
 }
 
 // KeepAlive accepts an ActorName and allows you to rebase the TTL for the Actor so that it isn't removed from the stack as scheduled

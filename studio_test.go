@@ -6,6 +6,57 @@ import (
 	"time"
 )
 
+func TestStudioCreateActorAndInfraction(t *testing.T) {
+	var err error
+
+	st := NewStudio(256)
+	an := "actorname"
+	rn := "rulename"
+	rm := "rulemessage"
+	r := &Rule{
+		Name:        rn,
+		Message:     rm,
+		StrikeLimit: 3,
+		ExpireBase:  time.Second * 10,
+		Sentence:    time.Minute * 10,
+	}
+
+	// add rule
+	st.AddRule(r)
+
+	// creat directors
+	err = st.CreateDirectors(1024)
+	if err != nil {
+		t.Errorf("CreateDirectors failed %v", an, rn)
+	}
+
+	if st.ActorExists(an) {
+		t.Errorf("ActorExists should be false")
+	}
+
+	if st.InfractionExists(an, rn) {
+		t.Errorf("InfractionExists should be false")
+	}
+
+	err = st.CreateActor(an, rn)
+	if err != nil {
+		t.Errorf("CreateActor should be nil [%v]", err)
+	}
+
+	err = st.CreateInfraction(an, rn)
+	if err != nil {
+		t.Errorf("CreateInfraction should be nil [%v]", err)
+	}
+
+	if !st.ActorExists(an) {
+		t.Errorf("InfractionExists should be true")
+	}
+
+	if !st.InfractionExists(an, rn) {
+		t.Errorf("InfractionExists should be true")
+	}
+}
+
 func TestStudioStrikes(t *testing.T) {
 	var si int
 	var err error
@@ -36,6 +87,7 @@ func TestStudioStrikes(t *testing.T) {
 		t.Errorf("Strikes for Actor [%v] and Rule [%v] should not be %v, %v", an, rn, si, err)
 	}
 
+	// 1st inf
 	err = st.Infraction(an, rn)
 	if err != nil {
 		t.Errorf("Infraction failed for Actor [%v] and Rule [%v] should not be %v", an, rn, err)
@@ -46,12 +98,21 @@ func TestStudioStrikes(t *testing.T) {
 		t.Errorf("Strikes for Actor [%v] and Rule [%v] should not be %v", an, rn, si, err)
 	}
 
+	// 2nd inf
 	st.Infraction(an, rn)
 	si, err = st.Strikes(an, rn)
 	if si != 2 {
 		t.Errorf("Strikes for Actor [%v] and Rule [%v] should not be %v", an, rn, si, err)
 	}
 
+	// 3rd inf, jail, strikes for that infraction name should be 0
+	st.Infraction(an, rn)
+	si, err = st.Strikes(an, rn)
+	if si != 0 {
+		t.Errorf("Strikes for Actor [%v] and Rule [%v] should not be %v", an, rn, si, err)
+	}
+
+	// should still be jailed
 	st.Infraction(an, rn)
 	si, err = st.Strikes(an, rn)
 	if si != 0 {
