@@ -6,6 +6,63 @@ import (
 	"time"
 )
 
+func TestStudioKeepAlive(t *testing.T) {
+	var ti time.Time
+	var err error
+
+	st := NewStudio(256)
+	an := "actorname"
+	rn := "rulename"
+	rm := "rulemessage"
+	r := &Rule{
+		Name:        rn,
+		Message:     rm,
+		StrikeLimit: 3,
+		ExpireBase:  time.Second * 10,
+		Sentence:    time.Minute * 10,
+	}
+
+	// add rule
+	st.AddRule(r)
+
+	// creat directors
+	err = st.CreateDirectors(1024)
+	if err != nil {
+		t.Errorf("CreateDirectors failed %v", an, rn)
+	}
+
+	d := st.Director(an)
+	ti, err = d.lTimeToLive(an)
+	if err == nil {
+		t.Errorf("lTimeToLive() should fail as actor doesn't exist %v, %v, %v", an, err, ti)
+	}
+
+	err = st.Infraction(an, rn)
+	if err != nil {
+		t.Errorf("Infraction failed %v, %v", an, rn)
+	}
+
+	orig_ttl, err := d.lTimeToLive(an)
+	if err != nil {
+		t.Errorf("lTimeToLive() should not fail as actor exists %v, %v, %v", an, err, orig_ttl)
+	}
+
+	err = st.KeepAlive(an)
+	if err != nil {
+		t.Errorf("KeepAlive failed %v, %v", an, rn)
+	}
+
+	new_ttl, err := d.lTimeToLive(an)
+	if err != nil {
+		t.Errorf("lTimeToLive() should not fail as actor exists %v, %v, %v", an, err, orig_ttl)
+	}
+
+	if new_ttl == orig_ttl {
+		t.Errorf("KeepAlive() failed to update time %v, %v, %v", an, orig_ttl, new_ttl)
+	}
+
+}
+
 func TestStudioCreateActorAndInfraction(t *testing.T) {
 	var err error
 

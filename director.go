@@ -89,6 +89,16 @@ func (d *Director) lCreateInfraction(an string, rn string) error {
 	return d.createInfraction(an, rn)
 }
 
+func (d *Director) lTimeToLive(an string) (time.Time, error) {
+	d.Lock()
+	defer d.Unlock()
+
+	if !d.actorExists(an) {
+		return time.Now(), fmt.Errorf("director.CreateInfraction() failed, Actor does not exists")
+	}
+	return d.timeToLive(an), nil
+}
+
 func (d *Director) lCreateActor(an string, rn string) error {
 	d.Lock()
 	defer d.Unlock()
@@ -269,6 +279,10 @@ func (d *Director) isJailedFor(an string, rn string) bool {
 
 func (d *Director) strikes(an string, rn string) int {
 	return d.actors[an].Value.(*Actor).strikes(rn)
+}
+
+func (d *Director) timeToLive(an string) time.Time {
+	return d.actors[an].Value.(*Actor).timeToLive()
 }
 
 func (d *Director) keepAlive(an string) {

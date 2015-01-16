@@ -43,11 +43,6 @@ func newClassicActor(n string, r *Rule, d *Director) *Actor {
 	return a
 }
 
-//
-// NO LOCKS - UNSAFE - BECAREFUL
-//
-// below this point are helper functions that are dependant on the calling functions to preform the appropriate locking
-
 func (a *Actor) rebaseAll() error {
 
 	for _, inf := range a.infractions {
@@ -185,4 +180,8 @@ func (a *Actor) hasJails() bool {
 
 func (a *Actor) totalJails() int {
 	return len(a.jails)
+}
+
+func (a *Actor) timeToLive() time.Time {
+	return a.ttl
 }
