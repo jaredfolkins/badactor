@@ -63,7 +63,7 @@ func TestStudioKeepAlive(t *testing.T) {
 
 }
 
-func TestStudioCreateActorAndInfraction(t *testing.T) {
+func TestStudioCreateActor(t *testing.T) {
 	var err error
 
 	st := NewStudio(256)
@@ -91,6 +91,40 @@ func TestStudioCreateActorAndInfraction(t *testing.T) {
 		t.Errorf("ActorExists should be false")
 	}
 
+	err = st.CreateActor(an, rn)
+	if err != nil {
+		t.Errorf("CreateActor should be nil [%v]", err)
+	}
+
+	if !st.ActorExists(an) {
+		t.Errorf("InfractionExists should be true")
+	}
+}
+
+func TestStudioCreateInfraction(t *testing.T) {
+	var err error
+
+	st := NewStudio(256)
+	an := "actorname"
+	rn := "rulename"
+	rm := "rulemessage"
+	r := &Rule{
+		Name:        rn,
+		Message:     rm,
+		StrikeLimit: 3,
+		ExpireBase:  time.Second * 10,
+		Sentence:    time.Minute * 10,
+	}
+
+	// add rule
+	st.AddRule(r)
+
+	// creat directors
+	err = st.CreateDirectors(1024)
+	if err != nil {
+		t.Errorf("CreateDirectors failed %v", an, rn)
+	}
+
 	if st.InfractionExists(an, rn) {
 		t.Errorf("InfractionExists should be false")
 	}
@@ -103,10 +137,6 @@ func TestStudioCreateActorAndInfraction(t *testing.T) {
 	err = st.CreateInfraction(an, rn)
 	if err != nil {
 		t.Errorf("CreateInfraction should be nil [%v]", err)
-	}
-
-	if !st.ActorExists(an) {
-		t.Errorf("InfractionExists should be true")
 	}
 
 	if !st.InfractionExists(an, rn) {
