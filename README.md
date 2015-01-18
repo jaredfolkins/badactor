@@ -8,6 +8,10 @@ BadActor is an in-memory, application driven jailer built in the spirit of fail2
 
 A common use case for BadActor is jailing an offender who fails to login to your website (N) times as this can signal a bruteforce attempt.
 
+# Tutorial
+
+Checkout [badactor.org](http://badactor.org) for a tutorial.
+
 # Design
 
 - speed (subsecond response underload and submillisecond with standard operations)
