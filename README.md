@@ -4,6 +4,12 @@
 
 BadActor is an in-memory, application driven jailer built in the spirit of fail2ban. It can be used as either middleware or a standalone server (TODO) with its primary goal to increase the expense for "bad actors" who engage in system probing or attacks.
 
+# Install
+
+```bash
+$ go get github.com/jaredfolkins/badactor
+```
+
 # Use Case
 
 A common use case for BadActor is jailing an offender who fails to login to your website (N) times as this can signal a bruteforce attempt.
