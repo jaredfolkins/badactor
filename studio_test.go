@@ -6,6 +6,50 @@ import (
 	"time"
 )
 
+func TestStudioIsJailed(t *testing.T) {
+	var b bool
+	var err error
+
+	st := NewStudio(256)
+	an := "actorname"
+	rn := "rulename"
+	rm := "rulemessage"
+	r := &Rule{
+		Name:        rn,
+		Message:     rm,
+		StrikeLimit: 3,
+		ExpireBase:  time.Second * 10,
+		Sentence:    time.Minute * 10,
+	}
+
+	// add rule
+	st.AddRule(r)
+
+	// creat directors
+	err = st.CreateDirectors(1024)
+	if err != nil {
+		t.Errorf("CreateDirectors failed %v", an, rn)
+	}
+
+	b = st.IsJailed(an)
+	if b {
+		t.Errorf("IsJailed should be false, %v %v", an, rn)
+	}
+
+	for i := 0; i < 3; i++ {
+		err = st.Infraction(an, rn)
+		if err != nil {
+			t.Errorf("Infraction failed %v, %v", an, rn)
+		}
+	}
+
+	b = st.IsJailed(an)
+	if !b {
+		t.Errorf("IsJailed should be true, %v %v", an, rn)
+	}
+
+}
+
 func TestStudioKeepAlive(t *testing.T) {
 	var ti time.Time
 	var err error
