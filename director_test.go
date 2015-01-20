@@ -1,7 +1,6 @@
 package badactor
 
 import (
-	"log"
 	"strconv"
 	"testing"
 	"time"
@@ -51,7 +50,6 @@ func TestDirectorlMaintenance(t *testing.T) {
 		}
 	}
 
-	log.Println(d.size)
 	if d.size != 1 {
 		t.Errorf("d.size should be 1, instead [%v]", d.size)
 	}
@@ -67,13 +65,23 @@ func TestDirectorlMaintenance(t *testing.T) {
 	}
 
 	// MOCK STATE CHANGE
-	// Remove 5 minutes from the world
+	// Remove 10 minutes from the world
 	a := d.actors[an].Value.(*Actor)
-	dur := time.Now().Add(-time.Minute * 5)
+	dur := time.Now().Add(-time.Hour * 1)
+
 	a.jails[r1n].releaseBy = dur
+	a.infractions[r2n].expireBy = dur
+
+	d.lMaintenance()
+
 	a.ttl = dur
 
 	d.lMaintenance()
+
+	b = d.lInfractionExists(an, r2n)
+	if b {
+		t.Errorf("lInfractionExists should be false instead [%v]", b)
+	}
 
 	b = d.lIsJailed(an)
 	if b {

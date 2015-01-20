@@ -45,9 +45,11 @@ func newClassicActor(n string, r *Rule, d *Director) *Actor {
 
 func (a *Actor) rebaseAll() error {
 
-	for _, inf := range a.infractions {
-		inf.rebase()
-	}
+	/*
+		for _, inf := range a.infractions {
+			inf.rebase()
+		}
+	*/
 
 	a.ttl = time.Now().Add(time.Millisecond * ttl)
 
