@@ -56,7 +56,7 @@ func (a *Actor) rebaseAll() error {
 
 func (a *Actor) infraction(rn string) error {
 
-	if a.isJailed() {
+	if a.isJailedFor(rn) {
 		return fmt.Errorf("actor [%v] is already Jailed for [%v]", a.name, rn)
 	}
 

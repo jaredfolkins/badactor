@@ -1,10 +1,91 @@
 package badactor
 
 import (
+	"log"
 	"strconv"
 	"testing"
 	"time"
 )
+
+func TestDirectorlMaintenance(t *testing.T) {
+	var b bool
+	var err error
+	d := NewDirector(ia)
+	an := "an_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	r1n := "r1"
+	r2n := "r2"
+	r1 := &Rule{
+		Name:        r1n,
+		Message:     "r1 message",
+		StrikeLimit: 3,
+		ExpireBase:  time.Minute * 1,
+		Sentence:    time.Minute * 5,
+	}
+
+	r2 := &Rule{
+		Name:        r2n,
+		Message:     "r2 message",
+		StrikeLimit: 3,
+		ExpireBase:  time.Minute * 1,
+		Sentence:    time.Minute * 5,
+	}
+
+	d.lAddRule(r1)
+	d.lAddRule(r2)
+
+	if d.size != 0 {
+		t.Errorf("d.size should be 0, instead [%v]", d.size)
+	}
+
+	for i := 0; i < 3; i++ {
+		err = d.lInfraction(an, r1n)
+		if err != nil {
+			t.Errorf("lIsJailedFor lInfraction should not error [%v]", err)
+		}
+	}
+
+	for i := 0; i < 1; i++ {
+		err = d.lInfraction(an, r2n)
+		if err != nil {
+			t.Errorf("lIsJailedFor lInfraction should not error [%v]", err)
+		}
+	}
+
+	log.Println(d.size)
+	if d.size != 1 {
+		t.Errorf("d.size should be 1, instead [%v]", d.size)
+	}
+
+	b = d.lIsJailed(an)
+	if !b {
+		t.Errorf("lIsJailed should be true instead [%v]", b)
+	}
+
+	b = d.lIsJailedFor(an, r1n)
+	if !b {
+		t.Errorf("lIsJailedFor should be true instead [%v]", b)
+	}
+
+	// MOCK STATE CHANGE
+	// Remove 5 minutes from the world
+	a := d.actors[an].Value.(*Actor)
+	dur := time.Now().Add(-time.Minute * 5)
+	a.jails[r1n].releaseBy = dur
+	a.ttl = dur
+
+	d.lMaintenance()
+
+	b = d.lIsJailed(an)
+	if b {
+		t.Errorf("lIsJailed should be false instead [%v]", b)
+	}
+
+	b = d.lIsJailedFor(an, r1n)
+	if b {
+		t.Errorf("lIsJailedFor should be false instead [%v]", b)
+	}
+
+}
 
 func TestActorExists(t *testing.T) {
 	var err error
@@ -406,6 +487,10 @@ func TestDirectorlIsJailedFor(t *testing.T) {
 	}
 	d.lAddRule(r)
 
+	if d.size != 0 {
+		t.Errorf("d.size should be 0, instead [%v]", d.size)
+	}
+
 	for i := 0; i < 3; i++ {
 		err = d.lInfraction(an, rn)
 		if err != nil {
@@ -413,30 +498,37 @@ func TestDirectorlIsJailedFor(t *testing.T) {
 		}
 	}
 
+	if d.size != 1 {
+		t.Errorf("d.size should be 1, instead [%v]", d.size)
+	}
+
 	b = d.lIsJailed(an)
-	if b == false {
+	if !b {
 		t.Errorf("lIsJailed should be true instead [%v]", b)
 	}
 
 	b = d.lIsJailedFor(an, rn)
-	if b == false {
+	if !b {
 		t.Errorf("lIsJailedFor should be true instead [%v]", b)
 	}
 
-	// STATE CHANGE
-	// sleep to make sure actor is jailed
-	time.Sleep(time.Second * 3)
+	// MOCK STATE CHANGE
+	// Remove 5 minutes from the world
+	a := d.actors[an].Value.(*Actor)
+	dur := time.Now().Add(-time.Minute * 5)
+	a.jails[rn].releaseBy = dur
+	a.ttl = dur
 
 	d.lMaintenance()
 
 	b = d.lIsJailed(an)
-	if b == true {
-		t.Errorf("lIsJailed should be true instead [%v]", b)
+	if b {
+		t.Errorf("lIsJailed should be false instead [%v]", b)
 	}
 
 	b = d.lIsJailedFor(an, rn)
-	if b == true {
-		t.Errorf("lIsJailedFor should be true instead [%v]", b)
+	if b {
+		t.Errorf("lIsJailedFor should be false instead [%v]", b)
 	}
 
 }

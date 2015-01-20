@@ -40,7 +40,7 @@ func (d *Director) lMaintenance() {
 			a.timeServed(j)
 		}
 		for _, inf := range a.infractions {
-			a.jail(inf.rule.Name)
+			//a.jail(inf.rule.Name)
 			a.expire(inf.rule.Name)
 		}
 		if a.shouldDelete() {
@@ -53,6 +53,10 @@ func (d *Director) lMaintenance() {
 func (d *Director) lInfraction(an string, rn string) error {
 	d.Lock()
 	defer d.Unlock()
+
+	if !d.ruleExists(rn) {
+		return fmt.Errorf("Rule [%v] does not exists", rn)
+	}
 
 	if !d.actorExists(an) {
 		err := d.createActor(an, rn)
