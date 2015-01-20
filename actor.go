@@ -122,9 +122,10 @@ func (a *Actor) expire(rn string) error {
 
 	if time.Now().After(a.infractions[rn].expireBy) {
 		delete(a.infractions, rn)
+		return nil
 	}
 
-	return nil
+	return fmt.Errorf("Could not expire [%v]", rn)
 }
 
 // jail the actor if the Limit has been reached

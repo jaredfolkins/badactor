@@ -150,7 +150,7 @@ func TestActorExpire(t *testing.T) {
 		Name:        rn,
 		Message:     rm,
 		StrikeLimit: 3,
-		ExpireBase:  time.Second * 1,
+		ExpireBase:  time.Millisecond * 50,
 		Sentence:    time.Millisecond * 50,
 		Action:      &ActorMockAction{},
 	}
@@ -164,22 +164,12 @@ func TestActorExpire(t *testing.T) {
 
 	a.infraction(rn)
 
-	err = a.expire(rn)
-	if err != nil {
-		t.Errorf("Expire should not fail: %v", err)
+	err = a.expire(br)
+	if err == nil {
+		t.Errorf("Expire should error for [%v]", err)
 	}
 
 	time.Sleep(dur)
-
-	err = a.expire(rn)
-	if err != nil {
-		t.Errorf("Expire should not delete [%v:%v]", an, rn)
-	}
-
-	if !a.hasInfractions() {
-		t.Errorf("Infractions should exist [%v:%v]", an, rn)
-	}
-
 	time.Sleep(dur)
 
 	err = a.expire(rn)
@@ -187,7 +177,7 @@ func TestActorExpire(t *testing.T) {
 		t.Errorf("Expire should delete [%v:%v]", an, rn)
 	}
 
-	if !a.hasInfractions() {
+	if a.hasInfractions() {
 		t.Errorf("Infractions should not exist [%v:%v]", an, rn)
 	}
 

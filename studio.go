@@ -39,10 +39,7 @@ func (st *Studio) AddRule(r *Rule) {
 func (st *Studio) ApplyRules() error {
 	for _, d := range st.directors {
 		for _, r := range st.rules {
-			err := d.lAddRule(r)
-			if err != nil {
-				return err
-			}
+			d.lAddRule(r)
 		}
 	}
 	return nil
