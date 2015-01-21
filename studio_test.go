@@ -6,6 +6,48 @@ import (
 	"time"
 )
 
+func TestStudioStartReaper(t *testing.T) {
+
+	//var b bool
+	var err error
+
+	st := NewStudio(256)
+	an := "actorname"
+	rn := "rulename"
+	rm := "rulemessage"
+
+	r := &Rule{
+		Name:        rn,
+		Message:     rm,
+		StrikeLimit: 3,
+		ExpireBase:  time.Second * 10,
+		Sentence:    time.Minute * 10,
+	}
+
+	// add rule
+	st.AddRule(r)
+
+	// creat directors
+	err = st.CreateDirectors(1024)
+	if err != nil {
+		t.Errorf("CreateDirectors failed %v", an, rn)
+	}
+
+	dur := time.Millisecond * time.Duration(1)
+	st.StartReaper(dur)
+
+	msg := st.Status()
+	if !msg.reaperAlive {
+		t.Errorf("isAlive should be true %v", msg.reaperAlive)
+	}
+
+	msg = st.Status()
+	if !msg.reaperAlive {
+		t.Errorf("isAlive should be true %v", msg.reaperAlive)
+	}
+
+}
+
 func TestStudioIsJailedFor(t *testing.T) {
 	var b bool
 	var err error

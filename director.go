@@ -35,18 +35,8 @@ func (d *Director) lMaintenance() {
 	d.Lock()
 	defer d.Unlock()
 	for e := d.index.Front(); e != nil; e = e.Next() {
-		a := e.Value.(*Actor)
-		for _, j := range a.jails {
-			a.timeServed(j)
-		}
-		for _, inf := range a.infractions {
-			//a.jail(inf.rule.Name)
-			a.expire(inf.rule.Name)
-		}
-		if a.shouldDelete() {
-			delete(d.actors, a.name)
-			d.size--
-		}
+		an := e.Value.(*Actor).name
+		d.maintenance(an)
 	}
 }
 
@@ -59,25 +49,21 @@ func (d *Director) lInfraction(an string, rn string) error {
 	}
 
 	if !d.actorExists(an) {
-		err := d.createActor(an, rn)
-		if err != nil {
-			return err
-		}
+		d.createActor(an, rn)
 		d.deleteOldest()
 	}
 
+	// bail if actor is already jailed
 	if d.isJailedFor(an, rn) {
 		return fmt.Errorf("Actor [%v] is already jailed for [%v]", an, rn)
 	}
 
-	// create infraction if needed
+	// move the infraction up the stack
+	// else create infraction if needed
 	if d.infractionExists(an, rn) {
 		d.up(an)
 	} else {
-		err := d.createInfraction(an, rn)
-		if err != nil {
-			return err
-		}
+		d.createInfraction(an, rn)
 	}
 
 	return d.incrementInfraction(an, rn)
@@ -198,7 +184,6 @@ func (d *Director) maintenance(an string) {
 			a.timeServed(j)
 		}
 		for _, inf := range a.infractions {
-			a.jail(inf.rule.Name)
 			a.expire(inf.rule.Name)
 		}
 		if a.shouldDelete() {

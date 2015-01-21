@@ -16,6 +16,7 @@ type Studio struct {
 	capacity  int32
 	directors map[int32]*Director
 	rules     map[string]*Rule
+	status    chan *status
 }
 
 // NewStudio returns a init'd Studio struct, you pass it an int32 value which is the capacity and informs the Studio how many Directors will be created, it is also the value that jumpHash uses to mod
@@ -24,6 +25,7 @@ func NewStudio(md int32) *Studio {
 		capacity:  md,
 		directors: make(map[int32]*Director, md),
 		rules:     make(map[string]*Rule),
+		status:    make(chan *status),
 	}
 }
 
@@ -110,15 +112,30 @@ func (st *Studio) IsJailed(an string) bool {
 }
 
 // StartReaper starts the reaping goroutine
-func (st *Studio) StartReaper() {
-	ticker := time.NewTicker(time.Minute * time.Duration(minutes))
+func (st *Studio) StartReaper(dur time.Duration) {
+	ticker := time.NewTicker(dur)
 	go func() {
-		for _ = range ticker.C {
-			for _, d := range st.directors {
-				d.lMaintenance()
+		for {
+			select {
+			case <-ticker.C:
+				for _, d := range st.directors {
+					d.lMaintenance()
+				}
+			case stat := <-st.status:
+				m := &message{
+					reaperAlive: true,
+				}
+				stat.outgoing <- m
 			}
 		}
 	}()
+}
+
+func (st *Studio) Status() *message {
+	stat := newStatus()
+	defer close(stat.outgoing)
+	st.status <- stat
+	return <-stat.outgoing
 }
 
 // Director takes the name of an Actor as a string, serializes it, uses the jumpHash aglo to determine the Director that the Actor belongs to

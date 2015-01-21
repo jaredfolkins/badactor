@@ -27,7 +27,8 @@ func BenchmarkStudioInfraction512(b *testing.B) {
 		log.Fatal(err)
 	}
 
-	st.StartReaper()
+	dur := time.Minute * time.Duration(minutes)
+	st.StartReaper(dur)
 
 	for i := 0; i < b.N; i++ {
 		an := strconv.FormatInt(rand.Int63(), 10)
@@ -54,7 +55,8 @@ func BenchmarkStudioInfraction1024(b *testing.B) {
 		log.Fatal(err)
 	}
 
-	st.StartReaper()
+	dur := time.Minute * time.Duration(minutes)
+	st.StartReaper(dur)
 
 	for i := 0; i < b.N; i++ {
 		an := strconv.FormatInt(rand.Int63(), 10)
@@ -81,7 +83,8 @@ func BenchmarkStudioInfraction2048(b *testing.B) {
 		log.Fatal(err)
 	}
 
-	st.StartReaper()
+	dur := time.Minute * time.Duration(minutes)
+	st.StartReaper(dur)
 
 	for i := 0; i < b.N; i++ {
 		an := strconv.FormatInt(rand.Int63(), 10)
@@ -108,7 +111,8 @@ func BenchmarkStudioInfraction4096(b *testing.B) {
 		log.Fatal(err)
 	}
 
-	st.StartReaper()
+	dur := time.Minute * time.Duration(minutes)
+	st.StartReaper(dur)
 
 	for i := 0; i < b.N; i++ {
 		an := strconv.FormatInt(rand.Int63(), 10)
@@ -135,7 +139,8 @@ func BenchmarkStudioInfraction65536(b *testing.B) {
 		log.Fatal(err)
 	}
 
-	st.StartReaper()
+	dur := time.Minute * time.Duration(minutes)
+	st.StartReaper(dur)
 
 	for i := 0; i < b.N; i++ {
 		an := strconv.FormatInt(rand.Int63(), 10)
@@ -162,7 +167,8 @@ func BenchmarkStudioInfraction262144(b *testing.B) {
 		log.Fatal(err)
 	}
 
-	st.StartReaper()
+	dur := time.Minute * time.Duration(minutes)
+	st.StartReaper(dur)
 
 	for i := 0; i < b.N; i++ {
 		an := strconv.FormatInt(rand.Int63(), 10)

@@ -93,6 +93,10 @@ func TestDirectorlMaintenance(t *testing.T) {
 		t.Errorf("lIsJailedFor should be false instead [%v]", b)
 	}
 
+	if d.size != 0 {
+		t.Errorf("d.size should be 0, instead [%v]", d.size)
+	}
+
 }
 
 func TestActorExists(t *testing.T) {
@@ -553,6 +557,11 @@ func TestCreateActor(t *testing.T) {
 		StrikeLimit: 3,
 		ExpireBase:  time.Second * 10,
 		Sentence:    time.Second * 10,
+	}
+
+	err = d.lCreateActor(an, rn)
+	if err == nil {
+		t.Errorf("Actor [%s] should be created %v", an, err)
 	}
 
 	err = d.lAddRule(r)

@@ -45,10 +45,10 @@ func newClassicActor(n string, r *Rule, d *Director) *Actor {
 
 func (a *Actor) rebaseAll() error {
 
-	/*
-		for _, inf := range a.infractions {
-			inf.rebase()
-		}
+	/* I don't believe this is needed, tests pass, will think a bit more before removing
+	for _, inf := range a.infractions {
+		inf.rebase()
+	}
 	*/
 
 	a.ttl = time.Now().Add(time.Millisecond * ttl)
