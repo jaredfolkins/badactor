@@ -169,7 +169,8 @@ func main() {
 	}
 
 	// Start the reaper
-	st.StartReaper()
+	dur := time.Minute * time.Duration(60)
+	st.StartReaper(dur)
 
 	// router
 	router := httprouter.New()

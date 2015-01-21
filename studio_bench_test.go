@@ -27,7 +27,7 @@ func BenchmarkStudioInfraction512(b *testing.B) {
 		log.Fatal(err)
 	}
 
-	dur := time.Minute * time.Duration(minutes)
+	dur := time.Minute * time.Duration(60)
 	st.StartReaper(dur)
 
 	for i := 0; i < b.N; i++ {
@@ -55,7 +55,7 @@ func BenchmarkStudioInfraction1024(b *testing.B) {
 		log.Fatal(err)
 	}
 
-	dur := time.Minute * time.Duration(minutes)
+	dur := time.Minute * time.Duration(60)
 	st.StartReaper(dur)
 
 	for i := 0; i < b.N; i++ {
@@ -83,7 +83,7 @@ func BenchmarkStudioInfraction2048(b *testing.B) {
 		log.Fatal(err)
 	}
 
-	dur := time.Minute * time.Duration(minutes)
+	dur := time.Minute * time.Duration(60)
 	st.StartReaper(dur)
 
 	for i := 0; i < b.N; i++ {
@@ -111,7 +111,7 @@ func BenchmarkStudioInfraction4096(b *testing.B) {
 		log.Fatal(err)
 	}
 
-	dur := time.Minute * time.Duration(minutes)
+	dur := time.Minute * time.Duration(60)
 	st.StartReaper(dur)
 
 	for i := 0; i < b.N; i++ {
@@ -139,7 +139,7 @@ func BenchmarkStudioInfraction65536(b *testing.B) {
 		log.Fatal(err)
 	}
 
-	dur := time.Minute * time.Duration(minutes)
+	dur := time.Minute * time.Duration(60)
 	st.StartReaper(dur)
 
 	for i := 0; i < b.N; i++ {
@@ -167,7 +167,7 @@ func BenchmarkStudioInfraction262144(b *testing.B) {
 		log.Fatal(err)
 	}
 
-	dur := time.Minute * time.Duration(minutes)
+	dur := time.Minute * time.Duration(60)
 	st.StartReaper(dur)
 
 	for i := 0; i < b.N; i++ {

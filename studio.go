@@ -6,10 +6,6 @@ import (
 	"time"
 )
 
-const (
-	minutes = 60
-)
-
 // Studio is the singleton instance, it contains the Directors(buckets) who have many Actors(points)
 type Studio struct {
 	sync.Mutex
@@ -111,7 +107,7 @@ func (st *Studio) IsJailed(an string) bool {
 	return d.lIsJailed(an)
 }
 
-// StartReaper starts the reaping goroutine
+// StartReaper starts the reaping goroutine and takes a time.Duraction on how often you want the Reaper to run
 func (st *Studio) StartReaper(dur time.Duration) {
 	ticker := time.NewTicker(dur)
 	go func() {
