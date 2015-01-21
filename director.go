@@ -277,3 +277,7 @@ func (d *Director) timeToLive(an string) time.Time {
 func (d *Director) keepAlive(an string) {
 	d.actors[an].Value.(*Actor).rebaseAll()
 }
+
+func (d *Director) actor(an string) *Actor {
+	return d.actors[an].Value.(*Actor)
+}

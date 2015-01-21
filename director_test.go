@@ -66,16 +66,22 @@ func TestDirectorlMaintenance(t *testing.T) {
 
 	// MOCK STATE CHANGE
 	// Remove 10 minutes from the world
-	a := d.actors[an].Value.(*Actor)
+	// get actor
+	a := d.actor(an)
+	// set time to be one hour ago
 	dur := time.Now().Add(-time.Hour * 1)
 
+	// change time.Time of infraction and jail
 	a.jails[r1n].releaseBy = dur
 	a.infractions[r2n].expireBy = dur
 
+	// perform maintenance
 	d.lMaintenance()
 
+	// change time to live
 	a.ttl = dur
 
+	// perform maintenance
 	d.lMaintenance()
 
 	b = d.lInfractionExists(an, r2n)

@@ -107,9 +107,8 @@ func TestActionWhenTimeServed(t *testing.T) {
 		t.Errorf("whenTimeServedCounter should be 0 instead", whenTimeServedCounter)
 	}
 
-	dur := time.Duration(time.Second * 1)
-
-	time.Sleep(dur)
+	dur := time.Now().Add(-time.Hour * 1)
+	a.jails[rn].releaseBy = dur
 
 	for _, j := range a.jails {
 		a.timeServed(j)
