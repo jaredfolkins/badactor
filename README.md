@@ -138,6 +138,16 @@ import (
 
 var st *badactor.Studio
 
+type MyAction struct{}
+
+func (ma *MyAction) WhenJailed(a *badactor.Actor, r *badactor.Rule) error {
+	return nil
+}
+
+func (ma *MyAction) WhenTimeServed(a *badactor.Actor, r *badactor.Rule) error {
+	return nil
+}
+
 func main() {
 
 	//runtime.GOMAXPROCS(4)
@@ -160,6 +170,7 @@ func main() {
 		StrikeLimit: 10,
 		ExpireBase:  time.Second * 1,
 		Sentence:    time.Second * 10,
+		Action:      &MyAction{},
 	}
 	st.AddRule(ru)
 
@@ -168,9 +179,10 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// Start the reaper
+	//poll duration
 	dur := time.Minute * time.Duration(60)
-	st.StartReaper(dur)
+	// Start the reaper
+	st.StartReaper()
 
 	// router
 	router := httprouter.New()
