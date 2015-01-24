@@ -120,6 +120,40 @@ ok                                    github.com/jaredfolkins/badactor  109.879s
 ➜  badactor git:(master)
 ```
 
+# Action Interface
+
+The Action Interface has two primary methods, **WhenJailed** and **WhenTimeServed**. An excerpt of an implementation is below. They are called when the actor is jailed for the rule or when the actor has served its time for a particular rule.
+
+
+```go
+type MyAction struct{}
+
+func (ma *MyAction) WhenJailed(a *badactor.Actor, r *badactor.Rule) error {
+  // Do something here. Log, email, etc...
+	return nil
+}
+
+func (ma *MyAction) WhenTimeServed(a *badactor.Actor, r *badactor.Rule) error {
+  // Do something here. Log, email, etc...
+	return nil
+}
+```
+
+And assigned to the rule like so.
+
+```go
+// define and add the rule to the stack
+ru := &badactor.Rule{
+  Name:        "Login",
+  Message:     "You have failed to login too many times",
+  StrikeLimit: 10,
+  ExpireBase:  time.Second * 1,
+  Sentence:    time.Second * 10,
+  Action:      &MyAction{},
+}
+st.AddRule(ru)
+```
+
 # Httprouter & Negroni Example
 
 ```go
@@ -263,3 +297,4 @@ func (bam *BadActorMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request,
 	next(w, r)
 }
 ```
+
