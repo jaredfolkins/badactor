@@ -216,7 +216,7 @@ func main() {
 	//poll duration
 	dur := time.Minute * time.Duration(60)
 	// Start the reaper
-	st.StartReaper()
+	st.StartReaper(dur)
 
 	// router
 	router := httprouter.New()
