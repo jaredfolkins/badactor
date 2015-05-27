@@ -7,8 +7,7 @@ import (
 	"time"
 )
 
-// Director is a singleton, only one should be running
-// it is engine of BadActor and exposes the primary set of Public Functions
+// Director is a bucket/shard and contains many Actors
 type Director struct {
 	sync.Mutex
 

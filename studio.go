@@ -107,7 +107,7 @@ func (st *Studio) IsJailed(an string) bool {
 	return d.lIsJailed(an)
 }
 
-// StartReaper starts the reaping goroutine and takes a time.Duraction on how often you want the Reaper to run
+// StartReaper starts the reaping goroutine and takes a time.Duration on how often you want the Reaper to run
 func (st *Studio) StartReaper(dur time.Duration) {
 	ticker := time.NewTicker(dur)
 	go func() {
