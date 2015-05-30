@@ -77,7 +77,7 @@ func (st *Studio) CreateActor(an string, rn string) error {
 	return d.lCreateActor(an, rn)
 }
 
-// KeepAlive accepts an ActorName and allows you to rebase the TTL for the Actor so that it isn't removed from the stack as scheduled
+// KeepAlive accepts an ActorName and allows you to rebase the TTL for the Actor so that it isn't removed from the stack as scheduled, keeping it alive.
 func (st *Studio) KeepAlive(an string) error {
 	d := st.Director(an)
 	return d.lKeepAlive(an)
