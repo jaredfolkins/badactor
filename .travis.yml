@@ -1,9 +1,0 @@
-language: go
-
-before_install:
-  - go get github.com/axw/gocov
-  - go get github.com/mattn/goveralls
-  - go get golang.org/x/tools/cmd/cover
-
-after_success:
-  - $HOME/gopath/bin/goveralls -repotoken $COVERALLS_TOKEN
