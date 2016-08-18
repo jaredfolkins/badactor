@@ -4,6 +4,7 @@
 
 BadActor is an in-memory, application driven jailer built in the spirit of fail2ban. It can be used as either middleware with its primary goal to increase the expense for "bad actors" who engage in system probing or attacks.
 
+<sup><sup>The BadActor logo is based on [Renee French's](http://reneefrench.blogspot.com) wonderful gopher. Thanks Renee!</sup></sup>
 # Install
 
 ```bash
@@ -17,6 +18,7 @@ A common use case for BadActor is jailing an offender who fails to login to your
 # Tutorial
 
 Checkout [badactor.org](http://badactor.org) for a tutorial.
+
 
 # Design
 
@@ -296,4 +298,7 @@ func (bam *BadActorMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request,
 	next(w, r)
 }
 ```
+
+
+
 
