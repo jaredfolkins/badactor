@@ -2,7 +2,7 @@
 
 # BadActor 
 
-BadActor is an in-memory, application driven jailer built in the spirit of fail2ban. It can be used as either middleware or a standalone server (TODO) with its primary goal to increase the expense for "bad actors" who engage in system probing or attacks.
+BadActor is an in-memory, application driven jailer built in the spirit of fail2ban. It can be used as either middleware with its primary goal to increase the expense for "bad actors" who engage in system probing or attacks.
 
 # Install
 
@@ -23,11 +23,10 @@ Checkout [badactor.org](http://badactor.org) for a tutorial.
 - speed (subsecond response underload and submillisecond with standard operations)
 - no external dependencies 
 - solid code coverage and thorough tests
-- accessable to multiple systems across the internet using an HTTP API (TODO)
 
 # Does It Scale? 
 
-BadActor can be included in your go application and ran concurrently. It can also be stood up on its own, ran as a service, and accessed via the server's HTTP API (TODO). This allows you an easy way to scale up as BadActor's memory footprint is tiny. Because it leverages a light-weight cache with sharding and reaping, it allows most organizations to be confident that BadActor will not be a bottleneck. 
+BadActor can be included in your go application and ran concurrently. This allows you an easy way to scale up as BadActor's memory footprint is tiny. Because it leverages a light-weight cache with sharding and reaping, it allows most organizations to be confident that BadActor will not be a bottleneck. 
 
 # Benchmarks 
 
