@@ -178,7 +178,9 @@ func (d *Director) lAddRule(r *Rule) error {
 // below this point are helper functions that are dependant on the calling functions to preform the appropriate locking
 
 func (d *Director) maintenance(an string) {
-	if a := d.actors[an].Value.(*Actor); a != nil {
+	if av := d.actors[an]; av != nil {
+		a := av.Value.(*Actor)
+
 		for _, j := range a.jails {
 			a.timeServed(j)
 		}

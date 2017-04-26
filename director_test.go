@@ -6,6 +6,17 @@ import (
 	"time"
 )
 
+func TestMaintenanceWhenActorDoesntExist(t *testing.T) {
+	d := NewDirector(ia)
+	defer func() {
+		if r := recover(); r != nil {
+			t.Errorf("director.maintenance() did panic")
+		}
+	}()
+
+	d.maintenance("this is a key of an actor that does not exist")
+}
+
 func TestDirectorlMaintenance(t *testing.T) {
 	var b bool
 	var err error
