@@ -166,7 +166,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/codegangsta/negroni"
+	"github.com/urfave/negroni"
 	"github.com/jaredfolkins/badactor"
 	"github.com/julienschmidt/httprouter"
 )
