@@ -79,7 +79,7 @@ func TestActionWhenTimeServed(t *testing.T) {
 	a := newClassicActor(an, r, d)
 
 	if whenTimeServedCounter != 0 {
-		t.Errorf("whenTimeServedCounter should be 0 instead", whenTimeServedCounter)
+		t.Errorf("whenTimeServedCounter want [0] has [%v]", whenTimeServedCounter)
 	}
 	//test
 	for i := 0; i < 3; i++ {
@@ -90,7 +90,7 @@ func TestActionWhenTimeServed(t *testing.T) {
 	}
 
 	if whenTimeServedCounter != 0 {
-		t.Errorf("whenTimeServedCounter should be 0 instead", whenTimeServedCounter)
+		t.Errorf("whenTimeServedCounter want [0] has [%v]", whenTimeServedCounter)
 	}
 
 	b = a.isJailed()
@@ -104,7 +104,7 @@ func TestActionWhenTimeServed(t *testing.T) {
 	}
 
 	if whenTimeServedCounter != 0 {
-		t.Errorf("whenTimeServedCounter should be 0 instead", whenTimeServedCounter)
+		t.Errorf("whenTimeServedCounter want [0] has [%v]", whenTimeServedCounter)
 	}
 
 	dur := time.Now().Add(-time.Hour * 1)
@@ -115,7 +115,7 @@ func TestActionWhenTimeServed(t *testing.T) {
 	}
 
 	if whenTimeServedCounter != 1 {
-		t.Errorf("whenTimeServedCounter should be 1 instead", whenTimeServedCounter)
+		t.Errorf("whenTimeServedCounter want [1] has [%v]", whenTimeServedCounter)
 	}
 
 }

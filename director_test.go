@@ -621,7 +621,7 @@ func TestDeleteOldest(t *testing.T) {
 
 	ok = d.isFull()
 	if ok == true {
-		t.Errorf("isFull should be false", ok)
+		t.Errorf("isFull want [false] has [%v]", ok)
 	}
 
 	for i = 0; i < 20; i++ {
@@ -631,14 +631,14 @@ func TestDeleteOldest(t *testing.T) {
 
 	ok = d.isFull()
 	if ok == false {
-		t.Errorf("isFull should be true", ok)
+		t.Errorf("isFull want [true] has [%v]", ok)
 	}
 
 	d.deleteOldest()
 
 	ok = d.isFull()
 	if ok == true {
-		t.Errorf("isFull should be false", ok)
+		t.Errorf("isFull want [false] has [%v]", ok)
 	}
 
 }

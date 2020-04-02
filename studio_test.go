@@ -30,7 +30,7 @@ func TestStudioStartReaper(t *testing.T) {
 	// creat directors
 	err = st.CreateDirectors(1024)
 	if err != nil {
-		t.Errorf("CreateDirectors failed %v", an, rn)
+		t.Errorf("CreateDirectors failed %v %v", an, rn)
 	}
 
 	dur := time.Millisecond * time.Duration(1)
@@ -70,7 +70,7 @@ func TestStudioIsJailedFor(t *testing.T) {
 	// creat directors
 	err = st.CreateDirectors(1024)
 	if err != nil {
-		t.Errorf("CreateDirectors failed %v", an, rn)
+		t.Errorf("CreateDirectors failed %v %v", an, rn)
 	}
 
 	b = st.IsJailedFor(an, rn)
@@ -114,7 +114,7 @@ func TestStudioIsJailed(t *testing.T) {
 	// creat directors
 	err = st.CreateDirectors(1024)
 	if err != nil {
-		t.Errorf("CreateDirectors failed %v", an, rn)
+		t.Errorf("CreateDirectors failed %v %v", an, rn)
 	}
 
 	b = st.IsJailed(an)
@@ -158,7 +158,7 @@ func TestStudioKeepAlive(t *testing.T) {
 	// creat directors
 	err = st.CreateDirectors(1024)
 	if err != nil {
-		t.Errorf("CreateDirectors failed %v", an, rn)
+		t.Errorf("CreateDirectors failed %v %v", an, rn)
 	}
 
 	d := st.Director(an)
@@ -214,7 +214,7 @@ func TestStudioCreateActor(t *testing.T) {
 	// creat directors
 	err = st.CreateDirectors(1024)
 	if err != nil {
-		t.Errorf("CreateDirectors failed %v", an, rn)
+		t.Errorf("CreateDirectors failed %v %v", an, rn)
 	}
 
 	if st.ActorExists(an) {
@@ -252,7 +252,7 @@ func TestStudioCreateInfraction(t *testing.T) {
 	// creat directors
 	err = st.CreateDirectors(1024)
 	if err != nil {
-		t.Errorf("CreateDirectors failed %v", an, rn)
+		t.Errorf("CreateDirectors failed %v %v", an, rn)
 	}
 
 	if st.InfractionExists(an, rn) {
@@ -296,7 +296,7 @@ func TestStudioStrikes(t *testing.T) {
 	// creat directors
 	err = st.CreateDirectors(1024)
 	if err != nil {
-		t.Errorf("CreateDirectors failed %v", an, rn)
+		t.Errorf("CreateDirectors failed %v %v", an, rn)
 	}
 
 	si, err = st.Strikes(an, rn)
@@ -312,28 +312,28 @@ func TestStudioStrikes(t *testing.T) {
 
 	si, err = st.Strikes(an, rn)
 	if si != 1 {
-		t.Errorf("Strikes for Actor [%v] and Rule [%v] should not be %v", an, rn, si, err)
+		t.Errorf("Strikes for Actor [%v] and Rule [%v] should not be %v %v", an, rn, si, err)
 	}
 
 	// 2nd inf
 	st.Infraction(an, rn)
 	si, err = st.Strikes(an, rn)
 	if si != 2 {
-		t.Errorf("Strikes for Actor [%v] and Rule [%v] should not be %v", an, rn, si, err)
+		t.Errorf("Strikes for Actor [%v] and Rule [%v] should not be %v %v", an, rn, si, err)
 	}
 
 	// 3rd inf, jail, strikes for that infraction name should be 0
 	st.Infraction(an, rn)
 	si, err = st.Strikes(an, rn)
 	if si != 0 {
-		t.Errorf("Strikes for Actor [%v] and Rule [%v] should not be %v", an, rn, si, err)
+		t.Errorf("Strikes for Actor [%v] and Rule [%v] should not be %v %v", an, rn, si, err)
 	}
 
 	// should still be jailed
 	st.Infraction(an, rn)
 	si, err = st.Strikes(an, rn)
 	if si != 0 {
-		t.Errorf("Strikes for Actor [%v] and Rule [%v] should not be %v", an, rn, si, err)
+		t.Errorf("Strikes for Actor [%v] and Rule [%v] should not be %v %v", an, rn, si, err)
 	}
 }
 
@@ -402,6 +402,9 @@ func TestStudioAddRules(t *testing.T) {
 
 func TestStudioCreateDirectors(t *testing.T) {
 
+	var nocap int32
+	nocap = 256
+
 	st := NewStudio(256)
 	rn := "rn_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	rm := "rm_" + strconv.FormatInt(time.Now().UnixNano(), 10)
@@ -416,8 +419,8 @@ func TestStudioCreateDirectors(t *testing.T) {
 	// add rule safety is of no concern
 	st.AddRule(r)
 
-	if st.capacity != 256 {
-		t.Errorf("Capacity for Studio [%s] should not be 256 instead %v", st.capacity)
+	if st.capacity != nocap {
+		t.Errorf("Capacity for Studio want [%v] got [%v]", st.capacity, nocap)
 	}
 
 	st.CreateDirectors(256)
