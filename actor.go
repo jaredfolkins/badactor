@@ -9,7 +9,7 @@ import (
 const ttl = 100
 
 type Actor struct {
-	name        string
+	Name        string
 	infractions map[string]*infraction
 	jails       map[string]*jail
 	director    *Director
@@ -21,7 +21,7 @@ func newActor(n string, d *Director) *Actor {
 	a := &Actor{
 		director:    d,
 		ttl:         time.Now().Add(time.Millisecond * ttl),
-		name:        n,
+		Name:        n,
 		infractions: make(map[string]*infraction),
 		jails:       make(map[string]*jail),
 		accessedAt:  time.Now(),
@@ -33,7 +33,7 @@ func newClassicActor(n string, r *Rule, d *Director) *Actor {
 	a := &Actor{
 		director:    d,
 		ttl:         time.Now().Add(time.Millisecond * ttl),
-		name:        n,
+		Name:        n,
 		infractions: make(map[string]*infraction),
 		jails:       make(map[string]*jail),
 		accessedAt:  time.Now(),
@@ -59,7 +59,7 @@ func (a *Actor) rebaseAll() error {
 func (a *Actor) infraction(rn string) error {
 
 	if a.isJailedFor(rn) {
-		return fmt.Errorf("actor [%v] is already Jailed for [%v]", a.name, rn)
+		return fmt.Errorf("actor [%v] is already Jailed for [%v]", a.Name, rn)
 	}
 
 	if _, ok := a.infractions[rn]; ok {
@@ -69,7 +69,7 @@ func (a *Actor) infraction(rn string) error {
 		return a.jail(rn)
 	}
 
-	return fmt.Errorf("Infraction against actor [%v]", a.name)
+	return fmt.Errorf("Infraction against actor [%v]", a.Name)
 }
 
 func (a *Actor) strikes(rn string) int {

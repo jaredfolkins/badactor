@@ -34,7 +34,7 @@ func (d *Director) lMaintenance() {
 	d.Lock()
 	defer d.Unlock()
 	for e := d.index.Front(); e != nil; e = e.Next() {
-		an := e.Value.(*Actor).name
+		an := e.Value.(*Actor).Name
 		d.maintenance(an)
 	}
 }
@@ -188,7 +188,7 @@ func (d *Director) maintenance(an string) {
 			a.expire(inf.rule.Name)
 		}
 		if a.shouldDelete() {
-			delete(d.actors, a.name)
+			delete(d.actors, a.Name)
 			d.size--
 		}
 	}
@@ -213,7 +213,7 @@ func (d *Director) deleteOldest() {
 		e := d.index.Back()
 		a := e.Value.(*Actor)
 		d.index.Remove(e)
-		delete(d.actors, a.name)
+		delete(d.actors, a.Name)
 		d.size--
 	}
 }
