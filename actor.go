@@ -43,6 +43,13 @@ func newClassicActor(n string, r *Rule, d *Director) *Actor {
 	return a
 }
 
+func (a *Actor) Name() string {
+	a.director.Lock()
+	defer a.director.Unlock()
+
+	return a.name
+}
+
 func (a *Actor) rebaseAll() error {
 
 	/* I don't believe this is needed, tests pass, will think a bit more before removing

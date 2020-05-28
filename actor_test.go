@@ -480,3 +480,27 @@ func TestActorTotalJails(t *testing.T) {
 	}
 
 }
+
+func TestActorName(t *testing.T) {
+	// setup
+	d := NewDirector(ia)
+	an := "an_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	rn := "rn_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	rm := "rm_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	sl := 3
+	r := &Rule{
+		Name:        rn,
+		Message:     rm,
+		StrikeLimit: sl,
+		ExpireBase:  time.Second * 60,
+		Sentence:    time.Second * 60,
+		Action:      &ActorMockAction{},
+	}
+	a := newClassicActor(an, r, d)
+
+	// test
+	name := a.Name()
+	if name != an {
+		t.Errorf("Name() should be %s instead [%s]", an, name)
+	}
+}
