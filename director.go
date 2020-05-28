@@ -39,6 +39,21 @@ func (d *Director) lMaintenance() {
 	}
 }
 
+// ActorsName accepts an Actor as an argument
+// it then locks the cache, validates the actor exists, and returns the value
+// it does this to make sure that the statement of BadActor is kept intact
+func (d *Director) ActorsName(a *Actor) (string, error) {
+	d.Lock()
+	defer d.Unlock()
+
+	if !d.actorExists(a.Name()) {
+		return "", fmt.Errorf("Actor [%s] isn't found in cache.", a.Name())
+	}
+
+	n := a.Name()
+	return n, nil
+}
+
 func (d *Director) lInfraction(an string, rn string) error {
 	d.Lock()
 	defer d.Unlock()

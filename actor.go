@@ -29,6 +29,10 @@ func newActor(n string, d *Director) *Actor {
 	return a
 }
 
+func (a *Actor) Name() string {
+	return a.name
+}
+
 func newClassicActor(n string, r *Rule, d *Director) *Actor {
 	a := &Actor{
 		director:    d,

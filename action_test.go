@@ -12,13 +12,11 @@ var whenTimeServedCounter = 0
 type MockAction struct{}
 
 func (ma *MockAction) Log(a *Actor, r *Rule) {}
-
 func (ma *MockAction) WhenJailed(a *Actor, r *Rule) error {
 	whenJailedCounter++
 	ma.Log(a, r)
 	return nil
 }
-
 func (ma *MockAction) WhenTimeServed(a *Actor, r *Rule) error {
 	whenTimeServedCounter++
 	ma.Log(a, r)
@@ -116,6 +114,92 @@ func TestActionWhenTimeServed(t *testing.T) {
 
 	if whenTimeServedCounter != 1 {
 		t.Errorf("whenTimeServedCounter want [1] has [%v]", whenTimeServedCounter)
+	}
+
+}
+
+var MANAwhenJailedCounter = 0
+var MANAwhenTimeServedCounter = 0
+
+type MockActorNameAction struct{}
+
+func (ma *MockActorNameAction) Log(a *Actor, r *Rule) {}
+func (ma *MockActorNameAction) WhenJailed(a *Actor, r *Rule) error {
+	MANAwhenJailedCounter++
+	ma.Log(a, r)
+	// this shouldn't deadlock
+	a.Name()
+	// this shouldn't deadlock
+	a.director.ActorsName(a)
+	return nil
+}
+func (ma *MockActorNameAction) WhenTimeServed(a *Actor, r *Rule) error {
+	MANAwhenTimeServedCounter++
+	ma.Log(a, r)
+	// this shouldn't deadlock
+	a.Name()
+	// this shouldn't deadlock
+	a.director.ActorsName(a)
+	return nil
+}
+
+func TestActorNameAction(t *testing.T) {
+	//setup
+	var b bool
+
+	d := NewDirector(ia)
+	an := "an_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	rn := "rn_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	rm := "rm_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	sl := 3
+	r := &Rule{
+		Name:        rn,
+		Message:     rm,
+		StrikeLimit: sl,
+		ExpireBase:  time.Second * 1,
+		Sentence:    time.Millisecond * 10,
+		Action:      &MockActorNameAction{},
+	}
+	a := newClassicActor(an, r, d)
+
+	if MANAwhenTimeServedCounter != 0 {
+		t.Errorf("MANAwhenTimeServedCounter want [0] has [%v]", MANAwhenTimeServedCounter)
+	}
+	//test
+	for i := 0; i < 3; i++ {
+		err := a.infraction(rn)
+		if err != nil {
+			t.Errorf("infraction %v should not error", err)
+		}
+	}
+
+	if MANAwhenTimeServedCounter != 0 {
+		t.Errorf("whenTimeServedCounter want [0] has [%v]", MANAwhenTimeServedCounter)
+	}
+
+	b = a.isJailed()
+	if b == false {
+		t.Errorf("isJailed should be true instead [%v]", b)
+	}
+
+	b = a.isJailedFor(rn)
+	if b == false {
+		t.Errorf("isJailedFor should be true instead [%v]", b)
+	}
+
+	if MANAwhenTimeServedCounter != 0 {
+		t.Errorf("whenTimeServedCounter want [0] has [%v]", MANAwhenTimeServedCounter)
+	}
+
+	dur := time.Now().Add(-time.Hour * 1)
+	a.jails[rn].releaseBy = dur
+
+	for _, j := range a.jails {
+		a.timeServed(j)
+	}
+
+	if MANAwhenTimeServedCounter != 1 {
+		t.Errorf("whenTimeServedCounter want [1] has [%v]", MANAwhenTimeServedCounter)
 	}
 
 }
